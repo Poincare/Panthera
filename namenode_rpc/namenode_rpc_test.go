@@ -40,24 +40,66 @@ func TestHeaders(t *testing.T) {
   	t.FailNow();
   }
 
+
   //first four bytes are "hrpc"
   //fifth byte: version
   //sixth byte: auth method
   //seventh byte: serialization method
-  expected := []byte{104, 114, 112, 99, 7, 80, 0}
+  expected := []byte{104, 114, 112, 99, 4, 80, 0}
 
   if bytes.Compare(byte_packet, expected) != 0 {
+		fmt.Println("byte_packet: ", byte_packet, "expected: ", expected)
   	t.FailNow();
-  	fmt.Println("byte_packet: ", byte_packet, "expected: ", expected)
   }
 
   fmt.Println("byte packet: ", byte_packet)
 }
 
+/* ResponsePacket tests*/
+
 //Unit test for ResponsePacket constructor
 func TestNewResponsePacket(t *testing.T) {
 	message_packet := NewResponsePacket()
-	if header == nil {
+	if message_packet == nil {
 		t.FailNow();
 	}
 }
+
+/* RequestPacket tests */
+
+//test RequestPacket constructor
+func TestNewRequestPacket(t *testing.T) {
+	req_packet := NewRequestPacket()
+	if req_packet == nil {
+		t.FailNow()
+	}
+
+	if req_packet.LengthBoth != 0 {
+		t.Fail()
+	}
+
+	if req_packet.HeaderLength != 0 {
+		t.Fail()
+	}
+
+	if req_packet.RequestLength != 0 {
+		t.Fail()
+	}
+}
+
+//test RequestPacket.Load()
+func TestRequestPacketLoad(t *testing.T) {
+	req_packet := NewRequestPacket()
+
+	//the byte buffer should have:
+	//total length: something, no idea
+	//header length: 1
+	//header serialized: "!"
+	//request length: 1
+	//request serialized: "!"
+	buf := []byte{0, 0, 0, 4, 1, 33, 1, 33}
+	err = req_packet.Load(buf)
+	fmt.Println("req packet header length:", req_packet.HeaderLength)
+}
+
+

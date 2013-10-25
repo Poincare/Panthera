@@ -3,7 +3,13 @@ package namenode_rpc
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
 )
+
+/*
+* TODO
+* Figure out why the Varints are being read correctly
+*/
 
 //Implementation of the RPC protocol used by 
 //Hadoop to talk with the NameNode
@@ -54,14 +60,14 @@ func (header_packet *HeaderPacket) Bytes() []byte {
 //TODO this hasn't been tested at all, since 
 //it is more or less useless at the moment
 type ResponsePacket struct {
-	header_length int64
+	HeaderLength int64
 	header_proto []byte
 	rpc_length uint32
 	serialized_rpc []byte
 }
 
 func NewResponsePacket() *ResponsePacket {
-	mp := ResponsePacket{header_length: 0, rpc_length: 0}
+	mp := ResponsePacket{HeaderLength: 0, rpc_length: 0}
 
 	return &mp
 }
@@ -74,14 +80,14 @@ func (mp *ResponsePacket) Load(buf []byte) error {
 
 	//TODO ignoring error is probably a terrible idea
 	var err error
-	mp.header_length, err = binary.ReadVarint(byte_buffer)
+	mp.HeaderLength, err = binary.ReadVarint(byte_buffer)
 
 	if(err != nil) {
 		return err
 	}
 
 	//read in the header proto
-	mp.header_proto = make([]byte, mp.header_length)
+	mp.header_proto = make([]byte, mp.HeaderLength)
 	byte_buffer.Read(mp.header_proto)
 
 	//not sure whether or not to use LittleEndian
@@ -96,3 +102,59 @@ func (mp *ResponsePacket) Load(buf []byte) error {
 
 	return nil
 }
+
+//this is a packet that a client to HDFS 
+//sends to a NameNode to execute some RPC code
+type RequestPacket struct {
+	LengthBoth uint32
+	//varint
+	HeaderLength int64
+	//protobuf serialized message
+	HeaderSerialized []byte
+	//varint
+	RequestLength int64
+	//protobuf serialized message
+	RequestSerialized []byte
+}
+
+//constructor for RequestPacket
+func NewRequestPacket () *RequestPacket {
+	r := RequestPacket{}
+
+	//values just have to be zero'ed 
+	//so we can use the default constructor
+	return &r
+}
+
+//load fields from the byte array buf into
+//the object
+//how should unit test this?!
+func (rp *RequestPacket) Load(buf []byte) error {
+	byte_buffer := bytes.NewBuffer(buf)
+	fmt.Println("Request packet, load BB: ", buf)
+
+	var err error
+
+	binary.Read(byte_buffer, binary.BigEndian, &(rp.LengthBoth))
+
+	rp.HeaderLength, err = binary.ReadVarint(byte_buffer)
+	if err != nil {
+		return err
+	}
+
+	//create the []byte of the specified length
+	rp.HeaderSerialized = make([]byte, rp.HeaderLength)
+	byte_buffer.Read(rp.HeaderSerialized)
+
+	rp.RequestLength, err = binary.ReadVarint(byte_buffer)
+
+	if err != nil {
+		return err
+	}
+
+	rp.RequestSerialized = make([]byte, rp.RequestLength)
+	byte_buffer.Read(rp.RequestSerialized)
+
+	return nil
+}
+
