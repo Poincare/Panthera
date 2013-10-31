@@ -6,7 +6,9 @@ import (
 )
 
 /* 
-* TODO Make sure that the byte buffer's get the *full* message
+* TASK
+* The server seems to be reading the bytes, but the loading is not 
+* getting the address correctly
 */
 
 //used to configure the proxy
@@ -60,6 +62,7 @@ func handleHDFS(conn net.Conn, hdfs net.Conn) {
 		if(bytesRead > 0) {
 			//create a requestpacket object in order 
 			//to split the packet into pieces
+			/*
 			rp := namenode_rpc.NewRequestPacket()
 			err := rp.Load(byteBuffer)
 			if err != nil {
@@ -67,7 +70,7 @@ func handleHDFS(conn net.Conn, hdfs net.Conn) {
 			} else {
 				fmt.Println("rp.HeaderLength", rp.HeaderLength)
 				fmt.Println("rp.HeaderSerialized", rp.HeaderSerialized)
-			}
+			} */
 
 			//proxy the read data to the associated client socket
 			conn.Write(byteBuffer)
@@ -93,6 +96,18 @@ func handleConnection(conn net.Conn, hdfs net.Conn) {
 		}
 
 		if bytesRead > 0 {
+			rp := namenode_rpc.NewRequestPacket()
+			err := rp.Load(byteBuffer)
+			if err != nil {
+				fmt.Println("Error in loading request packet: ", err.Error())
+			} else {
+				fmt.Println("rp.LengthBoth", rp.LengthBoth)
+				fmt.Println("rp.HeaderLength", rp.HeaderLength)
+				fmt.Println("rp.HeaderSerialized", string(rp.HeaderSerialized))
+				fmt.Println("rp.RequestLength", rp.RequestLength)
+				fmt.Println("rp.RequestSerialized", string(rp.RequestSerialized))
+			}
+
 			hdfs.Write(byteBuffer);
 			fmt.Println("RECVD: ", byteBuffer)
 			log_recvd("CLIENT", string(byteBuffer[:]))

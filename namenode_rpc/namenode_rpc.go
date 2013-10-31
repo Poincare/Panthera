@@ -6,10 +6,7 @@ import (
 	"fmt"
 )
 
-/*
-* TODO
-* Figure out why the Varints are being read correctly
-*/
+
 
 //Implementation of the RPC protocol used by 
 //Hadoop to talk with the NameNode
@@ -103,18 +100,44 @@ func (mp *ResponsePacket) Load(buf []byte) error {
 	return nil
 }
 
+
+/* TODO this is ALL NONSENSE */
+
+type Parameter struct {
+	TypeLength uint16
+	Type []byte
+	ValueLength uint16
+	Value []byte
+}
+
+func NewParameter() *Parameter {
+	p := Parameter{}
+	return &p
+}
+
 //this is a packet that a client to HDFS 
 //sends to a NameNode to execute some RPC code
+
+/* This has been derived from what I've reverse 
+engineered w/ Wireshark - Hadoop doesn't seem to
+have take tne trouble to document the protocol
+that they've switched to */
 type RequestPacket struct {
-	LengthBoth uint32
-	//varint
-	HeaderLength int64
-	//protobuf serialized message
-	HeaderSerialized []byte
-	//varint
-	RequestLength int64
-	//protobuf serialized message
-	RequestSerialized []byte
+	Length uint32
+	PacketNumber uint32
+	
+	//not certain if this is supposed to be
+	//one or two bytes
+	NameLength uint16
+
+	//name of the method being called (w/ RPC)
+	MethodName []byte
+
+	//number of Parameters sent
+	ParameterNumber uint32
+
+	//list of the parameters sent (see Parameter type)
+	Parameters []Parameter
 }
 
 //constructor for RequestPacket
@@ -133,6 +156,40 @@ func (rp *RequestPacket) Load(buf []byte) error {
 	byte_buffer := bytes.NewBuffer(buf)
 	fmt.Println("Request packet, load BB: ", buf)
 
+	binary.Read(byte_buffer, binary.BigEndian, &(rp.Length))
+	binary.Read(byte_buffer, binary.BigEndian, &(rp.PacketNumber))
+	binary.Read(byte_buffer, binary.BigEndian, &(rp.NameLength))
+
+	//make the method name buffer have enough space
+	//to take in the method name
+	rp.MethodName = make([]byte, rp.NameLength)
+	byte_buffer.Read(rp.MethodName)
+
+	binary.Read(byte_buffer, binary.BigEndian, &(rp.ParameterNumber))
+
+	rp.Parameters = make([]Parameter, rp.ParameterNumber)
+	//loop through and read all of the parameters
+	for i := 1; i < int(rp.ParameterNumber); i++ {
+		rp.Parameters[i] = NewParameter()
+		//now read in all the fields one by one
+		binary.Read(byte_buffer, binary.BigEndian, &(rp.Parameters[i].TypeLength))
+
+		//create space for and read in the type of this parameter
+		rp.Parameters[i].Type = make([]byte, rp.Parameters[i].TypeLength)
+		byte_buffer.Read(rp.Parameters[i].Type)
+
+
+		binary.Read(byte_buffer, binary.BigEndian, &(rp.Parameters[i].ValueLength))
+
+		//create space for and read in the value of this parameter
+		rp.Parameters[i].Value = make([]byte, rp.Parameters[i].ValueLength)
+		byte_buffer.Read(rp.Parameters[i].Value)
+	}
+
+	/*
+	byte_buffer := bytes.NewBuffer(buf)
+	fmt.Println("Request packet, load BB: ", buf)
+
 	var err error
 
 	binary.Read(byte_buffer, binary.BigEndian, &(rp.LengthBoth))
@@ -141,7 +198,6 @@ func (rp *RequestPacket) Load(buf []byte) error {
 	if err != nil {
 		return err
 	}
-
 	//create the []byte of the specified length
 	rp.HeaderSerialized = make([]byte, rp.HeaderLength)
 	byte_buffer.Read(rp.HeaderSerialized)
@@ -153,7 +209,7 @@ func (rp *RequestPacket) Load(buf []byte) error {
 	}
 
 	rp.RequestSerialized = make([]byte, rp.RequestLength)
-	byte_buffer.Read(rp.RequestSerialized)
+	byte_buffer.Read(rp.RequestSerialized) */
 
 	return nil
 }
