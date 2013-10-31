@@ -101,11 +101,8 @@ func handleConnection(conn net.Conn, hdfs net.Conn) {
 			if err != nil {
 				fmt.Println("Error in loading request packet: ", err.Error())
 			} else {
-				fmt.Println("rp.LengthBoth", rp.LengthBoth)
-				fmt.Println("rp.HeaderLength", rp.HeaderLength)
-				fmt.Println("rp.HeaderSerialized", string(rp.HeaderSerialized))
-				fmt.Println("rp.RequestLength", rp.RequestLength)
-				fmt.Println("rp.RequestSerialized", string(rp.RequestSerialized))
+				fmt.Println("rp.Length", rp.Length)
+				fmt.Println("rp.PacketNumber", rp.PacketNumber)
 			}
 
 			hdfs.Write(byteBuffer);
