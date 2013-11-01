@@ -101,8 +101,7 @@ func handleConnection(conn net.Conn, hdfs net.Conn) {
 			if err != nil {
 				fmt.Println("Error in loading request packet: ", err.Error())
 			} else {
-				fmt.Println("rp.Length", rp.Length)
-				fmt.Println("rp.PacketNumber", rp.PacketNumber)
+				//process the request
 			}
 
 			hdfs.Write(byteBuffer);
@@ -145,6 +144,8 @@ func loop(server net.Listener) {
 }
 
 func main() {
+	log("Starting...")
+
 	config.hdfsHostname = "127.0.0.1"
 	config.hdfsPort = "1101"
 	config.serverHost = "0.0.0.0"

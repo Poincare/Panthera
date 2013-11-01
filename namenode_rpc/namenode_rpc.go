@@ -170,7 +170,7 @@ func (rp *RequestPacket) Load(buf []byte) error {
 	rp.Parameters = make([]Parameter, rp.ParameterNumber)
 	//loop through and read all of the parameters
 	for i := 1; i < int(rp.ParameterNumber); i++ {
-		rp.Parameters[i] = NewParameter()
+		rp.Parameters[i] = *(NewParameter())
 		//now read in all the fields one by one
 		binary.Read(byte_buffer, binary.BigEndian, &(rp.Parameters[i].TypeLength))
 
@@ -185,31 +185,6 @@ func (rp *RequestPacket) Load(buf []byte) error {
 		rp.Parameters[i].Value = make([]byte, rp.Parameters[i].ValueLength)
 		byte_buffer.Read(rp.Parameters[i].Value)
 	}
-
-	/*
-	byte_buffer := bytes.NewBuffer(buf)
-	fmt.Println("Request packet, load BB: ", buf)
-
-	var err error
-
-	binary.Read(byte_buffer, binary.BigEndian, &(rp.LengthBoth))
-
-	rp.HeaderLength, err = binary.ReadVarint(byte_buffer)
-	if err != nil {
-		return err
-	}
-	//create the []byte of the specified length
-	rp.HeaderSerialized = make([]byte, rp.HeaderLength)
-	byte_buffer.Read(rp.HeaderSerialized)
-
-	rp.RequestLength, err = binary.ReadVarint(byte_buffer)
-
-	if err != nil {
-		return err
-	}
-
-	rp.RequestSerialized = make([]byte, rp.RequestLength)
-	byte_buffer.Read(rp.RequestSerialized) */
 
 	return nil
 }

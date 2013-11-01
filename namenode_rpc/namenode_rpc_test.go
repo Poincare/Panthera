@@ -74,17 +74,6 @@ func TestNewRequestPacket(t *testing.T) {
 		t.FailNow()
 	}
 
-	if req_packet.LengthBoth != 0 {
-		t.Fail()
-	}
-
-	if req_packet.HeaderLength != 0 {
-		t.Fail()
-	}
-
-	if req_packet.RequestLength != 0 {
-		t.Fail()
-	}
 }
 
 //test RequestPacket.Load()
@@ -97,9 +86,35 @@ func TestRequestPacketLoad(t *testing.T) {
 	//header serialized: "!"
 	//request length: 1
 	//request serialized: "!"
-	buf := []byte{0, 0, 0, 4, 1, 33, 1, 33}
-	err = req_packet.Load(buf)
-	fmt.Println("req packet header length:", req_packet.HeaderLength)
+
+	//whole test case has been extracted from Wireshark
+	//hopefully they have their RPC implementation straight
+	buf := []byte{0, 0, 0, 60, 0, 0, 0, 2, 0, 10, 103, 101, 116, 
+		76, 105, 115, 116, 105, 110, 103, 0, 0, 0, 2, 0, 16, 106, 
+		97, 118, 97, 46, 108, 97, 110, 103, 46, 83, 116, 114, 105, 
+		110, 103, 0, 12, 47, 117, 115, 101, 114, 47, 104, 100, 117, 
+		115, 101, 114, 0, 2, 91, 66, 0, 0, 0, 0}
+
+	err := req_packet.Load(buf)
+	if err != nil {
+		t.FailNow()
+	}
+
+	if req_packet.Length != 60 {
+		t.Fail()
+	}
+
+	if req_packet.PacketNumber != 2 {
+		t.Fail()
+	}
+
+	if req_packet.NameLength != 10 {
+		t.Fail()
+	}
+
+	if string(req_packet.MethodName) != "getListing" {
+		t.Fail()
+	}
 }
 
 
