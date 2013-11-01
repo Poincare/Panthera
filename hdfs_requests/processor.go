@@ -15,3 +15,17 @@ func NewProcessor() *Processor {
 	return &p
 }
 
+//process a request packet
+//with the cache, this should look inside the cache
+//and either return a response to send to the client
+//or, return a nil packet
+
+//TODO at the moment, this doesn't actually look inside a 
+//cache at all, it just sends back a nil packet; i.e.
+//it is not doing any processing with results at all
+func (Processor *p) Process(req *namenode_rpc.RequestPacket) *namenode_rpc.ResponsePacket {
+	
+	//see above TODO
+	return nil
+}
+

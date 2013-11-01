@@ -115,6 +115,47 @@ func TestRequestPacketLoad(t *testing.T) {
 	if string(req_packet.MethodName) != "getListing" {
 		t.Fail()
 	}
+
+	if req_packet.ParameterNumber != 2 {
+		t.FailNow()
+	}
+
+	p1 := req_packet.Parameters[0]
+	p2 := req_packet.Parameters[1]
+
+
+	//test first parameter with type and value
+	if p1.TypeLength != 16 {
+		fmt.Println("failed here, type length: ", p1.TypeLength)
+		t.Fail()
+	}
+
+	if string(p1.Type) != "java.lang.String" {
+		t.Fail()
+	}
+
+	if p1.ValueLength != 12 {
+		t.Fail()
+	}
+
+	if string(p1.Value) != "/usr/hduser" {
+
+		t.Fail()
+	}
+
+	//TODO this part makes absolutely no sense, but 
+	//it is how Wireshark seems to be reporting it
+	//TODO does the [B have a special meaning attached to it?
+	//test second parameter for type and value
+	if p2.TypeLength != 2 {
+		t.Fail()
+	}
+
+	//TODO WTF does this mean
+	if string(p2.Type) !=  "[B" {
+		t.Fail()
+	}
+
 }
 
 
