@@ -131,15 +131,17 @@ func TestRequestPacketLoad(t *testing.T) {
 	}
 
 	if string(p1.Type) != "java.lang.String" {
+		fmt.Println("failed, type: ", string(p1.Type))
 		t.Fail()
 	}
 
 	if p1.ValueLength != 12 {
+		fmt.Println("failed, value length: ", string(p1.ValueLength))
 		t.Fail()
 	}
 
-	if string(p1.Value) != "/usr/hduser" {
-
+	if string(p1.Value) != "/user/hduser" {
+		fmt.Println("failed, value: ", string(p1.Value))
 		t.Fail()
 	}
 
