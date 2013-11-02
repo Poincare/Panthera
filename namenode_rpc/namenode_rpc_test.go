@@ -290,3 +290,14 @@ func TestLoadFilePermission(t *testing.T) {
 		t.FailNow()
 	}
 }
+
+func TestLoadFileNameLength(t *testing.T) {
+	gf := NewGetFileInfoResponse()
+	gf.Load(GetFileInfoResponseTestCase)
+
+	if gf.FileNameLength != 0 {
+		t.FailNow()
+	}
+}
+//	FileName []byte
+//	FileSize uint64
