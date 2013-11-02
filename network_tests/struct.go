@@ -9,5 +9,4 @@ type A struct {
 }
 
 func main() {
-
 }

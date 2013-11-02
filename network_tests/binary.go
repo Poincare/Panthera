@@ -16,7 +16,7 @@ func main() {
 	binary.Read(byte_buffer, binary.BigEndian, &leng)
 
 	res, err := binary.ReadVarint(byte_buffer)
-	if err != nil {
+	if err != nil { 
 		fmt.Println("Error occurred: ", err.Error())
 		return
 	}

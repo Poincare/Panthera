@@ -3,6 +3,9 @@ import (
 	"testing"
 	"fmt"
 	"bytes"
+
+	//for deep equal
+	"reflect"
 )
 
 func TestNewHeaderPacket(t *testing.T) {
@@ -160,4 +163,130 @@ func TestRequestPacketLoad(t *testing.T) {
 
 }
 
+/* GetFileInfoResponse tests */
 
+//test the constructor
+func TestNewGetFileInfoResponse(t *testing.T) {
+	gf := NewGetFileInfoResponse ()
+	if gf == nil {
+		t.FailNow()
+	}
+}
+
+//this is the test case, but in hexademical because converting is hard
+var GetFileInfoResponseTestCase []byte = []byte{0,0,0,1,0,0,0,0,0,46,111,114,103,97,112,97,99,104,
+	101,46,104,97,100,111,111,112,46,104,102,115,46,112,114,111,116,111,99,111,108,46,
+	72,100,102,70,105,108,101,83,116,97,116,117,115,0,46,111,114,103,97,112,97,99,104,
+	101,46,104,97,100,111,111,112,46,104,102,115,46,112,114,111,116,111,99,111,108,46,
+	72,100,102,70,105,108,101,83,116,97,116,117,115,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,
+	0,0,0,0,0,0,1,65,230,55,105,95,0,0,0,0,0,0,0,1,237,6,104,100,117,115,101,114,10,115,
+	117,112,101,103,114,111,117,112}
+
+//expected response by the parser
+var GetFileInfoExpected GetFileInfoResponse = GetFileInfoResponse {
+	PacketNumber: 1,
+	Success: 0,
+	ObjectNameLength: 46,
+	ObjectName: []byte("org.apache.hadoop.hdfs.protocol.HdfsFileStatus"),
+	ObjectNameLength2: 46,
+	ObjectName2: []byte("org.apache.hadoop.hdfs.protocol.HdfsFileStatus"),
+	FilePermission: 0, 
+	FileNameLength: 0,
+	FileName: []byte{},
+	FileSize: 0,
+	IsDirectory: 1,
+	BlockReplicationFactor: 0,
+	BlockSize: 0,
+	ModifiedTime: 1382546893151,
+	AccessTime: 0,
+
+	//TODO not exactly sure what the two 
+	//file permission headers specify
+	FilePermission2: 493,
+
+	OwnerNameLength: 6,
+	OwnerName: []byte("hduser"),
+	GroupNameLength: 10,
+	GroupName: []byte("supergroup")}
+
+//test the loading of the packet number
+func TestLoadPacketNumber(t *testing.T) {
+	gf := NewGetFileInfoResponse()
+	gf.Load(GetFileInfoResponseTestCase)
+
+	if gf.PacketNumber != 1 {
+		fmt.Println("Packet number incorrect, value:", gf.PacketNumber)
+		t.FailNow()
+	}
+}
+
+//test the loading of the success value
+func TestLoadSuccess(t *testing.T) {
+	gf := NewGetFileInfoResponse()
+	gf.Load(GetFileInfoResponseTestCase)
+
+	if gf.Success != 0 {
+		fmt.Println("Incorrect success value: ", gf.Success)
+		t.FailNow()
+	}
+}
+
+func TestLoad(t *testing.T) {
+	gf := GetFileInfoResponse{}
+	gf.Load(GetFileInfoResponseTestCase)
+
+	//the parser did not parsing according to the expected
+	//result
+	if(!reflect.DeepEqual(GetFileInfoExpected, gf)) {
+		t.Fail()
+	}
+}
+
+//test the loading of the object name length
+func TestLoadObjectNameLength(t *testing.T) {
+	gf := NewGetFileInfoResponse()
+	gf.Load(GetFileInfoResponseTestCase)
+
+	if gf.ObjectNameLength != 46 {
+		t.FailNow()
+	}
+}
+
+//TODO currently failing
+func TestLoadObjectName(t *testing.T) {
+	gf := NewGetFileInfoResponse()
+	gf.Load(GetFileInfoResponseTestCase)
+
+	if string(gf.ObjectName) != "org.apache.hadoop.hdfs.protocol.HdfsFileStatus" {
+		fmt.Println("Incorrect ObjectName: ", string(gf.ObjectName))
+		t.FailNow()
+	}
+}
+
+func TestLoadObjectNameLength2(t *testing.T) {
+	gf := NewGetFileInfoResponse()
+	gf.Load(GetFileInfoResponseTestCase)
+
+	if gf.ObjectNameLength2 != 46 {
+		t.FailNow()
+	}
+}
+
+func TestLoadObjectName2(t *testing.T) {
+	gf := NewGetFileInfoResponse()
+	gf.Load(GetFileInfoResponseTestCase)
+
+	//TODO this is replicated from the TestLoadObjectName
+	if gf.ObjectName2 != "org.apache.hadoop.hdfs.protocol.HdfsFileStatus" {
+		t.FailNow()
+	}
+}
+
+func TestLoadFilePermission(t *testing.T) {
+	gf := NewGetFileInfoResponse()
+	gf.Load(GetFileInfoResponseTestCase)
+
+	if gf.FilePermission != 0 {
+		t.FailNow()
+	}
+}

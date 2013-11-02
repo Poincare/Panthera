@@ -49,6 +49,12 @@ func (header_packet *HeaderPacket) Bytes() []byte {
 	return buffer.Bytes()
 }
 
+//basic packet structure used by the namenode
+//for RPC.
+type Packet interface {
+	Load(buf []byte) error
+}
+
 //Structure used to receive RPC response
 //from HDFS
 //all the int64's are actually varints
@@ -151,7 +157,11 @@ func NewRequestPacket () *RequestPacket {
 
 //load fields from the byte array buf into
 //the object
-//how should unit test this?!
+//unit tested with data read from Wireshark
+//there doesn't seem to be a formal description of the 
+//protocol that Hadoop is currently using, since they seem
+//to have droopped the custom "Writeables" altogether in favor of 
+//Google's Protocol Buffers.
 func (rp *RequestPacket) Load(buf []byte) error {
 	byte_buffer := bytes.NewBuffer(buf)
 	fmt.Println("Request packet, load BB: ", buf)
@@ -193,3 +203,116 @@ func (rp *RequestPacket) Load(buf []byte) error {
 	return nil
 }
 
+//utility method - reads the packet number from any kind of response packet
+func GetPacketNumber(buf []byte) uint32 {
+	byte_buffer := bytes.NewBuffer(buf)
+	var res uint32
+	binary.Read(byte_buffer, binary.BigEndian, res)
+
+	return res
+}
+//it seems that there are separate types of response packets depending on the
+//kind of method that is called, so this one is for the getFileInfo
+//this information has all been obtained through wireshark and some of the 
+//Hadoop docs
+//all in order of how they are to be read.
+type GetFileInfoResponse struct {
+	PacketNumber uint32
+	Success uint32
+
+	//first set of objects
+	ObjectNameLength uint16
+	ObjectName []byte
+
+	//TODO not exactly sure why there are two of these...
+	ObjectNameLength2 uint16
+	ObjectName2 []byte
+
+	FilePermission uint16
+	FileNameLength uint16
+	FileName []byte
+	FileSize uint64
+
+	IsDirectory byte
+	
+	BlockReplicationFactor uint16
+	BlockSize uint64
+	
+	ModifiedTime uint64
+	AccessTime uint64
+
+	//TODO not exactly sure what the two 
+	//file permission headers specify
+	FilePermission2 uint16
+
+	OwnerNameLength byte
+	OwnerName []byte
+	GroupNameLength byte
+	GroupName []byte
+}
+
+func NewGetFileInfoResponse() *GetFileInfoResponse {
+	gf := GetFileInfoResponse{}
+	return &gf
+}
+
+//load the response, reading each of the fields in the 
+//struct described above.
+
+//TODO neeed to do error checking on a lot of these 'reads'
+func (gf *GetFileInfoResponse) Load(buf []byte) error {
+	var err error
+
+	byte_buffer := bytes.NewBuffer(buf)
+
+	binary.Read(byte_buffer, binary.BigEndian, &(gf.PacketNumber))
+	binary.Read(byte_buffer, binary.BigEndian, &(gf.Success))
+	binary.Read(byte_buffer, binary.BigEndian, &(gf.ObjectNameLength))
+
+	gf.ObjectName = make([]byte, gf.ObjectNameLength)
+	byte_buffer.Read(gf.ObjectName)
+
+	binary.Read(byte_buffer, binary.BigEndian, &(gf.ObjectNameLength2))
+	gf.ObjectName2 = make([]byte, gf.ObjectNameLength2)
+	byte_buffer.Read(gf.ObjectName2)
+
+	binary.Read(byte_buffer, binary.BigEndian, &(gf.FilePermission))
+
+	binary.Read(byte_buffer, binary.BigEndian, &(gf.FileNameLength))
+	gf.FileName = make([]byte, gf.FileNameLength)
+	byte_buffer.Read(gf.FileName)
+
+	binary.Read(byte_buffer, binary.BigEndian, &(gf.FileSize))
+
+	gf.IsDirectory, err = byte_buffer.ReadByte()
+	if (err != nil) {
+		return err
+	}
+
+	binary.Read(byte_buffer, binary.BigEndian, &(gf.BlockReplicationFactor))
+
+	binary.Read(byte_buffer, binary.BigEndian, &(gf.BlockSize))
+
+	binary.Read(byte_buffer, binary.BigEndian, &(gf.ModifiedTime))
+
+	binary.Read(byte_buffer, binary.BigEndian, &(gf.AccessTime))
+
+	binary.Read(byte_buffer, binary.BigEndian, &(gf.FilePermission2))
+
+	gf.OwnerNameLength, err = byte_buffer.ReadByte()
+	if err != nil {
+		return err
+	}
+	gf.OwnerName = make([]byte, gf.OwnerNameLength)
+	byte_buffer.Read(gf.OwnerName)
+
+	gf.GroupNameLength, err = byte_buffer.ReadByte()
+	if err != nil {
+		return err
+	}
+	gf.GroupName = make([]byte, gf.GroupNameLength)
+	byte_buffer.Read(gf.GroupName)
+
+	//TODO not error checking the binary.Read()s
+	return nil
+}
