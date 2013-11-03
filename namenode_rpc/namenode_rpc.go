@@ -56,8 +56,11 @@ type Packet interface {
 }
 
 type ResponsePacket interface {
+	//load the fields from the packet
 	Load(buf []byte) error
-	//Bytes() error
+
+	//take the fields and turn them into bytes
+	Bytes() []byte
 }
 
 /* TODO this is ALL NONSENSE */
@@ -202,11 +205,30 @@ type GetFileInfoResponse struct {
 	OwnerName []byte
 	GroupNameLength byte
 	GroupName []byte
+
+	//Fields that are *not* part of the packet
+	//determines if this packet has actually been
+	//loaded with the Load() call
+	Loaded bool
+
+	//the buf passed to the Load() call
+	LoadedBytes []byte
 }
 
 func NewGetFileInfoResponse() *GetFileInfoResponse {
 	gf := GetFileInfoResponse{}
 	return &gf
+}
+
+func (gf *GetFileInfoResponse) Bytes() []byte {
+	if gf.Loaded {
+		return gf.LoadedBytes
+	}
+
+	//if the the packet has not been loaded, we return 
+	//a nil because otherwise the resulting packet would be
+	//pointless
+	return nil
 }
 
 //load the response, reading each of the fields in the 
@@ -261,6 +283,9 @@ func (gf *GetFileInfoResponse) Load(buf []byte) error {
 	}
 	gf.GroupName = make([]byte, gf.GroupNameLength)
 	byte_buffer.Read(gf.GroupName)
+
+	gf.Loaded = true
+	gf.LoadedBytes = buf
 
 	//TODO not error checking the binary.Read()s
 	return nil

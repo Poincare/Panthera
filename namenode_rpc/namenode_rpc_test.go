@@ -63,14 +63,6 @@ func TestHeaders(t *testing.T) {
 
 /* ResponsePacket tests*/
 
-//Unit test for ResponsePacket constructor
-func TestNewResponsePacket(t *testing.T) {
-	message_packet := NewResponsePacket()
-	if message_packet == nil {
-		t.FailNow();
-	}
-}
-
 /* RequestPacket tests */
 
 //test RequestPacket constructor
@@ -212,7 +204,9 @@ var GetFileInfoExpected GetFileInfoResponse = GetFileInfoResponse {
 	OwnerNameLength: 6,
 	OwnerName: []byte("hduser"),
 	GroupNameLength: 10,
-	GroupName: []byte("supergroup")}
+	GroupName: []byte("supergroup"),
+	Loaded: true,
+	LoadedBytes: GetFileInfoResponseTestCase}
 
 //test the loading of the packet number
 func TestLoadPacketNumber(t *testing.T) {
@@ -379,4 +373,22 @@ func TestLoadAccessTime(t *testing.T) {
 	if gf.AccessTime != 0 {
 		t.Fail()
 	} 	
+}
+
+func TestBytes(t *testing.T) {
+	gf := NewGetFileInfoResponse()
+	gf.Load(GetFileInfoResponseTestCase)
+
+	buf := gf.Bytes()
+	if !reflect.DeepEqual(buf, GetFileInfoResponseTestCase) {
+		fmt.Println("Not equal: ", buf, GetFileInfoResponseTestCase)
+		t.Fail()
+	}
+
+	gf = NewGetFileInfoResponse()
+	buf = gf.Bytes()
+
+	if buf != nil {
+		t.Fail()
+	}
 }
