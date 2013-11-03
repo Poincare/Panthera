@@ -11,13 +11,18 @@ import (
 
 type GetFileInfoCache struct {
 	//past requests received by this cache
-	PastRequests []namenode_rpc.RequestPacket
-	CacheSize int
+	Cache *RequestCache
 }
 
+//constructor
 func NewGetFileInfoCache(cache_size int) *GetFileInfoCache {
 	gf := GetFileInfoCache{}
-	gf.PastRequests = make([]namenode_rpc.RequestPacket, cache_size)
-	gf.CacheSize = cache_size
+	gf.Cache =  NewRequestCache(cache_size)
 	return &gf
 }
+
+//Query the cache. Returns nil if req is not found in the Cache.
+func (gfi_cache *GetFileInfoCache) Query(req *namenode_rpc.RequestPacket) namenode_rpc.ResponsePacket {
+	return gfi_cache.Cache.Query(req)
+}
+

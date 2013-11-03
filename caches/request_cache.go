@@ -19,7 +19,6 @@ type RequestCache struct {
 
 	//corresponding to the Packets listed above
 	ResponsePackets []namenode_rpc.ResponsePacket
-
 	Hits int
 	Misses int
 }

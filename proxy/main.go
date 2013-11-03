@@ -60,18 +60,6 @@ func handleHDFS(conn net.Conn, hdfs net.Conn) {
 			return
 		}
 		if(bytesRead > 0) {
-			//create a requestpacket object in order 
-			//to split the packet into pieces
-			/*
-			rp := namenode_rpc.NewRequestPacket()
-			err := rp.Load(byteBuffer)
-			if err != nil {
-				fmt.Println("Error in loading request packet: ", err.Error())
-			} else {
-				fmt.Println("rp.HeaderLength", rp.HeaderLength)
-				fmt.Println("rp.HeaderSerialized", rp.HeaderSerialized)
-			} */
-
 			//proxy the read data to the associated client socket
 			conn.Write(byteBuffer)
 			fmt.Println("RECVD: ", byteBuffer)
@@ -101,7 +89,7 @@ func handleConnection(conn net.Conn, hdfs net.Conn) {
 			if err != nil {
 				fmt.Println("Error in loading request packet: ", err.Error())
 			} else {
-				//process the request
+				
 			}
 
 			hdfs.Write(byteBuffer);
