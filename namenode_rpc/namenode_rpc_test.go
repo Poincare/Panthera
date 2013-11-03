@@ -6,6 +6,9 @@ import (
 
 	//for deep equal
 	"reflect"
+
+	//for hexadecimal report
+	"strconv"
 )
 
 func TestNewHeaderPacket(t *testing.T) {
@@ -174,13 +177,15 @@ func TestNewGetFileInfoResponse(t *testing.T) {
 }
 
 //this is the test case, but in hexademical because converting is hard
-var GetFileInfoResponseTestCase []byte = []byte{0,0,0,1,0,0,0,0,0,46,111,114,103,97,112,97,99,104,
-	101,46,104,97,100,111,111,112,46,104,102,115,46,112,114,111,116,111,99,111,108,46,
-	72,100,102,70,105,108,101,83,116,97,116,117,115,0,46,111,114,103,97,112,97,99,104,
-	101,46,104,97,100,111,111,112,46,104,102,115,46,112,114,111,116,111,99,111,108,46,
-	72,100,102,70,105,108,101,83,116,97,116,117,115,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,
-	0,0,0,0,0,0,1,65,230,55,105,95,0,0,0,0,0,0,0,1,237,6,104,100,117,115,101,114,10,115,
-	117,112,101,103,114,111,117,112}
+var GetFileInfoResponseTestCase []byte = []byte{0,0,0,1,0,0,0,0,0,46,111,114,103,
+	46,97,112,97,99,104,101,46,104,97,100,111,111,112,46,104,100,102,115,46,112,114,
+	111,116,111,99,111,108,46,72,100,102,115,70,105,108,101,83,116,97,116,117,115,0,
+	46,111,114,103,46,97,112,97,99,104,101,46,104,97,100,111,111,112,46,104,100,102,
+	115,46,112,114,111,116,111,99,111,108,46,72,100,102,115,70,105,108,101,83,116,97,
+	116,117,115,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,65,230,55,105,95,
+	0,0,0,0,0,0,0,0,1,237,6,104,100,117,115,101,114,10,115,117,112,101,114,103,114,111,
+	117,112}
+
 
 //expected response by the parser
 var GetFileInfoExpected GetFileInfoResponse = GetFileInfoResponse {
@@ -255,9 +260,20 @@ func TestLoadObjectNameLength(t *testing.T) {
 //TODO currently failing
 func TestLoadObjectName(t *testing.T) {
 	gf := NewGetFileInfoResponse()
+	fmt.Println("test case: ", GetFileInfoResponseTestCase)
+
 	gf.Load(GetFileInfoResponseTestCase)
 
 	if string(gf.ObjectName) != "org.apache.hadoop.hdfs.protocol.HdfsFileStatus" {
+		fmt.Println("Incorrect ObjectName len: ", len(gf.ObjectName))
+
+		fmt.Println("Incorrect ObjectName bytes: ")
+		fmt.Print("[")
+		for i := 0; i<len(gf.ObjectName); i++ {
+			fmt.Print(strconv.FormatInt(int64(gf.ObjectName[i]), 16), ",")
+		}
+		fmt.Print("]")
+
 		fmt.Println("Incorrect ObjectName: ", string(gf.ObjectName))
 		t.FailNow()
 	}
@@ -277,7 +293,7 @@ func TestLoadObjectName2(t *testing.T) {
 	gf.Load(GetFileInfoResponseTestCase)
 
 	//TODO this is replicated from the TestLoadObjectName
-	if gf.ObjectName2 != "org.apache.hadoop.hdfs.protocol.HdfsFileStatus" {
+	if string(gf.ObjectName2) != "org.apache.hadoop.hdfs.protocol.HdfsFileStatus" {
 		t.FailNow()
 	}
 }
@@ -300,4 +316,67 @@ func TestLoadFileNameLength(t *testing.T) {
 	}
 }
 //	FileName []byte
+func TestLoadFileName(t *testing.T) {
+	gf := NewGetFileInfoResponse()
+	gf.Load(GetFileInfoResponseTestCase)
+
+	if string(gf.FileName) != "" {
+		t.Fail()
+	}
+}
+
 //	FileSize uint64
+func TestLoadFileSize(t *testing.T) {
+	gf := NewGetFileInfoResponse()
+	gf.Load(GetFileInfoResponseTestCase)
+
+	if gf.FileSize != 0 {
+		t.Fail()
+	}
+}
+
+//	IsDirectory byte
+func TestLoadIsDirectory(t *testing.T) {
+	gf := NewGetFileInfoResponse()
+	gf.Load(GetFileInfoResponseTestCase)
+
+	if gf.IsDirectory != 1 {
+		t.Fail()
+	}
+}
+
+func TestLoadBlockReplicationFactor(t *testing.T) {
+	gf := NewGetFileInfoResponse()
+	gf.Load(GetFileInfoResponseTestCase)
+
+	if gf.BlockReplicationFactor != 0 {
+		t.Fail()
+	}
+}
+
+func TestLoadBlockSize(t *testing.T) {
+	gf := NewGetFileInfoResponse()
+	gf.Load(GetFileInfoResponseTestCase)
+
+	if gf.BlockSize != 0 {
+		t.Fail()
+	}
+}
+	
+func TestLoadModifiedTime(t *testing.T) {
+	gf := NewGetFileInfoResponse()
+	gf.Load(GetFileInfoResponseTestCase)
+
+	if gf.ModifiedTime != 1382546893151 {
+		t.Fail()
+	}
+}
+
+func TestLoadAccessTime(t *testing.T) {
+	gf := NewGetFileInfoResponse()
+	gf.Load(GetFileInfoResponseTestCase)
+
+	if gf.AccessTime != 0 {
+		t.Fail()
+	} 	
+}

@@ -290,13 +290,9 @@ func (gf *GetFileInfoResponse) Load(buf []byte) error {
 	}
 
 	binary.Read(byte_buffer, binary.BigEndian, &(gf.BlockReplicationFactor))
-
 	binary.Read(byte_buffer, binary.BigEndian, &(gf.BlockSize))
-
 	binary.Read(byte_buffer, binary.BigEndian, &(gf.ModifiedTime))
-
 	binary.Read(byte_buffer, binary.BigEndian, &(gf.AccessTime))
-
 	binary.Read(byte_buffer, binary.BigEndian, &(gf.FilePermission2))
 
 	gf.OwnerNameLength, err = byte_buffer.ReadByte()
