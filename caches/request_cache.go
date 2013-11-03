@@ -51,7 +51,7 @@ func (rc *RequestCache) Clear() {
 //TODO optimize this function somehow?
 //TODO returns nil if nothing is found, is that a bad idea?
 func (rc *RequestCache) Query(rp *namenode_rpc.RequestPacket) namenode_rpc.ResponsePacket {
-	for i := 0; i<rc.CacheSize; i++ {
+	for i := 0; i<len(rc.Packets); i++ {
 		//TODO maybe don't use reflect here if we need to speed it up
 		if reflect.DeepEqual(*rp, rc.Packets[i]) {
 			rc.Hits += 1

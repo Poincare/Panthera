@@ -23,6 +23,10 @@ func NewGetFileInfoCache(cache_size int) *GetFileInfoCache {
 
 //Query the cache. Returns nil if req is not found in the Cache.
 func (gfi_cache *GetFileInfoCache) Query(req *namenode_rpc.RequestPacket) namenode_rpc.ResponsePacket {
-	return gfi_cache.Cache.Query(req)
+	res := gfi_cache.Cache.Query(req)
+	if res == nil {
+		return nil
+	}
+	return res
 }
 

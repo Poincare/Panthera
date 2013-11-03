@@ -68,6 +68,10 @@ func TestRequestCacheQuery(t *testing.T) {
 	resp := namenode_rpc.NewGetFileInfoResponse()
 	rc.Add(rp, resp)
 
+	if resp == nil {
+		t.Fail()
+	}
+
 	//TODO this dereferencing going on here is too complicated
 	if !reflect.DeepEqual(resp, rc.Query(rp)) {
 		fmt.Println("Failed query result: ", rc.Query(rp))
