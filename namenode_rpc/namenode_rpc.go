@@ -55,57 +55,10 @@ type Packet interface {
 	Load(buf []byte) error
 }
 
-//Structure used to receive RPC response
-//from HDFS
-//all the int64's are actually varints
-//from the Google Protocol Buffer, which
-//happen to be implemented in golang
-//TODO this hasn't been tested at all, since 
-//it is more or less useless at the moment
-type ResponsePacket struct {
-	HeaderLength int64
-	header_proto []byte
-	rpc_length uint32
-	serialized_rpc []byte
+type ResponsePacket interface {
+	Load(buf []byte) error
+	//Bytes() error
 }
-
-func NewResponsePacket() *ResponsePacket {
-	mp := ResponsePacket{HeaderLength: 0, rpc_length: 0}
-
-	return &mp
-}
-
-//reads the fields from buf into the object
-//e.g. the varint header length is read
-//from the byte array/slice
-func (mp *ResponsePacket) Load(buf []byte) error {
-	byte_buffer := bytes.NewBuffer(buf)
-
-	//TODO ignoring error is probably a terrible idea
-	var err error
-	mp.HeaderLength, err = binary.ReadVarint(byte_buffer)
-
-	if(err != nil) {
-		return err
-	}
-
-	//read in the header proto
-	mp.header_proto = make([]byte, mp.HeaderLength)
-	byte_buffer.Read(mp.header_proto)
-
-	//not sure whether or not to use LittleEndian
-	//or BigEndian here. Assuming it is BigEndian
-	//since that is *supposed* to be network order.
-	//Nevertheless, this should read the rpc_length
-	//from the byte_buffer
-	binary.Read(byte_buffer, binary.BigEndian, &(mp.rpc_length))
-
-	//read in the serialized rpc byte buf
-	mp.serialized_rpc = make([]byte, mp.rpc_length)
-
-	return nil
-}
-
 
 /* TODO this is ALL NONSENSE */
 

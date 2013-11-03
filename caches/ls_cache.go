@@ -1,10 +1,4 @@
 package caches
-
-import (
-	"fmt"
-	"namenode_rpc"
-)
-
 /*
 * This file implements a simple "ls" cache.
 * That means that we will cache "getListing"
