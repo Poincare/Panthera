@@ -9,6 +9,8 @@ import (
 	"log"
 )
 
+type PacketNumber uint32
+
 type Processor struct {
 	//array of the past requests received by this processor
 	//presumably by the same client (i.e. one client per processor)
@@ -16,17 +18,43 @@ type Processor struct {
 
 	//cache called when we get a "GetFileInfo" cache
 	gfiCache *caches.GetFileInfoCache
+
+	//this map links up packet numbers with
+	//request, response pairs. So, a response packet
+	//with a packet number of 1 is responding to the request 
+	//with the packet number of 1.
+	//The Map() method fills in response and request packets as needed
+	 RequestResponse map[PacketNumber]namenode_rpc.PacketPair
 }
 
 func NewProcessor() *Processor { 
 	p := Processor{}
-
+	p.RequestResponse = make(map[PacketNumber]namenode_rpc.PacketPair)
 	/* configuration settings here */
 	gfiCacheSize := 10
 
 	p.gfiCache = caches.NewGetFileInfoCache(gfiCacheSize)
 	return &p
 }
+
+//this gets called by both HandleConnection in order to put a 
+//Request into one of the caches. Once a corresponding call is made
+//to CacheResponse(), the cache spot is "filled"
+//TODO need to implement
+func (p *Processor) CacheRequest() {
+
+}
+
+//this gets called both HandleHDFS in order to put a Response into 
+//one of the caches. It looks up a request with the same packet number
+//and if such a request exists in the cache, it places itself into that
+//spot.
+//TODO need to implement
+func (p *Processor) CacheResponse() {
+
+}
+
+//this gets 
 
 //called by the main function on a new instance of Processor
 //when we get a new connection
@@ -50,6 +78,7 @@ func (p *Processor) HandleConnection(conn net.Conn, hdfs net.Conn) {
 			if err != nil {
 				fmt.Println("Error in loading request packet: ", err.Error())
 			} else {
+				//deal with checking the cache
 				resp := p.Process(rp)
 				log.Println("Resp: ", resp)
 				//if a response was found in one the caches currently running
@@ -66,7 +95,6 @@ func (p *Processor) HandleConnection(conn net.Conn, hdfs net.Conn) {
 					hdfs.Write(byteBuffer);
 				}
 			}
-
 		}
 	}
 }
@@ -109,7 +137,6 @@ func (p *Processor) Process(req *namenode_rpc.RequestPacket) namenode_rpc.Respon
 		//this will return a correct response if we can find one
 		//cached, or it will simply return nil so that we now
 		//that a result was not found in the
-		
 		res := p.gfiCache.Query(req)
 		return res
 	} else {
@@ -118,3 +145,38 @@ func (p *Processor) Process(req *namenode_rpc.RequestPacket) namenode_rpc.Respon
 	return nil
 }
 
+//fills in the correct packets into RequestResponse mapping
+func (p *Processor) MapRequest(req *namenode_rpc.RequestPacket) {
+	//get the value and check if the packetnumber currently exists
+	//in the mapping
+	packetNum := PacketNumber(req.PacketNumber)
+	pair, present := p.RequestResponse[packetNum]
+
+	//if it is not present, a new "slot" has to be made in the map
+	if !present {
+		pair := namenode_rpc.NewPacketPair()
+		pair.Request = *req
+		p.RequestResponse[packetNum] = *pair
+	} else {
+		//if it is present, put in the correct slot
+		pair.Request = 	*req
+		p.RequestResponse[packetNum] = pair
+	}
+}
+
+func(p *Processor) MapResponse(resp namenode_rpc.ResponsePacket) {
+	packetNum := PacketNumber(resp.GetPacketNumber())
+	pair, present := p.RequestResponse[packetNum]
+
+	//if it is not present, a new "slot" has to be made in the map
+	if !present {
+		pair := namenode_rpc.NewPacketPair()
+		pair.Response = resp
+		p.RequestResponse[packetNum] = *pair
+	} else {
+		//if it is present, put in the correct slot
+		pair.Response = resp
+		p.RequestResponse[packetNum] = pair
+	}
+
+}

@@ -7,7 +7,6 @@ import (
 )
 
 
-
 //Implementation of the RPC protocol used by 
 //Hadoop to talk with the NameNode
 
@@ -61,6 +60,9 @@ type ResponsePacket interface {
 
 	//take the fields and turn them into bytes
 	Bytes() []byte
+
+	//common fields that need to have a Getter
+	GetPacketNumber() uint32
 }
 
 /* TODO this is ALL NONSENSE */
@@ -79,6 +81,11 @@ func NewParameter() *Parameter {
 
 //this is a packet that a client to HDFS 
 //sends to a NameNode to execute some RPC code
+
+type ReqPacket interface {
+	Load(buf []byte) error
+	GetPacketNumber() uint32
+}
 
 /* This has been derived from what I've reverse 
 engineered w/ Wireshark - Hadoop doesn't seem to
@@ -100,6 +107,10 @@ type RequestPacket struct {
 
 	//list of the parameters sent (see Parameter type)
 	Parameters []Parameter
+}
+
+func (rp *RequestPacket) GetPacketNumber() {
+	return rp.PacketNumber
 }
 
 //constructor for RequestPacket
@@ -220,6 +231,10 @@ func NewGetFileInfoResponse() *GetFileInfoResponse {
 	return &gf
 }
 
+func (gf *GetFileInfoResponse) GetPacketNumber() uint32 {
+	return gf.PacketNumber
+}
+
 func (gf *GetFileInfoResponse) Bytes() []byte {
 	if gf.Loaded {
 		return gf.LoadedBytes
@@ -289,4 +304,16 @@ func (gf *GetFileInfoResponse) Load(buf []byte) error {
 
 	//TODO not error checking the binary.Read()s
 	return nil
+}
+
+//request-response pair of the packet
+//used by the processor package
+type PacketPair struct {
+	Request RequestPacket
+	Response ResponsePacket
+}
+
+func NewPacketPair() *PacketPair {
+	pp := PacketPair{}
+	return &pp
 }
