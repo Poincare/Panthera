@@ -89,7 +89,7 @@ func TestRequestCacheQuery(t *testing.T) {
 	}
 }
 
-/*
+
 func TestRequestCacheHitMiss(t *testing.T) {
 	rc := NewRequestCache(1)
 	rp := namenode_rpc.NewRequestPacket()
@@ -112,5 +112,5 @@ func TestRequestCacheHitMiss(t *testing.T) {
 		fmt.Println("incorrect hits: ", rc.Hits)
 		t.Fail()
 	}
-} */ 	
+} 
 
