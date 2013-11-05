@@ -57,7 +57,6 @@ func TestRequestCacheAdd(t *testing.T) {
 	}
 }
 
-/*
 func TestRequestCacheClear(t *testing.T) {
 	rs := NewRequestCache(2)
 	rp := namenode_rpc.NewRequestPacket()
@@ -65,11 +64,12 @@ func TestRequestCacheClear(t *testing.T) {
 	rs.Add(rp, resp)
 	rs.Clear()
 
-	if len(rs.Packets) != 0 {
+	if len(rs.RequestResponse) != 0 {
 		t.Fail()
 	}
 }
 
+/*
 func TestRequestCacheQuery(t *testing.T) {
 	rc := NewRequestCache(1)
 	rp := namenode_rpc.NewRequestPacket()
