@@ -109,7 +109,8 @@ type RequestPacket struct {
 	Parameters []Parameter
 }
 
-func (rp *RequestPacket) GetPacketNumber() {
+
+func (rp *RequestPacket) GetPacketNumber() uint32 {
 	return rp.PacketNumber
 }
 
@@ -309,7 +310,7 @@ func (gf *GetFileInfoResponse) Load(buf []byte) error {
 //request-response pair of the packet
 //used by the processor package
 type PacketPair struct {
-	Request RequestPacket
+	Request ReqPacket
 	Response ResponsePacket
 }
 
