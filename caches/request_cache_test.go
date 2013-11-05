@@ -114,3 +114,42 @@ func TestRequestCacheHitMiss(t *testing.T) {
 	}
 } 
 
+func TestRequestCacheAddRequest(t *testing.T) {
+	rc := NewRequestCache(2)
+	rp := namenode_rpc.NewRequestPacket()
+	packetNum := PacketNumber(15)
+	rp.PacketNumber = uint32(packetNum)
+
+	rc.AddRequest(rp)
+
+	if rc.RequestResponse[packetNum].Response != nil {
+		t.Fail()
+	}
+
+	if !reflect.DeepEqual(rc.RequestResponse[packetNum].Request, rp) {
+		t.Fail()
+	}
+}
+
+func TestRequestCacheAddResponse(t *testing.T) {
+	rc := NewRequestCache(2)
+	req := namenode_rpc.NewRequestPacket()
+	resp := namenode_rpc.NewGetFileInfoResponse()
+	packetNum := PacketNumber(15)
+
+	req.PacketNumber = uint32(packetNum)
+	resp.PacketNumber = uint32(packetNum)
+
+	rc.AddRequest(req)
+
+	rc.AddResponse(resp)
+
+	if !reflect.DeepEqual(rc.RequestResponse[packetNum].Response, resp) {
+		t.Fail()
+	}
+
+	if !reflect.DeepEqual(rc.RequestResponse[packetNum].Request, req) {
+		t.Fail()
+	}
+}
+

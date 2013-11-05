@@ -47,15 +47,23 @@ func NewRequestCache(cache_size int) *RequestCache {
 func (rc *RequestCache) Add(rp namenode_rpc.ReqPacket, resp namenode_rpc.ResponsePacket) error {
 	//the central assumption does not hold if 
 	//we do not have equal packet numbers
-	if rp.GetPacketNumber() != resp.GetPacketNumber() {
-		return errors.New("Packet numbers are not equal for request and response")
+	if rp != nil && resp != nil {
+		if rp.GetPacketNumber() != resp.GetPacketNumber() {
+			return errors.New("Packet numbers are not equal for request and response")
+		}
 	}
 
 	pp := namenode_rpc.NewPacketPair();
 	pp.Request = rp;
 	pp.Response = resp;
 
-	packetNum := PacketNumber(rp.GetPacketNumber())
+	packetNum := PacketNumber(0)
+	if rp != nil {
+		packetNum = PacketNumber(rp.GetPacketNumber())
+	} else {
+		packetNum = PacketNumber(resp.GetPacketNumber())
+	}
+
 	rc.RequestResponse[packetNum] = *pp
 	rc.PacketNumbers = append(rc.PacketNumbers, packetNum)
 
@@ -70,8 +78,21 @@ func (rc *RequestCache) Add(rp namenode_rpc.ReqPacket, resp namenode_rpc.Respons
 		//get rid of that packet number
 		rc.PacketNumbers = rc.PacketNumbers[1:]
 	}
-	
+
 	return nil
+}
+
+//same as Add() but adds a PacketPair with a nil in place of the response packet
+func (rc *RequestCache) AddRequest(req namenode_rpc.ReqPacket) error {
+	return rc.Add(req, nil)
+}
+
+//adds a response to the packet pair that was partially filled with AddRequest
+//HOWEVER, this assumes that the bucket already has a Request inside it (i.e we
+//can't have a Response before a Request)
+func (rc *RequestCache) AddResponse(resp namenode_rpc.ResponsePacket) error {
+	req := rc.RequestResponse[PacketNumber(resp.GetPacketNumber())].Request
+	return rc.Add(req, resp)
 }
 
 func (rc *RequestCache) Clear() {
