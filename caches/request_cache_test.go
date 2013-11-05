@@ -153,3 +153,20 @@ func TestRequestCacheAddResponse(t *testing.T) {
 	}
 }
 
+func TestRequestCacheHasPacketNumber(t *testing.T) {
+	rc := NewRequestCache(2)
+	req := namenode_rpc.NewRequestPacket()
+	packetNum := PacketNumber(22)
+	req.PacketNumber = uint32(packetNum)
+
+	rc.AddRequest(req)
+
+	if !rc.HasPacketNumber(packetNum) {
+		t.Fail()
+	}
+
+	if rc.HasPacketNumber(PacketNumber(13)) {
+		t.Fail()
+	}
+}
+

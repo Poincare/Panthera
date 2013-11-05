@@ -111,4 +111,9 @@ func (rc *RequestCache) Query(rp namenode_rpc.ReqPacket) namenode_rpc.ResponsePa
 
 	rc.Misses += 1
 	return nil
-} 
+}
+
+func (rc *RequestCache) HasPacketNumber(packetNum PacketNumber) bool {
+	_, present := rc.RequestResponse[packetNum]
+	return present
+}
