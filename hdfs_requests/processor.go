@@ -24,7 +24,7 @@ type Processor struct {
 	//with a packet number of 1 is responding to the request 
 	//with the packet number of 1.
 	//The Map() method fills in response and request packets as needed
-	 RequestResponse map[PacketNumber]namenode_rpc.PacketPair
+	RequestResponse map[PacketNumber]namenode_rpc.PacketPair
 }
 
 func NewProcessor() *Processor { 
@@ -41,8 +41,11 @@ func NewProcessor() *Processor {
 //Request into one of the caches. Once a corresponding call is made
 //to CacheResponse(), the cache spot is "filled"
 //TODO need to implement
-func (p *Processor) CacheRequest() {
-
+func (p *Processor) CacheRequest(req *namenode_rpc.RequestPacket) {
+	if(string(req.MethodName) == "getFileInfo") {
+		//follow through with the GetFileInfoCache
+		p.gfiCache.Cache.AddRequest(req)
+	}
 }
 
 //this gets called both HandleHDFS in order to put a Response into 
@@ -50,13 +53,16 @@ func (p *Processor) CacheRequest() {
 //and if such a request exists in the cache, it places itself into that
 //spot.
 //TODO need to implement
-func (p *Processor) CacheResponse() {
+func (p *Processor) CacheResponse(resp namenode_rpc.ResponsePacket) {
+	packetNum := resp.GetPacketNumber()
 
+	//we can hook up a response with a request
+	if p.gfiCache.Cache.HasPacketNumber(packetNum) {
+		p.gfiCache.Cache.AddResponse(resp)
+	}
 }
 
-//this gets 
-
-//called by the main function on a new instance of Processor
+//this gets called by the main function on a new instance of Processor
 //when we get a new connection
 func (p *Processor) HandleConnection(conn net.Conn, hdfs net.Conn) {
 	for {
@@ -87,6 +93,10 @@ func (p *Processor) HandleConnection(conn net.Conn, hdfs net.Conn) {
 				if resp != nil {
 					util.Log("found in the cache")
 				} else {
+					//if it wasn't found in any of the
+					//caches, we should cache the request
+					CacheRequest(rp)
+
 					//TODO this is an important consideration - do we still need
 					//to send it to the server? For some methods, this might be
 					//important! For example, analytics would be affected if we
@@ -115,6 +125,10 @@ func (p *Processor) HandleHDFS(conn net.Conn, hdfs net.Conn) {
 			return
 		}
 		if(bytesRead > 0) {
+			//cache the response (CacheResponse should find out if there is
+			//a matching request to this response)
+			CacheRequest()
+
 			//proxy the read data to the associated client socket
 			conn.Write(byteBuffer)
 		}
