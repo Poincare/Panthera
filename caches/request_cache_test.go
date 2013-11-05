@@ -69,7 +69,7 @@ func TestRequestCacheClear(t *testing.T) {
 	}
 }
 
-/*
+
 func TestRequestCacheQuery(t *testing.T) {
 	rc := NewRequestCache(1)
 	rp := namenode_rpc.NewRequestPacket()
@@ -83,12 +83,13 @@ func TestRequestCacheQuery(t *testing.T) {
 	//TODO this dereferencing going on here is too complicated
 	if !reflect.DeepEqual(resp, rc.Query(rp)) {
 		fmt.Println("Failed query result: ", rc.Query(rp))
-		fmt.Println("First response packet: ", rc.ResponsePackets[0])
+		fmt.Println("First response packet: ", rc.RequestResponse[PacketNumber(resp.GetPacketNumber())].Response)
 		fmt.Println("Expected: ", *resp)
 		t.Fail()
 	}
 }
 
+/*
 func TestRequestCacheHitMiss(t *testing.T) {
 	rc := NewRequestCache(1)
 	rp := namenode_rpc.NewRequestPacket()
