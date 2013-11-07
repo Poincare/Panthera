@@ -149,12 +149,10 @@ func (rp *RequestPacket) Load(buf []byte) error {
 
 	//loop through and read all of the parameters
 	for i := 0; i < int(rp.ParameterNumber); i++ {
-		fmt.Println("Reading parameter", i)
 
 		rp.Parameters[i] = *(NewParameter())
 		//now read in all the fields one by one
 		binary.Read(byte_buffer, binary.BigEndian, &(rp.Parameters[i].TypeLength))
-		fmt.Println("Parameter type length:", rp.Parameters[i].TypeLength)
 
 		//create space for and read in the type of this parameter
 		rp.Parameters[i].Type = make([]byte, rp.Parameters[i].TypeLength)

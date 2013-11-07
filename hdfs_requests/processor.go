@@ -68,6 +68,7 @@ func (p *Processor) CacheResponse(resp namenode_rpc.ResponsePacket) {
 //this gets called by the main function on a new instance of Processor
 //when we get a new connection
 func (p *Processor) HandleConnection(conn net.Conn, hdfs net.Conn) {
+	util.Log("Handling connection...")
 	for {
 		byteBuffer := make([]byte, 1024)
 		//blocks
@@ -80,6 +81,8 @@ func (p *Processor) HandleConnection(conn net.Conn, hdfs net.Conn) {
 			hdfs.Close()
 			return
 		}
+
+		util.Log("Handling the packet...")
 
 		if bytesRead > 0 {
 			rp := namenode_rpc.NewRequestPacket()
@@ -98,6 +101,7 @@ func (p *Processor) HandleConnection(conn net.Conn, hdfs net.Conn) {
 				} else {
 					//if it wasn't found in any of the
 					//caches, we should cache the request
+					util.Log("Trying to cache a request...")
 					p.CacheRequest(rp)
 
 					//TODO this is an important consideration - do we still need
