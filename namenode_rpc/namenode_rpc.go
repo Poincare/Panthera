@@ -262,7 +262,7 @@ func (gf *GetFileInfoResponse) Load(buf []byte) error {
 	byte_buffer.Read(gf.ObjectName)
 
 	binary.Read(byte_buffer, binary.BigEndian, &(gf.ObjectNameLength2))
-	gf.ObjectName2 = make([]byte, gf.ObjectNameLength2)
+	gf.ObjectName2 = make([]byte, gf.ObjectNameLength2) 
 	byte_buffer.Read(gf.ObjectName2)
 
 	binary.Read(byte_buffer, binary.BigEndian, &(gf.FilePermission))
