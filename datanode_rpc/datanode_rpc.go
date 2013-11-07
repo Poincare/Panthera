@@ -103,6 +103,56 @@ func (dr *DataRequest) Load(buf []byte) error {
 	return nil
 }
 
+/* the response format that contains the file requested from 
+the data node */
 
+//NOTE the responses from HDFS can actually be split
+//into multiple packets. SequenceNumber and LastPacketNumber
+//determine whether or not this is the last packet
+type DataResponse struct {
+	StatusCode uint16
+	ChecksumType uint8
+	ChunkSize uint32
+	ChunkOffset uint64
+	DataLength uint32
+	InBlockOffset uint64
+	SequenceNumber uint64
+	LastPacketNumber uint8
+	
+	//TODO not exactly sure *why* there are two values
+	//for the length of the data
+	DataLength2 uint32
+	Data []byte
+}
 
+//constructor
+func NewDataResponse() *DataResponse {
+	dr := DataResponse{}
+	return &dr
+}
+
+func (dr *DataResponse) Load(buf []byte) error {
+	byte_buffer := bytes.NewBuffer(buf)
+
+	binary.Read(byte_buffer, binary.BigEndian, &(dr.StatusCode))
+	binary.Read(byte_buffer, binary.BigEndian, &(dr.ChecksumType))
+	binary.Read(byte_buffer, binary.BigEndian, &(dr.ChunkSize))
+	binary.Read(byte_buffer, binary.BigEndian, &(dr.ChunkOffset))
+	binary.Read(byte_buffer, binary.BigEndian, &(dr.DataLength))
+	binary.Read(byte_buffer, binary.BigEndian, &(dr.InBlockOffset))
+	binary.Read(byte_buffer, binary.BigEndian, &(dr.SequenceNumber))
+	binary.Read(byte_buffer, binary.BigEndian, &(dr.LastPacketNumber))
+
+	binary.Read(byte_buffer, binary.BigEndian, &(dr.DataLength2))
+
+	//TODO POTENTIAL BUG Use the first data length or the second one? 
+	dr.Data = make([]byte, dr.DataLength)
+	_, err := byte_buffer.Read(dr.Data)
+	if err != nil {
+		return err
+	}
+
+	//TODO add proper error detection to this method
+	return nil
+}
 

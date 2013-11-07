@@ -56,3 +56,12 @@ func TestDataRequestBytes (t *testing.T) {
 	}
 }
 
+/* Data Response structure unit tests */
+
+func TestDataResponseConstructor (t *testing.T) {
+	dResp := NewDataResponse()
+
+	if dResp == nil {
+		t.Fail()
+	}
+}
