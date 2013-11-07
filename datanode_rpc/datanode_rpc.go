@@ -40,6 +40,34 @@ func NewDataRequest() *DataRequest {
 	return &dr
 }
 
+func (dr *DataRequest) Bytes() []byte {
+	byte_buffer := new(bytes.Buffer)
+
+	binary.Write(byte_buffer, binary.BigEndian, dr.ProtocolVersion)
+	binary.Write(byte_buffer, binary.BigEndian, dr.Command)
+	binary.Write(byte_buffer, binary.BigEndian, dr.BlockId)
+	binary.Write(byte_buffer, binary.BigEndian, dr.Timestamp)
+	binary.Write(byte_buffer, binary.BigEndian, dr.StartOffset)
+	binary.Write(byte_buffer, binary.BigEndian, dr.BlockLength)
+
+	binary.Write(byte_buffer, binary.BigEndian, dr.ClientIdLength)
+	byte_buffer.Write(dr.ClientId)
+
+	binary.Write(byte_buffer, binary.BigEndian, dr.AccessIdLength)
+	byte_buffer.Write(dr.AccessId)
+
+	binary.Write(byte_buffer, binary.BigEndian, dr.AccessPasswordLength)
+	byte_buffer.Write(dr.AccessPassword)
+
+	binary.Write(byte_buffer, binary.BigEndian, dr.AccessTypeLength)
+	byte_buffer.Write(dr.AccessType)
+
+	binary.Write(byte_buffer, binary.BigEndian, dr.AccessServiceLength)
+	byte_buffer.Write(dr.AccessService)
+
+	return byte_buffer.Bytes()
+}
+
 func (dr *DataRequest) Load(buf []byte) error {
 	byte_buffer := bytes.NewBuffer(buf)
 

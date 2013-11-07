@@ -46,3 +46,13 @@ func TestDataRequestLoad(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func TestDataRequestBytes (t *testing.T) {
+	dnr := NewDataRequest()
+	dnr.Load(DataRequestTestCase)
+
+	if !reflect.DeepEqual(dnr.Bytes(), DataRequestTestCase) {
+		t.Fail()
+	}
+}
+
