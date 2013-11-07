@@ -62,6 +62,10 @@ var DataResponseTestCase []byte = []byte{0,0,1,0,0,2,0,0,0,0,0,0,0,0,0,0,
 	0,0,17,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,9,101,122,199,95,115,111,
 	109,101,116,101,120,116,10,0,0,0,0,0}
 
+var DataResponseTestCase2 []byte = []byte {0,0,1,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,
+	14,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,6,4,64,144,10,116,114,101,101,115,
+	10,0,0,0,0,0}
+
 var DataResponseTestExpected DataResponse = DataResponse {
 	StatusCode: 0,
 	ChecksumType: 1,
@@ -71,10 +75,23 @@ var DataResponseTestExpected DataResponse = DataResponse {
 	InBlockOffset: 0,
 	SequenceNumber: 0,
 	LastPacketNumber: 1,
+
 	DataLength2: 9,
 	Data: []byte("sometext")}
 
-func TestDataResponseConstructor (t *testing.T) {
+var DataResponseTestExpected2 DataResponse = DataResponse {
+	StatusCode: 0,
+	ChecksumType: 1,
+	ChunkSize: 512,
+	ChunkOffset: 0,
+	DataLength: 14,
+	InBlockOffset: 0,
+	SequenceNumber: 0,
+	LastPacketNumber: 1,
+	DataLength2: 6,
+	Data: []byte("trees")}
+
+func TestDataResponseConstructor(t *testing.T) {
 	dResp := NewDataResponse()
 
 	if dResp == nil {
@@ -90,5 +107,17 @@ func TestDataResponseLoad(t *testing.T) {
 		fmt.Println("Not equal, expected: ", DataResponseTestExpected, " got: ", *dResp)
 		fmt.Println("Expected data: ", string(DataResponseTestExpected.Data), "got bytes: ", string(dResp.Data))
 		t.Fail()
+	}
+}
+
+//same thing, different test structure
+func TestDataResponseLoadTwo(t *testing.T) {
+	dResp := NewDataResponse()
+	dResp.Load(DataResponseTestCase2)
+
+	if !reflect.DeepEqual(*dResp, DataResponseTestExpected2) {
+		fmt.Println("Not equal, expected: ", DataResponseTestExpected2, " got: ", *dResp)
+		fmt.Println("Expected data: ", string(DataResponseTestExpected2.Data), "got bytes: ", string(dResp.Data))
+		t.Fail()		
 	}
 }
