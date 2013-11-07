@@ -45,6 +45,7 @@ func (p *Processor) CacheRequest(req *namenode_rpc.RequestPacket) {
 	if(string(req.MethodName) == "getFileInfo") {
 		//follow through with the GetFileInfoCache
 		p.gfiCache.Cache.AddRequest(req)
+		log.Println("Cached GFI Request: ", req)
 	}
 }
 
@@ -54,12 +55,14 @@ func (p *Processor) CacheRequest(req *namenode_rpc.RequestPacket) {
 //spot.
 //TODO need to implement
 func (p *Processor) CacheResponse(resp namenode_rpc.ResponsePacket) {
-	packetNum := resp.GetPacketNumber()
+	packetNum := caches.PacketNumber(resp.GetPacketNumber())
 
 	//we can hook up a response with a request
 	if p.gfiCache.Cache.HasPacketNumber(packetNum) {
 		p.gfiCache.Cache.AddResponse(resp)
 	}
+
+	log.Println("Cached response: ", resp)
 }
 
 //this gets called by the main function on a new instance of Processor
@@ -95,7 +98,7 @@ func (p *Processor) HandleConnection(conn net.Conn, hdfs net.Conn) {
 				} else {
 					//if it wasn't found in any of the
 					//caches, we should cache the request
-					CacheRequest(rp)
+					p.CacheRequest(rp)
 
 					//TODO this is an important consideration - do we still need
 					//to send it to the server? For some methods, this might be
@@ -127,7 +130,6 @@ func (p *Processor) HandleHDFS(conn net.Conn, hdfs net.Conn) {
 		if(bytesRead > 0) {
 			//cache the response (CacheResponse should find out if there is
 			//a matching request to this response)
-			CacheRequest()
 
 			//proxy the read data to the associated client socket
 			conn.Write(byteBuffer)
@@ -160,20 +162,20 @@ func (p *Processor) Process(req *namenode_rpc.RequestPacket) namenode_rpc.Respon
 }
 
 //fills in the correct packets into RequestResponse mapping
-func (p *Processor) MapRequest(req *namenode_rpc.RequestPacket) {
+func (p *Processor) MapRequest(req namenode_rpc.ReqPacket) {
 	//get the value and check if the packetnumber currently exists
 	//in the mapping
-	packetNum := PacketNumber(req.PacketNumber)
+	packetNum := PacketNumber(req.GetPacketNumber())
 	pair, present := p.RequestResponse[packetNum]
 
 	//if it is not present, a new "slot" has to be made in the map
 	if !present {
 		pair := namenode_rpc.NewPacketPair()
-		pair.Request = *req
+		pair.Request = req
 		p.RequestResponse[packetNum] = *pair
 	} else {
 		//if it is present, put in the correct slot
-		pair.Request = 	*req
+		pair.Request = 	req
 		p.RequestResponse[packetNum] = pair
 	}
 }

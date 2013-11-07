@@ -82,5 +82,15 @@ func TestMap(t *testing.T) {
 	if !reflect.DeepEqual(pair.Request, *req) {
 		t.Fail()
 	}
+}
+
+//TODO incomplete
+func TestCacheRequest(t *testing.T) {
+	p := NewProcessor()
+
+	req := namenode_rpc.NewRequestPacket()
+	req.Load(RequestPacketTestCase)
+
+	p.CacheRequest(req)
 
 }
