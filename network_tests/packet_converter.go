@@ -10,14 +10,17 @@ import (
 func loadPacket(filename string) string {
 	//get a string representation of the file
 	byte_contents, _ := ioutil.ReadFile(filename)
+
 	contents := string(byte_contents)
+	fmt.Println("contents: ", contents)
 
 	lines := strings.Split(contents, "\n")
 	fmt.Println("lines: ")
 
 	packet := ""
-	for i := 1; i < len(lines); i++ {
+	for i := 0; i < len(lines); i++ {
 		if lines[i] != "" {
+			fmt.Println(lines[i])
 			packet = packet + lines[i] + " "
 		}
 	}
