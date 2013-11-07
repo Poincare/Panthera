@@ -58,10 +58,37 @@ func TestDataRequestBytes (t *testing.T) {
 
 /* Data Response structure unit tests */
 
+var DataResponseTestCase []byte = []byte{0,0,17,0,0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,1,0,0,0,9,101,122,199,95,115,111,109,101,116,101,
+	120,116,10,0,0,0,0,0}
+
+var DataResponseTestExpected DataResponse = DataResponse {
+	StatusCode: 0,
+	ChecksumType: 1,
+	ChunkSize: 512,
+	ChunkOffset: 0,
+	DataLength: 17,
+	InBlockOffset: 0,
+	SequenceNumber: 0,
+	LastPacketNumber: 1,
+	DataLength2: 9,
+	Data: []byte("sometext")}
+
 func TestDataResponseConstructor (t *testing.T) {
 	dResp := NewDataResponse()
 
 	if dResp == nil {
+		t.Fail()
+	}
+}
+
+
+func TestDataResponseLoad(t *testing.T) {
+	dResp := NewDataResponse()
+	dResp.Load(DataResponseTestCase)
+
+	if !reflect.DeepEqual(*dResp, DataResponseTestExpected) {
+		fmt.Println("Not equal, expected: ", DataRequestTestExpected, " got: ", *dResp)
 		t.Fail()
 	}
 }
