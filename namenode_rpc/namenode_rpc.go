@@ -305,6 +305,11 @@ func (gf *GetFileInfoResponse) Load(buf []byte) error {
 	return nil
 }
 
+
+//the type of response we get for trying to identify
+//where certain blocks lie
+
+type 
 //request-response pair of the packet
 //used by the processor package
 type PacketPair struct {

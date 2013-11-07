@@ -4,34 +4,50 @@ import (
 	"fmt"
 	"strings"
 	"strconv"
+	"io/ioutil"
 )
+
+func loadPacket(filename string) string {
+	//get a string representation of the file
+	byte_contents, _ := ioutil.ReadFile(filename)
+	contents := string(byte_contents)
+
+	lines := strings.Split(contents, "\n")
+	fmt.Println("lines: ")
+
+	packet := ""
+	for i := 1; i < len(lines); i++ {
+		if lines[i] != "" {
+			packet = packet + lines[i] + " "
+		}
+	}
+	return packet
+}
 
 func main() {
 	fmt.Println("-")
+	filename := "packet.convert"
+
+	packet := loadPacket(filename)
 
 	/*
-	packet := "00 00 00 00 01 00 00 00 00 00 2e 6f 72 67 2e" +
-	"61 70 61 63 68 65 2e 68 61 64 6f 6f 70 2e 68 64" + 
-	"66 73 2e 70 72 6f 74 6f 63 6f 6c 2e 48 64 66 73" +
-	"46 69 6c 65 53 74 61 74 75 73 00 2e 6f 72 67 2e" +
-	"61 70 61 63 68 65 2e 68 61 64 6f 6f 70 2e 68 64" +
-	"66 73 2e 70 72 6f 74 6f 63 6f 6c 2e 48 64 66 73" +
-	"46 69 6c 65 53 74 61 74 75 73 00 00 00 00 00 00" +
-	"00 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00" +
-	"00 00 00 01 41 e6 37 69 5f 00 00 00 00 00 00 00" +
-	"00 01 ed 06 68 64 75 73 65 72 0a 73 75 70 65 72" +
-	"67 72 6f 75 70" */
-
-	packet := "00 11 51 61 12 4b d1 11 09 4b cb 00 00 00 00 00 " +
-"00 04 a4 00 00 00 00 00 00 00 00 00 00 00 00 00 " + 
-"0d 70 c6 23 44 46 53 43 6c 69 65 6e 74 5f 4e 4f " +
-"4e 4d 41 50 52 45 44 55 43 45 5f 31 35 30 32 37 " +
-"32 31 38 32 39 5f 31 00 00 00 00"
+	packet = "00 00 00 75 00 00 00 02 00 11 67 65 74 42 6c 6f " +
+"63 6b 4c 6f 63 61 74 69 6f 6e 73 00 00 00 03 00 " +
+"10 6a 61 76 61 2e 6c 61 6e 67 2e 53 74 72 69 6e " +
+"67 00 2a 2f 75 73 65 72 2f 68 64 75 73 65 72 2f " +
+"67 75 74 65 6e 62 65 72 67 2d 6f 75 74 70 75 74 " +
+"2f 70 61 72 74 2d 72 2d 30 30 30 30 30 00 04 6c " +
+"6f 6e 67 00 00 00 00 00 00 00 00 00 04 6c 6f 6e " +
+"67 00 00 00 00 28 00 00 00" */
 
 	pieces := strings.Split(packet, " ")
 	res := make([]byte, len(pieces))
 
 	for i := 0; i<len(pieces); i++ {
+		if pieces[i] == "" {
+			continue
+		}
+		
 		portion, err := strconv.ParseInt(pieces[i], 16, 0)
 
 		if err != nil {
@@ -39,6 +55,7 @@ func main() {
 			return
 		}
 		res[i] = byte(portion)
+		fmt.Println("piece: ", pieces[i])
 	}
 
 	fmt.Print("[")
