@@ -1,3 +1,3 @@
-* need to fix the datanode rpc issue where the data read
-has some prefix to it
-  - is it a universal thing? Does all data have that exact prefix?
+datanode_rpc is working and passing the two given tests:
+	- test it further
+	- figure out *how* it is working

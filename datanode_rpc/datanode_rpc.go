@@ -145,8 +145,11 @@ func (dr *DataResponse) Load(buf []byte) error {
 
 	binary.Read(byte_buffer, binary.BigEndian, &(dr.DataLength2))
 
+	trash := make([]byte, 4)
+	byte_buffer.Read(trash)
+
 	//TODO POTENTIAL BUG Use the first data length or the second one? 
-	dr.Data = make([]byte, dr.DataLength)
+	dr.Data = make([]byte, dr.DataLength2-1)
 	_, err := byte_buffer.Read(dr.Data)
 	if err != nil {
 		return err
