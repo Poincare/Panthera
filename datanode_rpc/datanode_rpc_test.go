@@ -66,6 +66,10 @@ var DataResponseTestCase2 []byte = []byte {0,0,1,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,
 	14,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,6,4,64,144,10,116,114,101,101,115,
 	10,0,0,0,0,0}
 
+var DataResponseTestCase3 []byte = []byte{0,0,1,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,15,
+	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,7,125,167,232,228,103,111,108,97,110,
+	103,10,0,0,0,0,0}
+
 var DataResponseTestExpected DataResponse = DataResponse {
 	StatusCode: 0,
 	ChecksumType: 1,
@@ -90,6 +94,18 @@ var DataResponseTestExpected2 DataResponse = DataResponse {
 	LastPacketNumber: 1,
 	DataLength2: 6,
 	Data: []byte("trees")}
+
+var DataResponseTestExpected3 DataResponse = DataResponse {
+	StatusCode: 0,
+	ChecksumType: 1,
+	ChunkSize: 512,
+	ChunkOffset: 0,
+	DataLength: 15,
+	InBlockOffset: 0,
+	SequenceNumber: 0,
+	LastPacketNumber: 1,
+	DataLength2: 7,
+	Data: []byte("golang")}
 
 func TestDataResponseConstructor(t *testing.T) {
 	dResp := NewDataResponse()
