@@ -29,6 +29,8 @@ var config Configuration;
 
 //main reactor function called by main
 func loop(server net.Listener) {
+	eventChannel := make(chan hdfs_requests.ProcessorEvent)
+
 	for {
 		conn, err := server.Accept()
 
@@ -55,7 +57,7 @@ func loop(server net.Listener) {
 		util.Log("Connected to HDFS.");
 
 		//create new process and process the connected client
-		processor := hdfs_requests.NewProcessor()
+		processor := hdfs_requests.NewProcessor(event_chan)
 		go processor.HandleConnection(conn, hdfs);
 		go processor.HandleHDFS(conn, hdfs);
 	}

@@ -1,9 +1,4 @@
-Add a way to somehow clear the GFI cache if a
-specific file is updated
-	* if a file is added, first add in a method that is called
-	* with that method, you have to clear the cache of *all* running processors
-	* not just one processor!
-	* Write an event reading loop
+Fix the freezing that is occurring when dfs -touchz is called on HDFS
 
 	
 

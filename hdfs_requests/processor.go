@@ -30,13 +30,15 @@ type Processor struct {
 	EventChannel chan ProcessorEvent
 }
 
-func NewProcessor() *Processor { 
+func NewProcessor(event_chan chan ProcessorEvent) *Processor { 
 	p := Processor{}
 	p.RequestResponse = make(map[PacketNumber]namenode_rpc.PacketPair)
 	/* configuration settings here */
 	gfiCacheSize := 10
 
 	p.gfiCache = caches.NewGetFileInfoCache(gfiCacheSize)
+	p.EventChannel = event_chan
+
 	return &p
 }
 

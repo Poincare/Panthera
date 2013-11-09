@@ -7,9 +7,15 @@ import (
 	"fmt"
 )
 
+var eventChan chan ProcessorEvent = make(chan ProcessorEvent)
+
 func TestNewProcess(t *testing.T) {
-	p := NewProcessor()
+	p := NewProcessor(eventChan)
 	if p == nil {
+		t.FailNow()
+	}
+
+	if p.EventChannel == nil {
 		t.FailNow()
 	}
 }
@@ -21,7 +27,7 @@ var RequestPacketTestCase []byte = []byte{0, 0, 0, 60, 0, 0, 0, 2, 0, 10, 103, 1
 		115, 101, 114, 0, 2, 91, 66, 0, 0, 0, 0}
 
 func TestMapRequest(t *testing.T) {
-	p := NewProcessor()
+	p := NewProcessor(eventChan)
 	req := namenode_rpc.NewRequestPacket()
 	req.Load(RequestPacketTestCase)
 
@@ -43,7 +49,7 @@ var GetFileInfoResponseTestCase []byte = []byte{0,0,0,1,0,0,0,0,0,46,111,114,103
 	117,112}
 
 func TestMapResponse(t *testing.T) {
-	p := NewProcessor()
+	p := NewProcessor(eventChan)
 	resp := namenode_rpc.NewGetFileInfoResponse()
 	resp.Load(GetFileInfoResponseTestCase)
 
@@ -60,7 +66,7 @@ func TestMapResponse(t *testing.T) {
 }
 
 func TestMap(t *testing.T) {
-	p := NewProcessor()
+	p := NewProcessor(eventChan)
 	resp := namenode_rpc.NewGetFileInfoResponse()
 	resp.Load(GetFileInfoResponseTestCase)
 
@@ -86,7 +92,7 @@ func TestMap(t *testing.T) {
 
 //TODO incomplete
 func TestCacheRequest(t *testing.T) {
-	p := NewProcessor()
+	p := NewProcessor(eventChan)
 
 	req := namenode_rpc.NewRequestPacket()
 	req.Load(RequestPacketTestCase)
@@ -99,7 +105,7 @@ func TestCacheRequest(t *testing.T) {
 //hopefully, after some tests are added, it should print out
 //a message which sould serve as a unit test
 func TestEventLoop (t *testing.T) {
-	p := NewProcessor()
+	p := NewProcessor(eventChan)
 	p.EventChannel = make(chan ProcessorEvent)
 
 	go p.EventLoop()
