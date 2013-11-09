@@ -145,6 +145,7 @@ func (dr *DataResponse) Load(buf []byte) error {
 
 	binary.Read(byte_buffer, binary.BigEndian, &(dr.DataLength2))
 
+	//TODO POTENTIAL BUG not exactly sure why/how this works...
 	trash := make([]byte, 4)
 	byte_buffer.Read(trash)
 
