@@ -27,8 +27,8 @@ func TestMapRequest(t *testing.T) {
 
 	p.MapRequest(req)
 
-	if !reflect.DeepEqual(p.RequestResponse[PacketNumber(req.PacketNumber)].Request, *req) {
-		fmt.Println("Not equal: ", p.RequestResponse[PacketNumber(req.PacketNumber)].Request, *req)
+	if !reflect.DeepEqual(p.RequestResponse[PacketNumber(req.PacketNumber)].Request, req) {
+		fmt.Println("Not equal: ", p.RequestResponse[PacketNumber(req.PacketNumber)].Request, req)
 		t.Fail()
 	}
 }
@@ -75,11 +75,11 @@ func TestMap(t *testing.T) {
 
 	pair := p.RequestResponse[PacketNumber(req.PacketNumber)]
 	if !reflect.DeepEqual(pair.Response, resp) {
-		fmt.Println("Not equal: ", pair.Response, *resp)
+		fmt.Println("Not equal: ", pair.Response, resp)
 		t.Fail()
 	}
 
-	if !reflect.DeepEqual(pair.Request, *req) {
+	if !reflect.DeepEqual(pair.Request, req) {
 		t.Fail()
 	}
 }
@@ -94,3 +94,17 @@ func TestCacheRequest(t *testing.T) {
 	p.CacheRequest(req)
 
 }
+
+//this isn't really a complete test
+//hopefully, after some tests are added, it should print out
+//a message which sould serve as a unit test
+func TestEventLoop (t *testing.T) {
+	p := NewProcessor()
+	p.EventChannel = make(chan ProcessorEvent)
+
+	go p.EventLoop()
+
+	event := NewObjectCreatedEvent("some/random/path")
+	p.EventChannel <- event
+}
+

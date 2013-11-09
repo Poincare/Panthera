@@ -414,6 +414,8 @@ func TestGetCreateRequestPath (t *testing.T) {
 	rq := NewRequestPacket()
 	rq.Load(CreateRequestPacketTestCase)
 
+	fmt.Println("Number of parameters: ", rq.ParameterNumber)
+	fmt.Println("Parameters: ", rq.Parameters)
 	//has to match the epected name
 	if rq.GetCreateRequestPath() != CreateRequestPacketExpectedFP {
 		fmt.Println("Not equal: ", rq.GetCreateRequestPath(), CreateRequestPacketExpectedFP)

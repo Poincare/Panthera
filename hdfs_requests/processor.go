@@ -25,6 +25,9 @@ type Processor struct {
 	//with the packet number of 1.
 	//The Map() method fills in response and request packets as needed
 	RequestResponse map[PacketNumber]namenode_rpc.PacketPair
+
+	//the channel processed by EventLoop()
+	EventChannel chan ProcessorEvent
 }
 
 func NewProcessor() *Processor { 
@@ -159,6 +162,13 @@ func (p *Processor) Process(req *namenode_rpc.RequestPacket) namenode_rpc.Respon
 		//that a result was not found in the
 		res := p.gfiCache.Query(req)
 		return res
+	} else if methodName == "create" {
+		//if a new object is being created, we're going to to wrap it
+		//in a ProcessorEvent object and fire it off to the other processors
+		filepath := req.GetCreateRequestPath()
+		event := NewObjectCreatedEvent(filepath)
+		p.EventChannel <- *event
+
 	} else {
 		log.Println("Not getFileInfo call, trying to return nil now")
 	}
@@ -198,5 +208,14 @@ func(p *Processor) MapResponse(resp namenode_rpc.ResponsePacket) {
 		pair.Response = resp
 		p.RequestResponse[packetNum] = pair
 	}
+}
 
+//this method runs in a separate goroutine and processes an 'event list';
+//it listens for events, for example, clearing the GFI cache when a 
+//different processor gets an event that shows that a file has been added
+func (p *Processor) EventLoop() {
+	for {
+		event := <- p.EventChannel
+		log.Println("Event received: ", event)
+	}
 }
