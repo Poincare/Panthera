@@ -39,6 +39,8 @@ func NewProcessor(event_chan chan ProcessorEvent) *Processor {
 	p.gfiCache = caches.NewGetFileInfoCache(gfiCacheSize)
 	p.EventChannel = event_chan
 
+	go p.EventLoop()
+
 	return &p
 }
 
@@ -169,8 +171,13 @@ func (p *Processor) Process(req *namenode_rpc.RequestPacket) namenode_rpc.Respon
 		//in a ProcessorEvent object and fire it off to the other processors
 		filepath := req.GetCreateRequestPath()
 		event := NewObjectCreatedEvent(filepath)
-		p.EventChannel <- *event
-
+		
+		//we send the event in a nonblocking fashion so that this
+		//goroutine does *not* block since it replies directly to
+		//the client
+		go func() {
+			p.EventChannel <- *event
+		}()
 	} else {
 		log.Println("Not getFileInfo call, trying to return nil now")
 	}

@@ -57,7 +57,7 @@ func loop(server net.Listener) {
 		util.Log("Connected to HDFS.");
 
 		//create new process and process the connected client
-		processor := hdfs_requests.NewProcessor(event_chan)
+		processor := hdfs_requests.NewProcessor(eventChannel)
 		go processor.HandleConnection(conn, hdfs);
 		go processor.HandleHDFS(conn, hdfs);
 	}
