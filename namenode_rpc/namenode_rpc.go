@@ -177,6 +177,15 @@ func GetPacketNumber(buf []byte) uint32 {
 
 	return res
 }
+
+/* Request Packet type specific methods */
+
+//this method should only be used on Create packets (as determined by the MethodName
+//field). It returns the filepath associated with the create method.
+func (rp *RequestPacket) GetCreateRequestPath() string {
+	return string(rp.Parameters[0].Value)
+}
+
 //it seems that there are separate types of response packets depending on the
 //kind of method that is called, so this one is for the getFileInfo
 //this information has all been obtained through wireshark and some of the 
@@ -306,10 +315,7 @@ func (gf *GetFileInfoResponse) Load(buf []byte) error {
 }
 
 
-//the type of response we get for trying to identify
-//where certain blocks lie
 
-type 
 //request-response pair of the packet
 //used by the processor package
 type PacketPair struct {
