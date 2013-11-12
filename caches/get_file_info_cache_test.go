@@ -28,3 +28,19 @@ func TestGFICacheQuery(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func TestGFICacheDisabled (t *testing.T) {
+	cs := 3
+	gf := NewGetFileInfoCache(cs)
+	gf.Disable()
+
+	req := namenode_rpc.NewRequestPacket()
+	resp := namenode_rpc.NewGetFileInfoResponse()
+
+	gf.Cache.Add(req, resp)
+
+	if !reflect.DeepEqual(nil, gf.Cache.Query(req)) {
+		fmt.Println("not equal: ", gf.Cache.Query(req), nil)
+		t.Fail()
+	}
+}

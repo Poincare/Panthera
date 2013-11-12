@@ -35,12 +35,16 @@ type RequestCache struct {
 
 	Hits int
 	Misses int
+
+	//set whether or not this cache is enabled
+	Enabled bool
 }
 
 func NewRequestCache(cache_size int) *RequestCache {
 	rs := RequestCache{}
 	rs.RequestResponse = make(map[PacketNumber](namenode_rpc.PacketPair))
 	rs.CacheSize = cache_size
+	rs.Enabled = true
 	return &rs
 }
 
@@ -102,6 +106,10 @@ func (rc *RequestCache) Clear() {
 //TODO optimize this function somehow?
 //TODO returns nil if nothing is found, is that a bad idea?
 func (rc *RequestCache) Query(rp namenode_rpc.ReqPacket) namenode_rpc.ResponsePacket {
+	if !rc.Enabled {
+		return nil
+	}
+
 	for packetNum, _ := range rc.RequestResponse {
 		if reflect.DeepEqual(rc.RequestResponse[packetNum].Request, rp) {
 			rc.Hits += 1

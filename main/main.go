@@ -4,6 +4,8 @@ import (
 	"net"
 	"hdfs_requests"
 	"util"
+	"io/ioutil"
+	"log"
 )
 
 /* 
@@ -64,6 +66,7 @@ func loop(server net.Listener) {
 }
 
 func main() {
+	util.LoggingEnabled = false
 	util.Log("Starting...")
 
 	config.hdfsHostname = "127.0.0.1"
@@ -73,6 +76,8 @@ func main() {
 	config.retryHdfs = false
 
 	server, err := net.Listen("tcp", config.serverHost + ":" + config.serverPort)
+	log.SetOutput(ioutil.Discard)
+
 	if err != nil {
 		util.LogError(err.Error());
 		return

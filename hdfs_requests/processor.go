@@ -4,7 +4,6 @@ import (
 	"namenode_rpc"
 	"net"
 	"util"
-	"fmt"
 	"caches"
 	"log"
 )
@@ -95,7 +94,7 @@ func (p *Processor) HandleConnection(conn net.Conn, hdfs net.Conn) {
 			rp := namenode_rpc.NewRequestPacket()
 			err := rp.Load(byteBuffer)
 			if err != nil {
-				fmt.Println("Error in loading request packet: ", err.Error())
+				util.LogError("Error in loading request packet: " + err.Error())
 			} else {
 				//deal with checking the cache
 				resp := p.Process(rp)

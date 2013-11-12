@@ -3,7 +3,6 @@ package namenode_rpc
 import (
 	"bytes"
 	"encoding/binary"
-	"fmt"
 )
 
 
@@ -132,7 +131,6 @@ func NewRequestPacket () *RequestPacket {
 //Google's Protocol Buffers.
 func (rp *RequestPacket) Load(buf []byte) error {
 	byte_buffer := bytes.NewBuffer(buf)
-	fmt.Println("Request packet, load BB: ", buf)
 
 	binary.Read(byte_buffer, binary.BigEndian, &(rp.Length))
 	binary.Read(byte_buffer, binary.BigEndian, &(rp.PacketNumber))

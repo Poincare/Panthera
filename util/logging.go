@@ -4,17 +4,25 @@ import (
 	"fmt"
 )
 
+var LoggingEnabled bool = true
+
 //log general information
 func Log(x string) {
-	fmt.Println(x);
+	if LoggingEnabled {
+		fmt.Println(x);
+	}
 }
 
 //log an error message
 func LogError(x string) {
-	fmt.Println("ERROR: " + x);
+	if LoggingEnabled {
+		fmt.Println("ERROR: " + x);
+	}
 }
 
 //log some received data
 func LogRecvd(source string, x string) {
-	fmt.Println("RECVD FROM: " + source + ", DATA: " + x)
+	if LoggingEnabled {
+		fmt.Println("RECVD FROM: " + source + ", DATA: " + x)
+	}
 }

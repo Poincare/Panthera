@@ -170,3 +170,14 @@ func TestRequestCacheHasPacketNumber(t *testing.T) {
 	}
 }
 
+func TestRequestCacheDisabled(t *testing.T) {
+	rc := NewRequestCache(3)
+	req := namenode_rpc.NewRequestPacket()
+	resp := namenode_rpc.NewGetFileInfoResponse()
+	rc.Enabled = false
+	rc.Add(req, resp)
+
+	if rc.Query(req) != nil {
+		t.Fail()
+	}
+}
