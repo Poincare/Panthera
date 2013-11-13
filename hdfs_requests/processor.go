@@ -6,6 +6,9 @@ import (
 	"util"
 	"caches"
 	"log"
+	"fmt"
+	"bytes"
+	"encoding/binary"
 )
 
 type PacketNumber uint32
@@ -40,6 +43,9 @@ func NewProcessor(event_chan chan ProcessorEvent) *Processor {
 
 	go p.EventLoop()
 
+	/* disable the caches or enable them here */
+	//p.gfiCache.Disable()
+
 	return &p
 }
 
@@ -65,6 +71,7 @@ func (p *Processor) CacheResponse(resp namenode_rpc.ResponsePacket) {
 
 	//we can hook up a response with a request
 	if p.gfiCache.Cache.HasPacketNumber(packetNum) {
+		fmt.Println("has packet number in GFI cache: ", packetNum)
 		p.gfiCache.Cache.AddResponse(resp)
 	}
 
@@ -103,8 +110,10 @@ func (p *Processor) HandleConnection(conn net.Conn, hdfs net.Conn) {
 				//we can respond to the client immediately, we don't need to 
 				//wait for HDFS do anything
 				if resp != nil {
+					fmt.Println("Cache hit!")
 					util.Log("found in the cache")
 				} else {
+					fmt.Println("Cache miss!, methodname: ", string(rp.MethodName))
 					//if it wasn't found in any of the
 					//caches, we should cache the request
 					util.Log("Trying to cache a request...")
@@ -124,11 +133,24 @@ func (p *Processor) HandleConnection(conn net.Conn, hdfs net.Conn) {
 
 func (p *Processor) HandleHDFS(conn net.Conn, hdfs net.Conn) {
 	for {
-		byteBuffer := make([]byte, 1024)
+		buf := make([]byte, 1024)
 
 		//Read() blocks
-		bytesRead, readErr := hdfs.Read(byteBuffer)
-		byteBuffer = byteBuffer[0:bytesRead]
+		bytesRead, readErr := hdfs.Read(buf)
+		buf = buf[0:bytesRead]
+
+		//TODO POTENTIAL BUG the packet number should always be at the front of the response packet
+		//but, the docs don't actually explicitly mention this
+		var packetNumber uint32
+		byteBuffer := bytes.NewBuffer(buf)
+
+		//read in the packet number (should be a uint32)
+		binary.Read(byteBuffer, binary.BigEndian, &packetNumber)
+
+		//create a generic response packet. Since we know the packet
+		//number, it doesn't particularly matter what type of packet it 
+		//actually is
+		genericResp := namenode_rpc.NewGenericResponsePacket(buf, packetNumber)
 
 		//detects EOF's etc.
 		if readErr != nil {
@@ -140,9 +162,10 @@ func (p *Processor) HandleHDFS(conn net.Conn, hdfs net.Conn) {
 		if(bytesRead > 0) {
 			//cache the response (CacheResponse should find out if there is
 			//a matching request to this response)
+			p.CacheResponse(genericResp)
 
 			//proxy the read data to the associated client socket
-			conn.Write(byteBuffer)
+			conn.Write(buf)
 		}
 	}
 }
@@ -160,6 +183,8 @@ func (p *Processor) Process(req *namenode_rpc.RequestPacket) namenode_rpc.Respon
 	methodName := string(req.MethodName)
 	log.Println("Trying to do something here...")
 	if methodName == "getFileInfo" {
+		fmt.Println("method is GFI, querying GFICache...")
+
 		//this will return a correct response if we can find one
 		//cached, or it will simply return nil so that we now
 		//that a result was not found in the

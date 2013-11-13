@@ -64,7 +64,35 @@ type ResponsePacket interface {
 	GetPacketNumber() uint32
 }
 
-/* TODO this is ALL NONSENSE */
+//this is used when we aren't exactly sure (or don't care)
+//what type of response a certain packet is
+//so we can just stuff into some random data structure.
+//implements the ResponsePacket interface
+//used in processor.HandleHDFS
+type GenericResponsePacket struct {
+	buf []byte
+	PacketNumber uint32
+}
+
+func NewGenericResponsePacket(buf []byte, packNum uint32) *GenericResponsePacket {
+	grp := GenericResponsePacket{buf: buf, 
+		PacketNumber: packNum}
+	return &grp
+}
+
+func (grp *GenericResponsePacket) Load(buf []byte) error {
+	grp.buf = buf
+	return nil
+}
+
+func (grp *GenericResponsePacket) Bytes() []byte {
+	return grp.buf
+}
+
+func (grp *GenericResponsePacket) GetPacketNumber() uint32 {
+	return grp.PacketNumber
+}
+
 
 type Parameter struct {
 	TypeLength uint16

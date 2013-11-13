@@ -1,4 +1,1 @@
-Fix the freezing that is occurring when dfs -touchz is called on HDFS
-
-	
-
+Fix the problem of getting the response into the GFICache
