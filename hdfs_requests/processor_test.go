@@ -20,6 +20,7 @@ func TestNewProcess(t *testing.T) {
 	}
 }
 
+//GFI request
 var RequestPacketTestCase []byte = []byte{0, 0, 0, 60, 0, 0, 0, 2, 0, 10, 103, 101, 116, 
 		76, 105, 115, 116, 105, 110, 103, 0, 0, 0, 2, 0, 16, 106, 
 		97, 118, 97, 46, 108, 97, 110, 103, 46, 83, 116, 114, 105, 
@@ -114,3 +115,16 @@ func TestEventLoop (t *testing.T) {
 	p.EventChannel <- event
 }
 
+func TestCacheRequestWithCacheSize (t *testing.T) {
+	p := NewProcessor(eventChan)
+
+	req := namenode_rpc.NewRequestPacket()
+	req.Load(RequestPacketTestCase)
+
+	p.CacheRequest(req)
+
+	if len(p.gfiCache.Cache.RequestResponse) != 1 {
+		fmt.Println("Got size: ", len(p.gfiCache.Cache.RequestResponse), "cache structure: ", p.gfiCache.Cache.RequestResponse)
+		t.Fail()
+	}
+}

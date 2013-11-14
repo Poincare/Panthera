@@ -7,7 +7,7 @@ import (
 	"namenode_rpc"
 	"reflect"
 	"errors"
-	//"fmt"
+	"fmt"
 )
 
 type PacketNumber uint32
@@ -110,11 +110,15 @@ func (rc *RequestCache) Query(rp namenode_rpc.ReqPacket) namenode_rpc.ResponsePa
 		return nil
 	}
 
+	fmt.Println("Cache enabled and will now query. Cache size: ", len(rc.RequestResponse))
+
 	for packetNum, _ := range rc.RequestResponse {
 		if reflect.DeepEqual(rc.RequestResponse[packetNum].Request, rp) {
 			rc.Hits += 1
 			return rc.RequestResponse[packetNum].Response
-		}	
+		}	else {
+			fmt.Println("Queried: ", rp, " did not equal: ", rc.RequestResponse[packetNum])
+		}
 	}
 
 	rc.Misses += 1

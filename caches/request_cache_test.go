@@ -122,6 +122,10 @@ func TestRequestCacheAddRequest(t *testing.T) {
 
 	rc.AddRequest(rp)
 
+	if len(rc.RequestResponse) != 1 {
+		t.Fail()
+	}
+	
 	if rc.RequestResponse[packetNum].Response != nil {
 		t.Fail()
 	}

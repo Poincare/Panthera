@@ -56,8 +56,10 @@ func NewProcessor(event_chan chan ProcessorEvent) *Processor {
 func (p *Processor) CacheRequest(req *namenode_rpc.RequestPacket) {
 	if(string(req.MethodName) == "getFileInfo") {
 		//follow through with the GetFileInfoCache
+		fmt.Println("Caching request..., cache size: ", len(p.gfiCache.Cache.RequestResponse))
 		p.gfiCache.Cache.AddRequest(req)
-		log.Println("Cached GFI Request: ", req)
+		fmt.Println("Cached request. Cache size: ", len(p.gfiCache.Cache.RequestResponse))
+		log.Println("Cached GFI Request: ")
 	}
 }
 
@@ -71,7 +73,6 @@ func (p *Processor) CacheResponse(resp namenode_rpc.ResponsePacket) {
 
 	//we can hook up a response with a request
 	if p.gfiCache.Cache.HasPacketNumber(packetNum) {
-		fmt.Println("has packet number in GFI cache: ", packetNum)
 		p.gfiCache.Cache.AddResponse(resp)
 	}
 
