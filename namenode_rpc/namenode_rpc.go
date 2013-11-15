@@ -112,6 +112,8 @@ func NewParameter() *Parameter {
 type ReqPacket interface {
 	Load(buf []byte) error
 	GetPacketNumber() uint32
+	GetMethodName() []byte
+	GetParameter(i int) Parameter
 }
 
 /* This has been derived from what I've reverse 
@@ -136,6 +138,15 @@ type RequestPacket struct {
 	Parameters []Parameter
 }
 
+/* getter methods to fullfil the ReqPacket interface */
+
+func (rp *RequestPacket) GetMethodName() []byte {
+	return rp.MethodName
+}
+
+func (rp *RequestPacket) GetParameter(i int) Parameter {
+	return rp.Parameters[i]
+}
 
 func (rp *RequestPacket) GetPacketNumber() uint32 {
 	return rp.PacketNumber
