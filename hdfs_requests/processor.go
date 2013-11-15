@@ -35,17 +35,14 @@ type Processor struct {
 func NewProcessor(event_chan chan ProcessorEvent, cacheSet *caches.CacheSet) *Processor { 
 	p := Processor{}
 	p.RequestResponse = make(map[PacketNumber]namenode_rpc.PacketPair)
-	/* configuration settings here */
-	gfiCacheSize := 10
 
 	p.EventChannel = event_chan
-
 	p.cacheSet = cacheSet
 
 	go p.EventLoop()
 
 	/* disable the caches or enable them here */
-	//p.gfiCache.Disable()
+	//p.cacheSet.GfiCache.Disable()
 
 	return &p
 }
@@ -57,9 +54,9 @@ func NewProcessor(event_chan chan ProcessorEvent, cacheSet *caches.CacheSet) *Pr
 func (p *Processor) CacheRequest(req *namenode_rpc.RequestPacket) {
 	if(string(req.MethodName) == "getFileInfo") {
 		//follow through with the GetFileInfoCache
-		fmt.Println("Caching request..., cache size: ", len(p.gfiCache.Cache.RequestResponse))
-		p.gfiCache.Cache.AddRequest(req)
-		fmt.Println("Cached request. Cache size: ", len(p.gfiCache.Cache.RequestResponse))
+		fmt.Println("Caching request..., cache size: ", len(p.cacheSet.GfiCache.Cache.RequestResponse))
+		p.cacheSet.GfiCache.Cache.AddRequest(req)
+		fmt.Println("Cached request. Cache size: ", len(p.cacheSet.GfiCache.Cache.RequestResponse))
 		log.Println("Cached GFI Request: ")
 	}
 }
@@ -73,8 +70,8 @@ func (p *Processor) CacheResponse(resp namenode_rpc.ResponsePacket) {
 	packetNum := caches.PacketNumber(resp.GetPacketNumber())
 
 	//we can hook up a response with a request
-	if p.gfiCache.Cache.HasPacketNumber(packetNum) {
-		p.gfiCache.Cache.AddResponse(resp)
+	if p.cacheSet.GfiCache.Cache.HasPacketNumber(packetNum) {
+		p.cacheSet.GfiCache.Cache.AddResponse(resp)
 	}
 
 	log.Println("Cached response: ", resp)
@@ -190,7 +187,7 @@ func (p *Processor) Process(req *namenode_rpc.RequestPacket) namenode_rpc.Respon
 		//this will return a correct response if we can find one
 		//cached, or it will simply return nil so that we now
 		//that a result was not found in the
-		res := p.gfiCache.Query(req)
+		res := p.cacheSet.GfiCache.Query(req)
 		return res
 	} else if methodName == "create" {
 		//if a new object is being created, we're going to to wrap it
