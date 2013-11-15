@@ -8,11 +8,18 @@ import (
 	"reflect"
 	"errors"
 	"fmt"
+	"sync"
 )
 
 type PacketNumber uint32
 
 type RequestCache struct {
+	//notice that the Cache is operated with a 
+	//mutex in order to make sure that different hdfs_requests.Processor
+	//instances do not run over each other in trying to read/write from/to
+	//RequestCache instances
+	sync.RWMutex
+
 	CacheSize int
 
 	/*
@@ -49,6 +56,10 @@ func NewRequestCache(cache_size int) *RequestCache {
 }
 
 func (rc *RequestCache) Add(rp namenode_rpc.ReqPacket, resp namenode_rpc.ResponsePacket) error {
+	rc.Lock()
+	//unlock the mutex after done w/ processing this function
+	defer rc.Unlock()
+
 	//the central assumption does not hold if 
 	//we do not have equal packet numbers
 	if rp != nil && resp != nil {
@@ -88,6 +99,8 @@ func (rc *RequestCache) Add(rp namenode_rpc.ReqPacket, resp namenode_rpc.Respons
 
 //same as Add() but adds a PacketPair with a nil in place of the response packet
 func (rc *RequestCache) AddRequest(req namenode_rpc.ReqPacket) error {
+	rc.Lock()
+	defer rc.Unlock()
 	return rc.Add(req, nil)
 }
 
@@ -95,17 +108,25 @@ func (rc *RequestCache) AddRequest(req namenode_rpc.ReqPacket) error {
 //HOWEVER, this assumes that the bucket already has a Request inside it (i.e we
 //can't have a Response before a Request)
 func (rc *RequestCache) AddResponse(resp namenode_rpc.ResponsePacket) error {
+	rc.Lock()
+	defer rc.Unlock()
+
 	req := rc.RequestResponse[PacketNumber(resp.GetPacketNumber())].Request
 	return rc.Add(req, resp)
 }
 
 func (rc *RequestCache) Clear() {
+	rc.Lock()
+	defer rc.Unlock()
 	rc.RequestResponse = make(map[PacketNumber](namenode_rpc.PacketPair))
 }
 
 //TODO optimize this function somehow?
 //TODO returns nil if nothing is found, is that a bad idea?
 func (rc *RequestCache) Query(rp namenode_rpc.ReqPacket) namenode_rpc.ResponsePacket {
+	rc.RLock()
+	defer rc.RUnlock()
+
 	if !rc.Enabled {
 		return nil
 	}
@@ -126,6 +147,8 @@ func (rc *RequestCache) Query(rp namenode_rpc.ReqPacket) namenode_rpc.ResponsePa
 }
 
 func (rc *RequestCache) HasPacketNumber(packetNum PacketNumber) bool {
+	rc.RLock()
+	defer r.RUnlock()
 	_, present := rc.RequestResponse[packetNum]
 	return present
 }

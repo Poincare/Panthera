@@ -6,6 +6,7 @@ import (
 	"util"
 	"io/ioutil"
 	"log"
+	"caches"
 )
 
 /* 
@@ -30,7 +31,7 @@ type Configuration struct {
 var config Configuration;
 
 //main reactor function called by main
-func loop(server net.Listener) {
+func loop(server net.Listener, caches *caches.CacheSet) {
 	eventChannel := make(chan hdfs_requests.ProcessorEvent)
 
 	for {
@@ -59,7 +60,8 @@ func loop(server net.Listener) {
 		util.Log("Connected to HDFS.");
 
 		//create new process and process the connected client
-		processor := hdfs_requests.NewProcessor(eventChannel)
+		//pass it the caches that are currently initialized
+		processor := hdfs_requests.NewProcessor(eventChannel, caches)
 		go processor.HandleConnection(conn, hdfs);
 		go processor.HandleHDFS(conn, hdfs);
 	}
@@ -75,6 +77,12 @@ func main() {
 	config.serverPort = "1035"
 	config.retryHdfs = false
 
+	//initialize the cacheset and the caches
+	//within it
+	gfiCacheSize := 15
+	cacheSet := caches.NewCacheSet()
+	cacheSet.GfiCache = caches.NewGetFileInfoCache(gfiCacheSize)
+
 	server, err := net.Listen("tcp", config.serverHost + ":" + config.serverPort)
 	log.SetOutput(ioutil.Discard)
 
@@ -83,5 +91,5 @@ func main() {
 		return
 	}
 
-	loop(server);
+	loop(server, cacheSet);
 }

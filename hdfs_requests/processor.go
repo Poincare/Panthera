@@ -18,6 +18,9 @@ type Processor struct {
 	//presumably by the same client (i.e. one client per processor)
 	PastRequests []namenode_rpc.RequestPacket
 
+	//the configured, ready-to-go caches (supplied by main.go)
+	cacheSet *caches.CacheSet
+
 	//cache called when we get a "GetFileInfo" cache
 	gfiCache *caches.GetFileInfoCache
 
@@ -32,7 +35,7 @@ type Processor struct {
 	EventChannel chan ProcessorEvent
 }
 
-func NewProcessor(event_chan chan ProcessorEvent) *Processor { 
+func NewProcessor(event_chan chan ProcessorEvent, cacheSet *caches.CacheSet) *Processor { 
 	p := Processor{}
 	p.RequestResponse = make(map[PacketNumber]namenode_rpc.PacketPair)
 	/* configuration settings here */
@@ -41,6 +44,8 @@ func NewProcessor(event_chan chan ProcessorEvent) *Processor {
 	p.gfiCache = caches.NewGetFileInfoCache(gfiCacheSize)
 	p.EventChannel = event_chan
 
+	p.cacheSet = cacheSet
+	
 	go p.EventLoop()
 
 	/* disable the caches or enable them here */
