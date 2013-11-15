@@ -340,7 +340,48 @@ func (gf *GetFileInfoResponse) Load(buf []byte) error {
 	return nil
 }
 
+//a getListing response packet (typically returned on a dfs -ls)
+//TODO POTENTIAL BUG this structure has not
+//been unit tested, primarily because only the 
+//packet number is currently being used
+type GetListingResponse struct {
+	PacketNumber uint32
+	Success uint32
+	
+	ObjectNameLength uint16
+	ObjectName []byte
 
+	ObjectNameLength2 uint16
+	ObjectName2 []byte
+
+	ResLength uint16
+	Listing []byte
+}
+
+func NewGetListingResponse() *GetListingResponse {
+	glr := GetListingResponse{}
+	return &glr
+}
+
+func (glr *GetListingResponse) Load(buf []byte) error {
+	byteBuffer := bytes.NewBuffer(buf)
+
+	binary.Read(byteBuffer, binary.BigEndian, &(glr.PacketNumber))
+	binary.Read(byteBuffer, binary.BigEndian, &(glr.Sucess))
+
+	binary.Read(byteBuffer, binary.BigEndian, &(glr.ObjectNameLength))
+	glr.ObjectName = make([]byte, glr.ObjectNameLength)
+	byteBuffer.Read(glr.ObjectName)
+	
+	binary.Read(byteBuffer, binary.BigEndian, &(glr.ObjectNameLength2))
+	glr.ObjectName2 = make([]byte, glr.ObjectNameLength2)
+	byteBuffer.Reaqd(glr.ObjectName2)
+
+	binary.Read(byteBuffer, binary.BigEndian, &(glr.ResLength))
+
+	//the rest of the buffer should be listing message
+	glr.Listing = byteBuffer.Bytes()
+}
 
 //request-response pair of the packet
 //used by the processor package

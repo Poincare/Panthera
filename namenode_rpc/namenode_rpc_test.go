@@ -423,3 +423,14 @@ func TestGetCreateRequestPath (t *testing.T) {
 	}
 }
 
+//GetListingResponse tests
+
+//simple constructor test
+func TestNewGetListingResponse (t *testing.T) {
+	glr := TestNewGetListingResponse()
+	if glr == nil {
+		t.Fail()
+	}
+}
+
+//
