@@ -424,7 +424,6 @@ func TestGetCreateRequestPath (t *testing.T) {
 }
 
 //GetListingResponse tests
-
 //simple constructor test
 func TestNewGetListingResponse (t *testing.T) {
 	glr := TestNewGetListingResponse()
@@ -432,5 +431,3 @@ func TestNewGetListingResponse (t *testing.T) {
 		t.Fail()
 	}
 }
-
-//

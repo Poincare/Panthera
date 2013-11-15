@@ -7,7 +7,7 @@ import (
 	"namenode_rpc"
 	"reflect"
 	"errors"
-	"fmt"
+	//"fmt"
 	"sync"
 )
 
@@ -133,23 +133,13 @@ func (rc *RequestCache) Query(rp namenode_rpc.ReqPacket) namenode_rpc.ResponsePa
 	rc.RLock()
 	defer rc.RUnlock()
 
-	if !rc.Enabled {
-		return nil
-	}
+	//use the reflect.DeepEqual as the default
+	//equality comparator
+	equals := EqualityFunc(func(rp1 namenode_rpc.ReqPacket, rp2 namenode_rpc.ReqPacket) bool {
+			return reflect.DeepEqual(rp1, rp2)
+		})
 
-	fmt.Println("Cache enabled and will now query. Cache size: ", len(rc.RequestResponse))
-
-	for packetNum, _ := range rc.RequestResponse {
-		if reflect.DeepEqual(rc.RequestResponse[packetNum].Request, rp) {
-			rc.Hits += 1
-			return rc.RequestResponse[packetNum].Response
-		}	else {
-			fmt.Println("Queried: ", rp, " did not equal: ", rc.RequestResponse[packetNum])
-		}
-	}
-
-	rc.Misses += 1
-	return nil
+	return rc.queryCustom(rp, equals)
 }
 
 //this function is like the Query() function, but takes an
@@ -158,10 +148,7 @@ func (rc *RequestCache) Query(rp namenode_rpc.ReqPacket) namenode_rpc.ResponsePa
 //different equality measures
 type EqualityFunc func(namenode_rpc.ReqPacket, namenode_rpc.ReqPacket) bool
 
-func (rc *RequestCache) QueryCustom(rp namenode_rpc.ReqPacket, equals EqualityFunc) namenode_rpc.ResponsePacket {
-	rc.RLock()
-	defer rc.RUnlock()
-
+func (rc *RequestCache) queryCustom(rp namenode_rpc.ReqPacket, equals EqualityFunc) namenode_rpc.ResponsePacket {
 	if !rc.Enabled {
 		return nil
 	}
@@ -175,7 +162,16 @@ func (rc *RequestCache) QueryCustom(rp namenode_rpc.ReqPacket, equals EqualityFu
 	}
 
 	rc.Misses += 1
-	return nil
+	return nil	
+}
+
+func (rc *RequestCache) QueryCustom(rp namenode_rpc.ReqPacket, equals EqualityFunc) namenode_rpc.ResponsePacket {
+	rc.RLock()
+	defer rc.RUnlock()
+
+	//call the private method, which assumes that the lock has been
+	//obtained already
+	return rc.queryCustom(rp, equals)
 }
 
 func (rc *RequestCache) HasPacketNumber(packetNum PacketNumber) bool {
