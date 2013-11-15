@@ -32,6 +32,7 @@ func (gfi_cache *GetFileInfoCache) Disable() {
 	//value as well
 	gfi_cache.Cache.Enabled = false
 }
+
 //Query the cache. Returns nil if req is not found in the cache or the Enabled is set to false.
 func (gfi_cache *GetFileInfoCache) Query(req namenode_rpc.ReqPacket) namenode_rpc.ResponsePacket {
 	//if the cache is not enabled, we keep returning nil

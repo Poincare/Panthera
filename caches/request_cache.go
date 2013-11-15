@@ -152,6 +152,30 @@ func (rc *RequestCache) Query(rp namenode_rpc.ReqPacket) namenode_rpc.ResponsePa
 	return nil
 }
 
+//this function is like the Query() function, but takes an
+//equality method (i.e. whether or not two request packets are
+//equal to one another). Different cache types can use
+//different equality measures
+type EqualityFunc func(namenode_rpc.ReqPacket, namenode_rpc.ReqPacket) bool
+
+func (rc *RequestCache) QueryCustom(rp namenode_rpc.ReqPacket, equals EqualityFunc) namenode_rpc.ResponsePacket {
+	rc.RLock()
+	defer rc.Unlock()
+
+	if !rc.Enabled {
+		return nil
+	}
+
+	for packetNum, _ := range rc.RequestResponse {
+		if equals(rc.Requestresponse[packetNum], rp) {
+			rc.Hits += 1
+			return rc.RequestResponse[packetNum].Response
+		}
+	}
+
+	rc.Misses += 1
+}
+
 func (rc *RequestCache) HasPacketNumber(packetNum PacketNumber) bool {
 	rc.RLock()
 	defer rc.RUnlock()

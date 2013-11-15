@@ -1,1 +1,2 @@
-Fix the problem of getting the response into the GFICache
+Fix the Query() in GetFileInfoCache - it should only be comparing
+some of the parameters
