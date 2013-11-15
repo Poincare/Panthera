@@ -55,10 +55,8 @@ func NewRequestCache(cache_size int) *RequestCache {
 	return &rs
 }
 
-func (rc *RequestCache) Add(rp namenode_rpc.ReqPacket, resp namenode_rpc.ResponsePacket) error {
-	rc.Lock()
-	//unlock the mutex after done w/ processing this function
-	defer rc.Unlock()
+//this a private method because it assumes that the mutex has already been locked
+func (rc *RequestCache) add(rp namenode_rpc.ReqPacket, resp namenode_rpc.ResponsePacket) error {
 
 	//the central assumption does not hold if 
 	//we do not have equal packet numbers
@@ -97,11 +95,19 @@ func (rc *RequestCache) Add(rp namenode_rpc.ReqPacket, resp namenode_rpc.Respons
 	return nil
 }
 
+func (rc *RequestCache) Add(rp namenode_rpc.ReqPacket, resp namenode_rpc.ResponsePacket) error {
+	rc.Lock()
+	//unlock the mutex after done w/ processing this function
+	defer rc.Unlock()
+
+	return rc.add(rp, resp)
+}
+
 //same as Add() but adds a PacketPair with a nil in place of the response packet
 func (rc *RequestCache) AddRequest(req namenode_rpc.ReqPacket) error {
 	rc.Lock()
 	defer rc.Unlock()
-	return rc.Add(req, nil)
+	return rc.add(req, nil)
 }
 
 //adds a response to the packet pair that was partially filled with AddRequest
@@ -112,7 +118,7 @@ func (rc *RequestCache) AddResponse(resp namenode_rpc.ResponsePacket) error {
 	defer rc.Unlock()
 
 	req := rc.RequestResponse[PacketNumber(resp.GetPacketNumber())].Request
-	return rc.Add(req, resp)
+	return rc.add(req, resp)
 }
 
 func (rc *RequestCache) Clear() {
@@ -148,7 +154,7 @@ func (rc *RequestCache) Query(rp namenode_rpc.ReqPacket) namenode_rpc.ResponsePa
 
 func (rc *RequestCache) HasPacketNumber(packetNum PacketNumber) bool {
 	rc.RLock()
-	defer r.RUnlock()
+	defer rc.RUnlock()
 	_, present := rc.RequestResponse[packetNum]
 	return present
 }

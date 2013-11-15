@@ -21,9 +21,6 @@ type Processor struct {
 	//the configured, ready-to-go caches (supplied by main.go)
 	cacheSet *caches.CacheSet
 
-	//cache called when we get a "GetFileInfo" cache
-	gfiCache *caches.GetFileInfoCache
-
 	//this map links up packet numbers with
 	//request, response pairs. So, a response packet
 	//with a packet number of 1 is responding to the request 
@@ -41,11 +38,10 @@ func NewProcessor(event_chan chan ProcessorEvent, cacheSet *caches.CacheSet) *Pr
 	/* configuration settings here */
 	gfiCacheSize := 10
 
-	p.gfiCache = caches.NewGetFileInfoCache(gfiCacheSize)
 	p.EventChannel = event_chan
 
 	p.cacheSet = cacheSet
-	
+
 	go p.EventLoop()
 
 	/* disable the caches or enable them here */
