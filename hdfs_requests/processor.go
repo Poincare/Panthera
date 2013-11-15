@@ -110,6 +110,7 @@ func (p *Processor) HandleConnection(conn net.Conn, hdfs net.Conn) {
 				//wait for HDFS do anything
 				if resp != nil {
 					fmt.Println("Cache hit!")
+					conn.Write(resp.Bytes())
 					util.Log("found in the cache")
 				} else {
 					fmt.Println("Cache miss!, methodname: ", string(rp.MethodName))
