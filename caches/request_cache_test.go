@@ -185,3 +185,22 @@ func TestRequestCacheDisabled(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func TestRequestCacheQueryCustom (t *testing.T) {
+	rc := NewRequestCache(1)
+	rp := namenode_rpc.NewRequestPacket()
+	resp := namenode_rpc.NewGetFileInfoResponse()
+	rc.Add(rp, resp)
+
+	//this is the standard equals
+	equals := EqualityFunc(func(rp1 namenode_rpc.ReqPacket, rp2 namenode_rpc.ReqPacket) bool {
+			return reflect.DeepEqual(rp1, rp2)
+		})
+
+	fmt.Println("Getting result...")
+	res := rc.QueryCustom(rp, equals)
+	fmt.Println("got result")
+	if !reflect.DeepEqual(resp, res) {
+		t.Fail()
+	}
+}

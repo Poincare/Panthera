@@ -160,20 +160,22 @@ type EqualityFunc func(namenode_rpc.ReqPacket, namenode_rpc.ReqPacket) bool
 
 func (rc *RequestCache) QueryCustom(rp namenode_rpc.ReqPacket, equals EqualityFunc) namenode_rpc.ResponsePacket {
 	rc.RLock()
-	defer rc.Unlock()
+	defer rc.RUnlock()
 
 	if !rc.Enabled {
 		return nil
 	}
 
 	for packetNum, _ := range rc.RequestResponse {
-		if equals(rc.Requestresponse[packetNum], rp) {
+		isEqual := equals(rc.RequestResponse[packetNum].Request, rp)
+		if isEqual {
 			rc.Hits += 1
 			return rc.RequestResponse[packetNum].Response
 		}
 	}
 
 	rc.Misses += 1
+	return nil
 }
 
 func (rc *RequestCache) HasPacketNumber(packetNum PacketNumber) bool {

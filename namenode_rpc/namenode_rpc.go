@@ -367,7 +367,7 @@ func (glr *GetListingResponse) Load(buf []byte) error {
 	byteBuffer := bytes.NewBuffer(buf)
 
 	binary.Read(byteBuffer, binary.BigEndian, &(glr.PacketNumber))
-	binary.Read(byteBuffer, binary.BigEndian, &(glr.Sucess))
+	binary.Read(byteBuffer, binary.BigEndian, &(glr.Success))
 
 	binary.Read(byteBuffer, binary.BigEndian, &(glr.ObjectNameLength))
 	glr.ObjectName = make([]byte, glr.ObjectNameLength)
@@ -375,12 +375,16 @@ func (glr *GetListingResponse) Load(buf []byte) error {
 	
 	binary.Read(byteBuffer, binary.BigEndian, &(glr.ObjectNameLength2))
 	glr.ObjectName2 = make([]byte, glr.ObjectNameLength2)
-	byteBuffer.Reaqd(glr.ObjectName2)
+	byteBuffer.Read(glr.ObjectName2)
 
 	binary.Read(byteBuffer, binary.BigEndian, &(glr.ResLength))
 
 	//the rest of the buffer should be listing message
 	glr.Listing = byteBuffer.Bytes()
+
+	//TODO POTENTIAL BUG do some error checking before we
+	//just return nil
+	return nil
 }
 
 //request-response pair of the packet

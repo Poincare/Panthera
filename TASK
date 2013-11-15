@@ -1,2 +1,1 @@
-Fix the Query() in GetFileInfoCache - it should only be comparing
-some of the parameters
+Fix infinite loop in requestCache.QueryCustom
