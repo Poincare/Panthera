@@ -13,6 +13,44 @@ import (
 
 type PacketNumber uint32
 
+//this describes a mechanism for determining whether or
+//not the responses from the server have completed responding
+//to a request
+type RequestState struct {
+	//determines if the first packet in the response series
+	//has been read or not (the first packet is the one
+	//that has the packet number)
+	ReadFirstPacket bool
+
+	//we stuff the bytes received from the server into
+	//this buffer
+	ByteBuffer bytes.Buffer
+
+	//packetNumber of the current request state
+	PacketNumber uint32
+}
+
+//constructor
+func NewRequestState() *RequestState {
+	rs = RequestState{}
+	rs.ByteBuffer = make(bytes.Buffer)
+	rs.ReadFirstPacket = false
+	return &rs
+}
+
+//this method is called a new request is received from 
+//the client. It resets the byteBuffer and readFirstPacket
+//fields and caches the current response.
+func (rs *RequestState) Empty(packetNumber uint32) *namenode_rpc.GenericResponse {
+	rs.ReadFirstPacket = false
+	genericResp := namenode_rpc.NewGenericResponsePacket(rs.ByteBuffer.Bytes(), rs.PacketNumber)
+	rs.ByteBuffer = make(bytes.Buffer)
+	rs.PacketNumber = packetNumber
+
+	return genericResp
+}
+
+
 type Processor struct {
 	//array of the past requests received by this processor
 	//presumably by the same client (i.e. one client per processor)
@@ -31,6 +69,7 @@ type Processor struct {
 	//the channel processed by EventLoop()
 	EventChannel chan ProcessorEvent
 }
+
 
 func NewProcessor(event_chan chan ProcessorEvent, cacheSet *caches.CacheSet) *Processor { 
 	p := Processor{}
@@ -117,8 +156,9 @@ func (p *Processor) HandleConnection(conn net.Conn, hdfs net.Conn) {
 				//wait for HDFS do anything
 				if resp != nil {
 					fmt.Println("Cache hit!")
-					fmt.Println("got from cache: ", resp.Bytes())
-					conn.Write(resp.Bytes())
+					//conn.Write(resp.Bytes())
+					hdfs.Write(byteBuffer)
+					fmt.Println("sent to client")
 					util.Log("found in the cache")
 				} else {
 					fmt.Println("Cache miss!, methodname: ", string(rp.MethodName))
@@ -168,12 +208,13 @@ func (p *Processor) HandleHDFS(conn net.Conn, hdfs net.Conn) {
 			return
 		}
 		if(bytesRead > 0) {
+			fmt.Println("From HDFS: \n", genericResp.Bytes(), "\nlength: ", len(genericResp.Bytes()), "\n------------------\n")
 			//cache the response (CacheResponse should find out if there is
 			//a matching request to this response)
 			p.CacheResponse(genericResp)
 
 			//proxy the read data to the associated client socket
-			conn.Write(buf)
+			conn.Write(genericResp.Bytes())
 		}
 	}
 }
@@ -201,7 +242,6 @@ func (p *Processor) Process(req *namenode_rpc.RequestPacket) namenode_rpc.Respon
 	} else if methodName == "getListing" {
 		fmt.Println("Checking getListing cache...")
 		res := p.cacheSet.GetListingCache.Query(req)
-		fmt.Println("Found from cache: ", res)
 		return res
 	} else if methodName == "create" {
 		//if a new object is being created, we're going to to wrap it
