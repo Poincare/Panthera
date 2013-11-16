@@ -58,6 +58,8 @@ func (p *Processor) CacheRequest(req *namenode_rpc.RequestPacket) {
 		p.cacheSet.GfiCache.Cache.AddRequest(req)
 		fmt.Println("Cached request. Cache size: ", len(p.cacheSet.GfiCache.Cache.RequestResponse))
 		log.Println("Cached GFI Request: ")
+	} else if(string(req.MethodName) == "getListing") {
+		p.cacheSet.GetListingCache.Cache.AddRequest(req)
 	}
 }
 
@@ -70,8 +72,13 @@ func (p *Processor) CacheResponse(resp namenode_rpc.ResponsePacket) {
 	packetNum := caches.PacketNumber(resp.GetPacketNumber())
 
 	//we can hook up a response with a request
+	//TODO figure out a better way to make a generic
+	//caching mechanism
 	if p.cacheSet.GfiCache.Cache.HasPacketNumber(packetNum) {
 		p.cacheSet.GfiCache.Cache.AddResponse(resp)
+	}
+	if p.cacheSet.GetListingCache.Cache.HasPacketNumber(packetNum) {
+		p.cacheSet.GetListingCache.Cache.AddResponse(resp)
 	}
 
 	log.Println("Cached response: ", resp)
@@ -111,6 +118,7 @@ func (p *Processor) HandleConnection(conn net.Conn, hdfs net.Conn) {
 				if resp != nil {
 					fmt.Println("Cache hit!")
 					conn.Write(resp.Bytes())
+					hdfs.Write(byteBuffer)
 					util.Log("found in the cache")
 				} else {
 					fmt.Println("Cache miss!, methodname: ", string(rp.MethodName))
@@ -189,6 +197,11 @@ func (p *Processor) Process(req *namenode_rpc.RequestPacket) namenode_rpc.Respon
 		//cached, or it will simply return nil so that we now
 		//that a result was not found in the
 		res := p.cacheSet.GfiCache.Query(req)
+		return res
+	} else if methodName == "getListing" {
+		fmt.Println("Checking getListing cache...")
+		res := p.cacheSet.GetListingCache.Query(req)
+		fmt.Println("Found from cache: ", res)
 		return res
 	} else if methodName == "create" {
 		//if a new object is being created, we're going to to wrap it

@@ -6,6 +6,7 @@ package caches
 type CacheSet struct {
 	//this should be enabled
 	GfiCache *GetFileInfoCache
+	GetListingCache *GetListingCache
 }
 
 func NewCacheSet() *CacheSet {

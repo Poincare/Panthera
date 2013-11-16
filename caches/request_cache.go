@@ -55,6 +55,14 @@ func NewRequestCache(cache_size int) *RequestCache {
 	return &rs
 }
 
+//disables the entire cache
+func (rc *RequestCache) Disable() {
+	rc.Lock()
+	defer rc.Unlock()
+
+	rc.Enabled = false
+}
+
 //this a private method because it assumes that the mutex has already been locked
 func (rc *RequestCache) add(rp namenode_rpc.ReqPacket, resp namenode_rpc.ResponsePacket) error {
 

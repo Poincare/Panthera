@@ -57,7 +57,7 @@ func loop(server net.Listener, caches *caches.CacheSet) {
 			continue
 		}
 
-		util.Log("Connected to HDFS.");
+		util.Log("Connected to HDFS.")
 
 		//create new process and process the connected client
 		//pass it the caches that are currently initialized
@@ -80,8 +80,10 @@ func main() {
 	//initialize the cacheset and the caches
 	//within it
 	gfiCacheSize := 15
+	getListingCacheSize := 15
 	cacheSet := caches.NewCacheSet()
 	cacheSet.GfiCache = caches.NewGetFileInfoCache(gfiCacheSize)
+	cacheSet.GetListingCache = caches.NewGetListingCache(getListingCacheSize)
 
 	server, err := net.Listen("tcp", config.serverHost + ":" + config.serverPort)
 	log.SetOutput(ioutil.Discard)
@@ -90,6 +92,7 @@ func main() {
 		util.LogError(err.Error());
 		return
 	}
-
 	loop(server, cacheSet);
 }
+
+
