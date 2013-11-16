@@ -369,7 +369,7 @@ type GetListingResponse struct {
 	Listing []byte
 
 	//[]buf in the call to Load()
-	LoadedBytes []buf
+	LoadedBytes []byte
 }
 
 func NewGetListingResponse() *GetListingResponse {
@@ -378,11 +378,11 @@ func NewGetListingResponse() *GetListingResponse {
 }
 
 func (glr *GetListingResponse) Bytes() []byte {
-	return LoadedBytes		
+	return glr.LoadedBytes		
 }
 
 func (glr *GetListingResponse) Load(buf []byte) error {
-	glr.LoadedByte = buf
+	glr.LoadedBytes = buf
 	byteBuffer := bytes.NewBuffer(buf)
 
 	binary.Read(byteBuffer, binary.BigEndian, &(glr.PacketNumber))
