@@ -13,44 +13,6 @@ import (
 
 type PacketNumber uint32
 
-//this describes a mechanism for determining whether or
-//not the responses from the server have completed responding
-//to a request
-type RequestState struct {
-	//determines if the first packet in the response series
-	//has been read or not (the first packet is the one
-	//that has the packet number)
-	ReadFirstPacket bool
-
-	//we stuff the bytes received from the server into
-	//this buffer
-	ByteBuffer bytes.Buffer
-
-	//packetNumber of the current request state
-	PacketNumber uint32
-}
-
-//constructor
-func NewRequestState() *RequestState {
-	rs = RequestState{}
-	rs.ByteBuffer = make(bytes.Buffer)
-	rs.ReadFirstPacket = false
-	return &rs
-}
-
-//this method is called a new request is received from 
-//the client. It resets the byteBuffer and readFirstPacket
-//fields and caches the current response.
-func (rs *RequestState) Empty(packetNumber uint32) *namenode_rpc.GenericResponse {
-	rs.ReadFirstPacket = false
-	genericResp := namenode_rpc.NewGenericResponsePacket(rs.ByteBuffer.Bytes(), rs.PacketNumber)
-	rs.ByteBuffer = make(bytes.Buffer)
-	rs.PacketNumber = packetNumber
-
-	return genericResp
-}
-
-
 type Processor struct {
 	//array of the past requests received by this processor
 	//presumably by the same client (i.e. one client per processor)
@@ -68,6 +30,9 @@ type Processor struct {
 
 	//the channel processed by EventLoop()
 	EventChannel chan ProcessorEvent
+
+	//set to true after the first packet is handled from the client
+	HandledFirstPacket bool
 }
 
 
@@ -77,6 +42,7 @@ func NewProcessor(event_chan chan ProcessorEvent, cacheSet *caches.CacheSet) *Pr
 
 	p.EventChannel = event_chan
 	p.cacheSet = cacheSet
+	p.HandledFirstPacket = false
 
 	go p.EventLoop()
 
@@ -123,18 +89,50 @@ func (p *Processor) CacheResponse(resp namenode_rpc.ResponsePacket) {
 	log.Println("Cached response: ", resp)
 }
 
+//read the length from the client
+func (p *Processor) readLength(conn net.Conn) (uint32, error) {
+	buf := make([]byte, 40)
+	bytesRead, read_err := conn.Read(buf)
+
+	buf = buf[0:bytesRead]
+	if bytesRead != 0 {
+		fmt.Println("bytes read: ", bytesRead, "buffer: ", buf);
+	}
+
+	byteBuffer := bytes.NewBuffer(buf)
+
+	var res uint32
+	binary.Read(byteBuffer, binary.BigEndian, &res)
+	return res, read_err
+}
+
 //this gets called by the main function on a new instance of Processor
 //when we get a new connection
 func (p *Processor) HandleConnection(conn net.Conn, hdfs net.Conn) {
 	util.Log("Handling connection...")
 	for {
 		byteBuffer := make([]byte, 1024)
-		//blocks
-		bytesRead, read_err := conn.Read(byteBuffer);
-		byteBuffer = byteBuffer[0:bytesRead]
+		bytesRead := 0
+		var read_err error
+
+		//if we're still on the first packet, we can't read in the length
+		if(!p.HandledFirstPacket) {
+			bytesRead, read_err = conn.Read(byteBuffer);
+			byteBuffer = byteBuffer[0:bytesRead]	
+		} else {	
+			len, err := p.readLength(conn)
+			if err != nil {
+				continue
+			}
+
+			byteBuffer = make([]byte, len)
+			bytesRead, read_err = conn.Read(byteBuffer)
+			byteBuffer = byteBuffer[0:bytesRead]
+		}
 
 		if read_err != nil {
 			util.LogError(read_err.Error())
+			fmt.Println("error: ", read_err.Error())
 			conn.Close()
 			hdfs.Close()
 			return
@@ -181,7 +179,7 @@ func (p *Processor) HandleConnection(conn net.Conn, hdfs net.Conn) {
 
 func (p *Processor) HandleHDFS(conn net.Conn, hdfs net.Conn) {
 	for {
-		buf := make([]byte, 1024)
+		buf := make([]byte, namenode_rpc.HDFS_PACKET_SIZE)
 
 		//Read() blocks
 		bytesRead, readErr := hdfs.Read(buf)

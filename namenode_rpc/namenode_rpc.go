@@ -5,6 +5,8 @@ import (
 	"encoding/binary"
 )
 
+//this is the maximum size for an HDFS packet
+var HDFS_PACKET_SIZE int = 640000
 
 //Implementation of the RPC protocol used by 
 //Hadoop to talk with the NameNode
