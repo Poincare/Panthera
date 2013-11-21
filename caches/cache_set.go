@@ -14,3 +14,9 @@ func NewCacheSet() *CacheSet {
 	cs.GfiCache = NewGetFileInfoCache(0)
 	return &cs
 }
+
+//disables the entire cacheset
+func (cs *CacheSet) Disable() {
+	cs.GfiCache.Disable()
+	cs.GetListingCache.Disable()	
+}

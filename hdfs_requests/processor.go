@@ -9,9 +9,14 @@ import (
 	"fmt"
 	"bytes"
 	"encoding/binary"
+	"time"
+	"os"
 )
 
 type PacketNumber uint32
+
+//used to measure latency in the processor
+var TIMECOUNTER time.Time
 
 type Processor struct {
 	//array of the past requests received by this processor
@@ -33,6 +38,10 @@ type Processor struct {
 
 	//set to true after the first packet is handled from the client
 	HandledFirstPacket bool
+
+	//log the total time spent
+	cachedTimeLogger *log.Logger
+	hdfsTimeLogger *log.Logger
 }
 
 
@@ -44,10 +53,22 @@ func NewProcessor(event_chan chan ProcessorEvent, cacheSet *caches.CacheSet) *Pr
 	p.cacheSet = cacheSet
 	p.HandledFirstPacket = false
 
+	cacheLogFile, err := os.OpenFile("cache_times", os.O_RDWR | os.O_APPEND | os.O_CREATE, 0666)
+	if err != nil {
+		util.LogError("Failed to open cache log file")
+	}
+	p.cachedTimeLogger = log.New(cacheLogFile, "", 0)
+	
+	hdfsLogFile, err := os.OpenFile("hdfs_times", os.O_RDWR | os.O_APPEND | os.O_CREATE, 0666)
+	if err != nil {
+		util.LogError("Failed open to cache log file")
+	}
+	p.hdfsTimeLogger = log.New(hdfsLogFile, "", 0)
+
 	go p.EventLoop()
 
 	/* disable the caches or enable them here */
-	//p.cacheSet.GfiCache.Disable()
+	//p.cacheSet.GetListingCache.Disable()
 
 	return &p
 }
@@ -140,6 +161,8 @@ func (p *Processor) HandleConnection(conn net.Conn, hdfs net.Conn) {
 
 		util.Log("Handling the packet...")
 
+		TIMECOUNTER = time.Now()
+
 		if bytesRead > 0 {
 			rp := namenode_rpc.NewRequestPacket()
 			err := rp.Load(byteBuffer)
@@ -154,10 +177,10 @@ func (p *Processor) HandleConnection(conn net.Conn, hdfs net.Conn) {
 				//wait for HDFS do anything
 				if resp != nil {
 					fmt.Println("Cache hit!")
-					//conn.Write(resp.Bytes())
-					hdfs.Write(byteBuffer)
-					fmt.Println("sent to client")
-					util.Log("found in the cache")
+					conn.Write(resp.Bytes())
+					//hdfs.Write(byteBuffer)
+					fmt.Println("Sent to client, time elapsed (ns): ", time.Now().Sub(TIMECOUNTER).Nanoseconds())
+					p.cachedTimeLogger.Println(time.Now().Sub(TIMECOUNTER).Nanoseconds())
 				} else {
 					fmt.Println("Cache miss!, methodname: ", string(rp.MethodName))
 					//if it wasn't found in any of the
@@ -205,8 +228,12 @@ func (p *Processor) HandleHDFS(conn net.Conn, hdfs net.Conn) {
 			hdfs.Close()
 			return
 		}
+
 		if(bytesRead > 0) {
 			fmt.Println("From HDFS: \n", genericResp.Bytes(), "\nlength: ", len(genericResp.Bytes()), "\n------------------\n")
+			fmt.Println("Time in getting response: ", time.Now().Sub(TIMECOUNTER).Nanoseconds())
+			p.hdfsTimeLogger.Println(time.Now().Sub(TIMECOUNTER).Nanoseconds())
+
 			//cache the response (CacheResponse should find out if there is
 			//a matching request to this response)
 			p.CacheResponse(genericResp)
