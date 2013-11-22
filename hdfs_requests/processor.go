@@ -162,7 +162,8 @@ func (p *Processor) HandleConnection(conn net.Conn, hdfs net.Conn) {
 		util.Log("Handling the packet...")
 
 		TIMECOUNTER = time.Now()
-
+		fmt.Println("BYTES READ: ", bytesRead)
+		
 		if bytesRead > 0 {
 			rp := namenode_rpc.NewRequestPacket()
 			err := rp.Load(byteBuffer)
