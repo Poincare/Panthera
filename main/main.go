@@ -99,19 +99,17 @@ func main() {
 	}
 
 	/* setup the data layer */
-	dnl := configuration.NewDataNodeLocation("127.0.0.1", "1337")
-
-	dnLocations := make([]*configuration.DataNodeLocation, 0)
-	dnLocations = append(dnLocations, dnl)
-	dnLocationMap := make(configuration.DataNodeMap)
-
-	//loop through the dnLocations and set up servers on ports 
-	//accordingly
-
 	//TODO should probably be a configuration option
-	port_offset := 2000
-	for i := 0; i < len(dnLocations); i++ {
-		dnLocationMap[port_offset + i] = dnLocations[i]
+	portOffset := 2000
+	dataNode := configuration.NewDataNodeLocation("127.0.0.1", "1337")
+	dataNodeList := make([]*configuration.DataNodeLocation, 0)
+	dataNodeList = append(dataNodeList, dataNode)
+	dataNodeMap := configuration.MakeDataNodeMap(dataNodeList, portOffset)
+	for port, location := range dataNodeMap {
+		listener, err := net.Listen("tcp", ":" + string(port))
+		if err != nil {
+			log.Println("Could not connect DataNode server port:", port, " because: ", err.Error(), listener, location)
+		}
 	}
 
 	/* start the server */
