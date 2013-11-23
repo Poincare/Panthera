@@ -7,6 +7,8 @@ import (
 	"io/ioutil"
 	"log"
 	"caches"
+	"configuration"
+	"fmt"
 )
 
 /* 
@@ -32,9 +34,11 @@ var config Configuration;
 
 //main reactor function called by main
 func loop(server net.Listener, caches *caches.CacheSet) {
+	fmt.Println("looping...")
 	eventChannel := make(chan hdfs_requests.ProcessorEvent)
 
 	for {
+		fmt.Println("Waiting for a connection...")
 		conn, err := server.Accept()
 
 		if err != nil {
@@ -68,6 +72,7 @@ func loop(server net.Listener, caches *caches.CacheSet) {
 }
 
 func main() {
+	/* setup the metadata layer */
 	util.LoggingEnabled = false
 	util.Log("Starting...")
 
@@ -92,7 +97,25 @@ func main() {
 		util.LogError(err.Error());
 		return
 	}
-	loop(server, cacheSet);
+
+	/* setup the data layer */
+	dnl := configuration.NewDataNodeLocation("127.0.0.1", "1337")
+
+	dnLocations := make([]*configuration.DataNodeLocation, 0)
+	dnLocations = append(dnLocations, dnl)
+	dnLocationMap := make(configuration.DataNodeMap)
+
+	//loop through the dnLocations and set up servers on ports 
+	//accordingly
+
+	//TODO should probably be a configuration option
+	port_offset := 2000
+	for i := 0; i < len(dnLocations); i++ {
+		dnLocationMap[port_offset + i] = dnLocations[i]
+	}
+
+	/* start the server */
+	loop(server, cacheSet)
 }
 
 
