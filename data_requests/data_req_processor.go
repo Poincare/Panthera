@@ -9,7 +9,11 @@ The filename for this makes 0 sense.
 */
 
 import (
+	//go packages
 	"net"
+
+	//local packages
+	"util"
 )
 
 
@@ -23,9 +27,39 @@ func NewProcessor() *Processor {
 	return &p
 }
 
-func (p *Processor) handleConnection(conn net.Conn, dataNode net.Conn) {
+func (p *Processor) HandleConnection(conn net.Conn, dataNode net.Conn) {
 	for {
-		
+		util.Log("Handling data connection...")
+		buf := make([]byte, 1024)
+		bytesRead := 0
+		bytesRead, err := conn.Read(buf)
+		if err != nil {
+			util.LogError("Error in reading from client connection.")
+		}
+
+		if bytesRead > 0 {
+
+			//write the buffer to the datanode, essentially relaying the information
+			//between the client and the data node
+			dataNode.Write(buf)
+		}
+	}
+}
+
+func (p *Processor) HandleDataNode(conn net.Conn, dataNode net.Conn) {
+		for {
+		util.Log("Handling dataNode connection...")
+		buf := make([]byte, 1024)
+		bytesRead := 0
+		bytesRead, err := dataNode.Read(buf)
+		if err != nil {
+			util.LogError("Error in reading from data connection.")
+		}
+
+		if bytesRead > 0 {
+			//write the information back to the client
+			conn.Write(buf)
+		}
 	}
 }
 

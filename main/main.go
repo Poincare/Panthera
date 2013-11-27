@@ -9,6 +9,7 @@ import (
 	"caches"
 	"configuration"
 	"fmt"
+	"data_requests"
 )
 
 /* 
@@ -71,6 +72,28 @@ func loop(server net.Listener, caches *caches.CacheSet) {
 	}
 }
 
+//listen on a port connected to one of the datanodes
+//will be run as a goroutine
+func loopData(listener net.Listener, location *configuration.DataNodeLocation) {
+	for {
+		conn, err := listener.Accept()
+		if err != nil {
+			util.LogError("Could not accept connection from the DataNode: " + err.Error())
+		}
+
+		//connection object to the datanode location
+		dataNode, err := net.Dial("tcp", location.Address())
+		if err != nil {
+			log.Println("Could not connet to DataNode: ", err)
+		}
+
+		//create a new processor this set
+		dataProcessor := data_requests.NewProcessor()
+		go dataProcessor.HandleConnection(conn, dataNode)
+		go dataProcessor.HandleDataNode(conn, dataNode)
+	}
+}
+
 func main() {
 	/* setup the metadata layer */
 	util.LoggingEnabled = false
@@ -105,12 +128,17 @@ func main() {
 	dataNodeList := make([]*configuration.DataNodeLocation, 0)
 	dataNodeList = append(dataNodeList, dataNode)
 	dataNodeMap := configuration.MakeDataNodeMap(dataNodeList, portOffset)
+
 	for port, location := range dataNodeMap {
 		listener, err := net.Listen("tcp", ":" + string(port))
 		if err != nil {
-			log.Println("Could not connect DataNode server port:", port, " because: ", err.Error(), listener, location)
+			log.Println("Could not listen on relay port:", port, " because: ", err.Error(), listener, location)
 		}
+
+		//set up a main loop for this (port, location) tuple
+		go loopData(listener, location)
 	}
+
 
 	/* start the server */
 	loop(server, cacheSet)

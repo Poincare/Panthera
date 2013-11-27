@@ -41,3 +41,10 @@ func TestDataNodeMapConstructor (t *testing.T) {
 	dnLocationMap[Port("2000")] = dnl
 	fmt.Println("Did it work: ", dnLocationMap[Port("2000")])
 }
+
+func TestDataNodeLocationAddress (t *testing.T) {
+	dnl := NewDataNodeLocation("127.0.0.1", "1337")
+	if dnl.Address() != "127.0.0.1:1337" {
+		t.Fail()
+	}
+}

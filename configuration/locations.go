@@ -21,6 +21,12 @@ func NewDataNodeLocation(ip string, port string) *DataNodeLocation {
 	return &dnl	
 }
 
+//returns something that net.Dial can use in order to connect
+//to a given DataNodeLocation
+func (dnl *DataNodeLocation) Address() string {
+	return (dnl.Ip + ":" + dnl.Port)
+}
+
 type Port string
 
 type DataNodeMap map[Port]*DataNodeLocation
