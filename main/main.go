@@ -94,6 +94,20 @@ func loopData(listener net.Listener, location *configuration.DataNodeLocation) {
 	}
 }
 
+//takes a data node map and runs a main loop for each of 
+//the location and port combinations
+func runDataNodeMap(dataNodeMap configuration.DataNodeMap) {
+	for port, location := range dataNodeMap {
+		listener, err := net.Listen("tcp", ":" + string(port))
+		if err != nil {
+			log.Println("Could not listen on relay port:", port, " because: ", err.Error(), listener, location)
+		}
+
+		//set up a main loop for this (port, location) tuple
+		go loopData(listener, location)
+	}
+}
+
 func main() {
 	/* setup the metadata layer */
 	util.LoggingEnabled = false
@@ -129,16 +143,8 @@ func main() {
 	dataNodeList = append(dataNodeList, dataNode)
 	dataNodeMap := configuration.MakeDataNodeMap(dataNodeList, portOffset)
 
-	for port, location := range dataNodeMap {
-		listener, err := net.Listen("tcp", ":" + string(port))
-		if err != nil {
-			log.Println("Could not listen on relay port:", port, " because: ", err.Error(), listener, location)
-		}
-
-		//set up a main loop for this (port, location) tuple
-		go loopData(listener, location)
-	}
-
+	//start the datanode servers
+	runDataNodeMap(dataNodeMap)
 
 	/* start the server */
 	loop(server, cacheSet)

@@ -160,3 +160,16 @@ func (dr *DataResponse) Load(buf []byte) error {
 	return nil
 }
 
+//a pair of request, response
+type RequestResponse struct {
+	Request *DataRequest
+	Response *DataResponse
+}
+
+func NewRequestResponse(req *DataRequest, resp *DataResponse) *RequestResponse {
+	rr := RequestResponse{
+		Request: req,
+		Response: resp}
+	return &rr
+}
+
