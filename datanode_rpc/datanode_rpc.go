@@ -136,7 +136,7 @@ type DataResponse struct {
 	Data []byte
 
 	//all the data that's been read by LiveLoad
-	buf []byte
+	Buf []byte
 }
 
 //constructor
@@ -188,7 +188,7 @@ func (dr *DataResponse) LiveLoad(byte_buffer io.Reader) {
 	byte_buffer.Read(dr.Data)	
 	outputBuffer.Write(dr.Data)
 
-	dr.buf = outputBuffer.Bytes()
+	dr.Buf = outputBuffer.Bytes()
 }
 
 func (dr *DataResponse) Load(buf []byte) error {

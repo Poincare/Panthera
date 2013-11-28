@@ -81,7 +81,8 @@ var DataResponseTestExpected DataResponse = DataResponse {
 	LastPacketNumber: 1,
 
 	DataLength2: 9,
-	Data: []byte("sometext")}
+	Data: []byte("sometext"),
+	Buf: DataResponseTestCase}
 
 var DataResponseTestExpected2 DataResponse = DataResponse {
 	StatusCode: 0,
@@ -93,7 +94,8 @@ var DataResponseTestExpected2 DataResponse = DataResponse {
 	SequenceNumber: 0,
 	LastPacketNumber: 1,
 	DataLength2: 6,
-	Data: []byte("trees")}
+	Data: []byte("trees"),
+	Buf: DataResponseTestCase2}
 
 var DataResponseTestExpected3 DataResponse = DataResponse {
 	StatusCode: 0,
@@ -105,7 +107,8 @@ var DataResponseTestExpected3 DataResponse = DataResponse {
 	SequenceNumber: 0,
 	LastPacketNumber: 1,
 	DataLength2: 7,
-	Data: []byte("golang")}
+	Data: []byte("golang"),
+	Buf: DataResponseTestCase3}
 
 func TestDataResponseConstructor(t *testing.T) {
 	dResp := NewDataResponse()
