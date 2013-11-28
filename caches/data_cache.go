@@ -95,6 +95,9 @@ func (dc *DataCache) Query(req datanode_rpc.DataRequest) *datanode_rpc.DataRespo
 	return nil
 }
 
+func (dc *DataCache) AddResponse() {
+}
+
 
 
 

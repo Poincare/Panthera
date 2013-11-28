@@ -3,6 +3,7 @@ package datanode_rpc
 import (
 	"bytes"
 	"encoding/binary"
+	"io"
 )
 
 //TODO POTENTIAL BUG:
@@ -68,9 +69,11 @@ func (dr *DataRequest) Bytes() []byte {
 	return byte_buffer.Bytes()
 }
 
-func (dr *DataRequest) Load(buf []byte) error {
-	byte_buffer := bytes.NewBuffer(buf)
-
+//liveload the data from the connection (or any kind of reader, e.g. byte
+//buffer).
+//there is no length quantity at the head of the packet, so we have 
+//to load all the fields manually.
+func (dr *DataRequest) LiveLoad(byte_buffer io.Reader) {
 	binary.Read(byte_buffer, binary.BigEndian, &(dr.ProtocolVersion))
 	binary.Read(byte_buffer, binary.BigEndian, &(dr.Command))
 	binary.Read(byte_buffer, binary.BigEndian, &(dr.BlockId))
@@ -97,6 +100,14 @@ func (dr *DataRequest) Load(buf []byte) error {
 	binary.Read(byte_buffer, binary.BigEndian, &(dr.AccessServiceLength))
 	dr.AccessService = make([]byte, dr.AccessServiceLength)
 	byte_buffer.Read(dr.AccessService)
+}
+
+func (dr *DataRequest) Load(buf []byte) error {
+	byte_buffer := bytes.NewBuffer(buf)
+
+	//use the byte buffer as a Reader instance
+	//to get it to Load
+	dr.LiveLoad(byte_buffer)
 
 	//TODO add proper error correction into this whole method
 	//maybe using the reflect module
@@ -123,6 +134,9 @@ type DataResponse struct {
 	//for the length of the data
 	DataLength2 uint32
 	Data []byte
+
+	//all the data that's been read by LiveLoad
+	buf []byte
 }
 
 //constructor
@@ -131,30 +145,56 @@ func NewDataResponse() *DataResponse {
 	return &dr
 }
 
-func (dr *DataResponse) Load(buf []byte) error {
-	byte_buffer := bytes.NewBuffer(buf)
+//read the data from a connection (or any other kind of reader)
+func (dr *DataResponse) LiveLoad(byte_buffer io.Reader) {
+	outputBuffer := new(bytes.Buffer)
 
 	binary.Read(byte_buffer, binary.BigEndian, &(dr.StatusCode))
+	//write it to the outputbuffer so we can have a byte copy of
+	//what we just read (used in Bytes())
+	binary.Write(outputBuffer, binary.BigEndian, dr.StatusCode)
+
 	binary.Read(byte_buffer, binary.BigEndian, &(dr.ChecksumType))
+	binary.Write(outputBuffer, binary.BigEndian, dr.ChecksumType)
+
 	binary.Read(byte_buffer, binary.BigEndian, &(dr.ChunkSize))
+	binary.Write(outputBuffer, binary.BigEndian, dr.ChunkSize)
+
 	binary.Read(byte_buffer, binary.BigEndian, &(dr.ChunkOffset))
+	binary.Write(outputBuffer, binary.BigEndian, dr.ChunkOffset)
+
 	binary.Read(byte_buffer, binary.BigEndian, &(dr.DataLength))
+	binary.Write(outputBuffer, binary.BigEndian, dr.DataLength)
+
 	binary.Read(byte_buffer, binary.BigEndian, &(dr.InBlockOffset))
+	binary.Write(outputBuffer, binary.BigEndian, dr.InBlockOffset)
+
 	binary.Read(byte_buffer, binary.BigEndian, &(dr.SequenceNumber))
+	binary.Write(outputBuffer, binary.BigEndian, dr.SequenceNumber)
+
 	binary.Read(byte_buffer, binary.BigEndian, &(dr.LastPacketNumber))
+	binary.Write(outputBuffer, binary.BigEndian, dr.LastPacketNumber)
 
 	binary.Read(byte_buffer, binary.BigEndian, &(dr.DataLength2))
+	binary.Write(outputBuffer, binary.BigEndian, dr.DataLength2)
 
 	//TODO POTENTIAL BUG not exactly sure why/how this works...
 	trash := make([]byte, 4)
 	byte_buffer.Read(trash)
+	outputBuffer.Write(trash)
 
 	//TODO POTENTIAL BUG Use the first data length or the second one? 
 	dr.Data = make([]byte, dr.DataLength2-1)
-	_, err := byte_buffer.Read(dr.Data)
-	if err != nil {
-		return err
-	}
+	byte_buffer.Read(dr.Data)	
+	outputBuffer.Write(dr.Data)
+
+	dr.buf = outputBuffer.Bytes()
+}
+
+func (dr *DataResponse) Load(buf []byte) error {
+	byte_buffer := bytes.NewBuffer(buf)
+
+	dr.LiveLoad(byte_buffer)
 
 	//TODO add proper error detection to this method
 	return nil

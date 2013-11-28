@@ -110,7 +110,7 @@ func runDataNodeMap(dataNodeMap configuration.DataNodeMap) {
 
 func main() {
 	/* setup the metadata layer */
-	util.LoggingEnabled = false
+	util.LoggingEnabled = true
 	util.Log("Starting...")
 
 	config.hdfsHostname = "127.0.0.1"
