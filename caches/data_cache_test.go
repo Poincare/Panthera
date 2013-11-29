@@ -105,3 +105,17 @@ func TestDataCacheQuery(t *testing.T) {
 	} 
 }
 
+func TestDataCacheClear(t *testing.T) {
+	dc := NewDataCache(2)
+	req := datanode_rpc.NewDataRequest()
+	resp := datanode_rpc.NewDataResponse()
+	pair1 := datanode_rpc.NewRequestResponse(req, resp)
+
+	dc.AddRpcPair(pair1)
+	dc.Clear()
+
+	if len(dc.RpcStore) != 0 {
+		t.Fail()
+	}
+}
+

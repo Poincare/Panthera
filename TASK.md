@@ -1,1 +1,1 @@
-Fix the LiveLoad method for DataRequest so that it can figure out how many bytes have been read
+Figure ou the hadoop configuration needed in order to test out the data caching system

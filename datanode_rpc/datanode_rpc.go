@@ -73,7 +73,7 @@ func (dr *DataRequest) Bytes() []byte {
 //buffer).
 //there is no length quantity at the head of the packet, so we have 
 //to load all the fields manually.
-func (dr *DataRequest) LiveLoad(byte_buffer io.Reader) {
+func (dr *DataRequest) LiveLoad(byte_buffer io.Reader) error {
 	binary.Read(byte_buffer, binary.BigEndian, &(dr.ProtocolVersion))
 	binary.Read(byte_buffer, binary.BigEndian, &(dr.Command))
 	binary.Read(byte_buffer, binary.BigEndian, &(dr.BlockId))
@@ -97,9 +97,14 @@ func (dr *DataRequest) LiveLoad(byte_buffer io.Reader) {
 	dr.AccessType = make([]byte, dr.AccessTypeLength)
 	byte_buffer.Read(dr.AccessType)
 
-	binary.Read(byte_buffer, binary.BigEndian, &(dr.AccessServiceLength))
+	err := binary.Read(byte_buffer, binary.BigEndian, &(dr.AccessServiceLength))
+	if err != nil {
+		return err
+	}
+
 	dr.AccessService = make([]byte, dr.AccessServiceLength)
 	byte_buffer.Read(dr.AccessService)
+	return nil
 }
 
 func (dr *DataRequest) Load(buf []byte) error {
@@ -145,8 +150,12 @@ func NewDataResponse() *DataResponse {
 	return &dr
 }
 
+func (dr *DataResponse) Bytes() []byte {
+	return dr.Buf
+}
+
 //read the data from a connection (or any other kind of reader)
-func (dr *DataResponse) LiveLoad(byte_buffer io.Reader) {
+func (dr *DataResponse) LiveLoad(byte_buffer io.Reader) error {
 	outputBuffer := new(bytes.Buffer)
 
 	binary.Read(byte_buffer, binary.BigEndian, &(dr.StatusCode))
@@ -175,7 +184,13 @@ func (dr *DataResponse) LiveLoad(byte_buffer io.Reader) {
 	binary.Read(byte_buffer, binary.BigEndian, &(dr.LastPacketNumber))
 	binary.Write(outputBuffer, binary.BigEndian, dr.LastPacketNumber)
 
-	binary.Read(byte_buffer, binary.BigEndian, &(dr.DataLength2))
+	err := binary.Read(byte_buffer, binary.BigEndian, &(dr.DataLength2))
+	//if there was an issue reading from the buffer at this point, that 
+	//means that all the following reads will likely fail.
+	if err != nil {
+		return err
+	}
+
 	binary.Write(outputBuffer, binary.BigEndian, dr.DataLength2)
 
 	//TODO POTENTIAL BUG not exactly sure why/how this works...
@@ -190,11 +205,13 @@ func (dr *DataResponse) LiveLoad(byte_buffer io.Reader) {
 
 	trash = make([]byte, 6)
 	byte_buffer.Read(trash)
+
 	//add in the last three bytes to the output buffer
 	//so that we've copied the *entire* packet
 	outputBuffer.Write(trash)
 
 	dr.Buf = outputBuffer.Bytes()
+	return err
 }
 
 func (dr *DataResponse) Load(buf []byte) error {

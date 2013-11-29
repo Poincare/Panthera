@@ -95,10 +95,14 @@ func (dc *DataCache) Query(req datanode_rpc.DataRequest) *datanode_rpc.DataRespo
 	return nil
 }
 
-func (dc *DataCache) AddResponse() {
+//clears the cache
+func (dc *DataCache) Clear() {
+	dc.Lock()
+	defer dc.Unlock()
+
+	//clear the entire array
+	dc.RpcStore = make([]datanode_rpc.RequestResponse, 0)
 }
-
-
 
 
 

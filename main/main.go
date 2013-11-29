@@ -74,7 +74,7 @@ func loop(server net.Listener, caches *caches.CacheSet) {
 
 //listen on a port connected to one of the datanodes
 //will be run as a goroutine
-func loopData(listener net.Listener, location *configuration.DataNodeLocation) {
+func loopData(listener net.Listener, location *configuration.DataNodeLocation, cache *caches.DataCache) {
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
@@ -83,12 +83,13 @@ func loopData(listener net.Listener, location *configuration.DataNodeLocation) {
 
 		//connection object to the datanode location
 		dataNode, err := net.Dial("tcp", location.Address())
-		if err != nil {
+		if err != nil || dataNode == nil {
 			log.Println("Could not connet to DataNode: ", err)
+			dataNode = nil
 		}
 
 		//create a new processor this set
-		dataProcessor := data_requests.NewProcessor()
+		dataProcessor := data_requests.NewProcessor(cache, location)
 		go dataProcessor.HandleConnection(conn, dataNode)
 		go dataProcessor.HandleDataNode(conn, dataNode)
 	}
@@ -96,7 +97,7 @@ func loopData(listener net.Listener, location *configuration.DataNodeLocation) {
 
 //takes a data node map and runs a main loop for each of 
 //the location and port combinations
-func runDataNodeMap(dataNodeMap configuration.DataNodeMap) {
+func runDataNodeMap(dataNodeMap configuration.DataNodeMap, cache *caches.DataCache) {
 	for port, location := range dataNodeMap {
 		listener, err := net.Listen("tcp", ":" + string(port))
 		if err != nil {
@@ -104,7 +105,7 @@ func runDataNodeMap(dataNodeMap configuration.DataNodeMap) {
 		}
 
 		//set up a main loop for this (port, location) tuple
-		go loopData(listener, location)
+		go loopData(listener, location, cache)
 	}
 }
 
@@ -135,6 +136,10 @@ func main() {
 		return
 	}
 
+	/* setup the data cache */
+	dataCacheSize := 10
+	dataCache := caches.NewDataCache(dataCacheSize)
+	
 	/* setup the data layer */
 	//TODO should probably be a configuration option
 	portOffset := 2000
@@ -144,7 +149,7 @@ func main() {
 	dataNodeMap := configuration.MakeDataNodeMap(dataNodeList, portOffset)
 
 	//start the datanode servers
-	runDataNodeMap(dataNodeMap)
+	runDataNodeMap(dataNodeMap, dataCache)
 
 	/* start the server */
 	loop(server, cacheSet)

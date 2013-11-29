@@ -26,4 +26,7 @@ func main() {
 
 	//write the request acros sthe socket
 	conn.Write(DataNodeRequest)
+
+	//wait around
+	for {}
 }
