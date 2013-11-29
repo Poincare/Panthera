@@ -188,6 +188,12 @@ func (dr *DataResponse) LiveLoad(byte_buffer io.Reader) {
 	byte_buffer.Read(dr.Data)	
 	outputBuffer.Write(dr.Data)
 
+	trash = make([]byte, 6)
+	byte_buffer.Read(trash)
+	//add in the last three bytes to the output buffer
+	//so that we've copied the *entire* packet
+	outputBuffer.Write(trash)
+
 	dr.Buf = outputBuffer.Bytes()
 }
 
