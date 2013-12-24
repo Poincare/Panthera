@@ -5,12 +5,23 @@ import (
 	"namenode_rpc"
 	"reflect"
 	"fmt"
+	"caches"
 )
 
 var eventChan chan ProcessorEvent = make(chan ProcessorEvent)
+var cacheSet = caches.NewCacheSet()
+var p *Processor
+
+//set up the test before running it
+func init() {
+	//the cache size doesn't matter for this test suite
+	gfiCacheSize := 15
+	cacheSet.GfiCache = caches.NewGetFileInfoCache(gfiCacheSize)
+	cacheSet.GetListingCache = caches.NewGetListingCache(gfiCacheSize)
+	p = NewProcessor(eventChan, cacheSet)
+}
 
 func TestNewProcess(t *testing.T) {
-	p := NewProcessor(eventChan)
 	if p == nil {
 		t.FailNow()
 	}
@@ -18,6 +29,7 @@ func TestNewProcess(t *testing.T) {
 	if p.EventChannel == nil {
 		t.FailNow()
 	}
+	fmt.Println("Finished NewProcess.");
 }
 
 //GFI request
@@ -28,7 +40,6 @@ var RequestPacketTestCase []byte = []byte{0, 0, 0, 60, 0, 0, 0, 2, 0, 10, 103, 1
 		115, 101, 114, 0, 2, 91, 66, 0, 0, 0, 0}
 
 func TestMapRequest(t *testing.T) {
-	p := NewProcessor(eventChan)
 	req := namenode_rpc.NewRequestPacket()
 	req.Load(RequestPacketTestCase)
 
@@ -38,6 +49,7 @@ func TestMapRequest(t *testing.T) {
 		fmt.Println("Not equal: ", p.RequestResponse[PacketNumber(req.PacketNumber)].Request, req)
 		t.Fail()
 	}
+	fmt.Println("Finished TestMapRequest.");
 }
 
 var GetFileInfoResponseTestCase []byte = []byte{0,0,0,1,0,0,0,0,0,46,111,114,103,
@@ -50,7 +62,6 @@ var GetFileInfoResponseTestCase []byte = []byte{0,0,0,1,0,0,0,0,0,46,111,114,103
 	117,112}
 
 func TestMapResponse(t *testing.T) {
-	p := NewProcessor(eventChan)
 	resp := namenode_rpc.NewGetFileInfoResponse()
 	resp.Load(GetFileInfoResponseTestCase)
 
@@ -64,10 +75,10 @@ func TestMapResponse(t *testing.T) {
 		fmt.Println(resp)
 		t.Fail()
 	}
+	fmt.Println("Finished TestMapResponse.");
 }
 
 func TestMap(t *testing.T) {
-	p := NewProcessor(eventChan)
 	resp := namenode_rpc.NewGetFileInfoResponse()
 	resp.Load(GetFileInfoResponseTestCase)
 
@@ -89,42 +100,43 @@ func TestMap(t *testing.T) {
 	if !reflect.DeepEqual(pair.Request, req) {
 		t.Fail()
 	}
-}
-
-//TODO incomplete
-func TestCacheRequest(t *testing.T) {
-	p := NewProcessor(eventChan)
-
-	req := namenode_rpc.NewRequestPacket()
-	req.Load(RequestPacketTestCase)
-
-	p.CacheRequest(req)
-
-}
-
-//this isn't really a complete test
-//hopefully, after some tests are added, it should print out
-//a message which sould serve as a unit test
-func TestEventLoop (t *testing.T) {
-	p := NewProcessor(eventChan)
-	p.EventChannel = make(chan ProcessorEvent)
-
-	go p.EventLoop()
-
-	event := NewObjectCreatedEvent("some/random/path")
-	p.EventChannel <- event
+	fmt.Println("Finished TestMap.");
 }
 
 func TestCacheRequestWithCacheSize (t *testing.T) {
-	p := NewProcessor(eventChan)
 
 	req := namenode_rpc.NewRequestPacket()
 	req.Load(RequestPacketTestCase)
 
+	fmt.Println("Caching request...");
 	p.CacheRequest(req)
+	fmt.Println("Cached Request.");
 
-	if len(p.gfiCache.Cache.RequestResponse) != 1 {
-		fmt.Println("Got size: ", len(p.gfiCache.Cache.RequestResponse), "cache structure: ", p.gfiCache.Cache.RequestResponse)
+	fmt.Println("iffy");
+	if len(p.cacheSet.GetListingCache.Cache.RequestResponse) != 1 {
+		fmt.Println("Got size: ", len(p.cacheSet.GfiCache.Cache.RequestResponse), "cache structure: ", p.cacheSet.GfiCache.Cache.RequestResponse)
 		t.Fail()
 	}
+	fmt.Println("Endif");
+
+	fmt.Println("Finished CacheRequestWithCacheSize");
+}
+
+//a block report test case
+var BlockReportRequestTestCase = []byte{0,0,0,254,0,0,0,5,0,11,98,108,111,99,107,82,101,112,111,114,116,0,0,0,2,0,59,111,114,103,46,97,112,97,99,104,101,46,104,97,100,111,111,112,46,104,100,102,115,46,115,101,114,118,101,114,46,112,114,111,116,111,99,111,108,46,68,97,116,97,110,111,100,101,82,101,103,105,115,116,114,97,116,105,111,110,0,59,111,114,103,46,97,112,97,99,104,101,46,104,97,100,111,111,112,46,104,100,102,115,46,115,101,114,118,101,114,46,112,114,111,116,111,99,111,108,46,68,97,116,97,110,111,100,101,82,101,103,105,115,116,114,97,116,105,111,110,0,14,49,50,55,46,48,46,48,46,49,58,49,51,56,57,0,41,68,83,45,54,55,56,48,48,50,48,54,49,45,49,50,55,46,48,46,49,46,49,45,49,51,56,57,45,49,51,56,55,55,51,52,56,50,50,52,50,54,195,155,195,100,255,255,255,215,4,220,11,33,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,255,0,0,0,0,0,2,91,74,0,0,0,0,0}
+
+func TestModifyBlockReport(t *testing.T) {
+	req := namenode_rpc.NewRequestPacket()
+	req.Load(BlockReportRequestTestCase)
+	
+	req = p.ModifyBlockReport(req)
+	
+	if string(req.Parameters[1].Type) != "127.0.0.1:1389" {
+		t.Fail()
+	}
+
+	if string(req.Parameters[1].Value) != "DS-678002061-127.0.1.1-1389-1387734822426" {
+		t.Fail()
+	}
+	fmt.Println("Finished ModifyBlockReport()");
 }

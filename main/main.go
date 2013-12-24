@@ -10,6 +10,7 @@ import (
 	"configuration"
 	"fmt"
 	"data_requests"
+	"time"
 )
 
 /* 
@@ -20,8 +21,11 @@ import (
 
 //used to configure the proxy
 type Configuration struct {
+	//where the hdfs namenode is located
 	hdfsHostname string
 	hdfsPort string
+
+	//where the cache layer is supposed to be run
 	serverPort string
 	serverHost string
 
@@ -100,9 +104,12 @@ func loopData(listener net.Listener, location *configuration.DataNodeLocation, c
 func runDataNodeMap(dataNodeMap configuration.DataNodeMap, cache *caches.DataCache) {
 	for port, location := range dataNodeMap {
 		listener, err := net.Listen("tcp", ":" + string(port))
-		if err != nil {
+		if err != nil || listener == nil {
 			log.Println("Could not listen on relay port:", port, " because: ", err.Error(), listener, location)
 		}
+
+		fmt.Println("Listener: ", listener)
+		time.Sleep(100)
 
 		//set up a main loop for this (port, location) tuple
 		go loopData(listener, location, cache)
@@ -111,11 +118,12 @@ func runDataNodeMap(dataNodeMap configuration.DataNodeMap, cache *caches.DataCac
 
 func main() {
 	/* setup the metadata layer */
-	util.LoggingEnabled = true
+	util.LoggingEnabled = false
 	util.Log("Starting...")
 
 	config.hdfsHostname = "127.0.0.1"
-	config.hdfsPort = "1101"
+	config.hdfsPort = "1102"
+
 	config.serverHost = "0.0.0.0"
 	config.serverPort = "1035"
 	config.retryHdfs = false
@@ -142,7 +150,7 @@ func main() {
 	
 	/* setup the data layer */
 	//TODO should probably be a configuration option
-	portOffset := 2000
+	portOffset := 2010
 	dataNode := configuration.NewDataNodeLocation("127.0.0.1", "1337")
 	dataNodeList := make([]*configuration.DataNodeLocation, 0)
 	dataNodeList = append(dataNodeList, dataNode)

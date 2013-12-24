@@ -78,6 +78,8 @@ func NewProcessor(event_chan chan ProcessorEvent, cacheSet *caches.CacheSet) *Pr
 //to CacheResponse(), the cache spot is "filled"
 //TODO need to implement
 func (p *Processor) CacheRequest(req *namenode_rpc.RequestPacket) {
+	fmt.Println("Method name from CacheRequest(): ", string(req.MethodName))
+
 	if(string(req.MethodName) == "getFileInfo") {
 		//follow through with the GetFileInfoCache
 		fmt.Println("Caching request..., cache size: ", len(p.cacheSet.GfiCache.Cache.RequestResponse))
@@ -127,6 +129,29 @@ func (p *Processor) readLength(conn net.Conn) (uint32, error) {
 	return res, read_err
 }
 
+//takes a request object, and if it is DatanodeRegistration related, it modifies the storageID
+//and port number
+func (p *Processor) ModifyBlockReport(req *namenode_rpc.RequestPacket) *namenode_rpc.RequestPacket {
+	//we need to change the port numbers on the blockReport calls
+	//so that it registers the cache layer instead of the DN port number
+	if string(req.MethodName) == "blockReport" {
+
+	}
+	return req
+}
+
+//this method takes a request object and operates on it to produce an altered request object
+//the primary purpose of this method (currently) is to prevent the DataNode from registering
+//with the wrong port number (with the current version of Hadoop, this cannot be managed from
+//the configuration files).
+func (p *Processor) Preprocess(req *namenode_rpc.RequestPacket) *namenode_rpc.RequestPacket {
+	//here we check if the datanode is trying to register
+	if string(req.MethodName) == "blockReport" {
+	}
+
+	return req
+}
+
 //this gets called by the main function on a new instance of Processor
 //when we get a new connection
 func (p *Processor) HandleConnection(conn net.Conn, hdfs net.Conn) {
@@ -170,9 +195,14 @@ func (p *Processor) HandleConnection(conn net.Conn, hdfs net.Conn) {
 			if err != nil {
 				util.LogError("Error in loading request packet: " + err.Error())
 			} else {
+				//first we process the request in case we want to 
+				//weed out anything (e.g. port numbers for the DN)
+				rp = p.Preprocess(rp)
+				
 				//deal with checking the cache
 				resp := p.Process(rp)
 				log.Println("Resp: ", resp)
+
 				//if a response was found in one the caches currently running
 				//we can respond to the client immediately, we don't need to 
 				//wait for HDFS do anything
@@ -194,6 +224,7 @@ func (p *Processor) HandleConnection(conn net.Conn, hdfs net.Conn) {
 					//important! For example, analytics would be affected if we
 					//kept swooping these up
 					util.Log("not found in cache")
+
 					hdfs.Write(byteBuffer);
 				}
 			}

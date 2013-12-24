@@ -24,7 +24,7 @@ import (
 //for the handleConnection and handleDataNode
 //threads to communicate
 type CommMessage struct {
-	closeSocket bool
+	CloseSocket bool
 }
 
 //processes requests from clients and forwards
@@ -66,19 +66,25 @@ func NewProcessor(dataCache *caches.DataCache, nodeLocation *configuration.DataN
 }
 
 //check the communication channel, operate on the socket
-//as necessary. Run in a separate thread.
-func (p *Processor) checkComm(sock net.Conn) {
-	//blocks
-	message := <- p.commChan
-	
-	if message.closeSocket {
-		sock.Close()
+//as necessary. 
+//returns false if the processor needs to end
+func (p *Processor) checkComm(sock net.Conn) bool {
+	select {
+		case msg := <- p.commChan:
+			if msg.CloseSocket { 
+				return false
+			}
+			return true
+		default:
+			return true
 	}
+	return true
 }
 
 func (p *Processor) sendCloseSocket() {
+	fmt.Println("Sending close socket message...")
 	msg := CommMessage{
-		closeSocket: true}
+		CloseSocket: true}
 	p.commChan <- msg
 }
 
@@ -111,9 +117,10 @@ func (p *Processor) HandleConnection(conn net.Conn, dataNode net.Conn) {
 
 		if dataRequest != nil {
 			p.currentRequest = *dataRequest
-
+			
 			resp := p.dataCache.Query(*dataRequest)
 			if resp != nil {
+				fmt.Println("Cache hit!")
 				//write the response from the cache
 				conn.Write(resp.Bytes())
 				p.skipResponse = true
@@ -167,7 +174,11 @@ func (p *Processor) HandleDataNode(conn net.Conn, dataNode net.Conn) {
 	}
 	
 	for {
-		go p.checkComm(dataNode)
+		keepRunning := p.checkComm(dataNode)
+		//telling us that we've received a close down message
+		if !keepRunning {
+			return
+		}
 
 		util.Log("Handling dataNode connection...")
 		dataResponse := datanode_rpc.NewDataResponse()
@@ -179,12 +190,11 @@ func (p *Processor) HandleDataNode(conn net.Conn, dataNode net.Conn) {
 			util.LogError("DataNode connection seems to be closed.")
 			res := p.retryDataNodeConnection(conn, dataNode)
 			if !res {
+				util.LogError("Could not retry successfully. Returning from HandleDataNode")
 				//connections were closed, no point in continuing with the processor
 				return
 			}
 		}
-
-		util.Log("Loaded response object.")
 
 		/*
 		buf := make([]byte, 1024)
