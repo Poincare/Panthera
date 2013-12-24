@@ -11,6 +11,9 @@ import (
 	"encoding/binary"
 	"time"
 	"os"
+
+	//used for the the DataNodeMap
+	"configuration"
 )
 
 type PacketNumber uint32
@@ -42,12 +45,19 @@ type Processor struct {
 	//log the total time spent
 	cachedTimeLogger *log.Logger
 	hdfsTimeLogger *log.Logger
+
+	//we need the datanode map to make replacements in block reports
+	dataNodeMap *configuration.DataNodeMap
 }
 
-
-func NewProcessor(event_chan chan ProcessorEvent, cacheSet *caches.CacheSet) *Processor { 
+//Object constructor. It needs the event_chan to talk with other processors,
+//the cacheSet is initialized and used to cache req/resp and the datanodeMap
+//is used for ModifyBlockReport().
+func NewProcessor(event_chan chan ProcessorEvent, cacheSet *caches.CacheSet,
+	datanodeMap *configuration.DataNodeMap) *Processor { 
 	p := Processor{}
 	p.RequestResponse = make(map[PacketNumber]namenode_rpc.PacketPair)
+	p.dataNodeMap = datanodeMap
 
 	p.EventChannel = event_chan
 	p.cacheSet = cacheSet
@@ -129,14 +139,26 @@ func (p *Processor) readLength(conn net.Conn) (uint32, error) {
 	return res, read_err
 }
 
+
 //takes a request object, and if it is DatanodeRegistration related, it modifies the storageID
 //and port number
 func (p *Processor) ModifyBlockReport(req *namenode_rpc.RequestPacket) *namenode_rpc.RequestPacket {
 	//we need to change the port numbers on the blockReport calls
 	//so that it registers the cache layer instead of the DN port number
-	if string(req.MethodName) == "blockReport" {
-
+	
+	storageParameter := &(req.Parameters[1])
+	
+	location := configuration.NewDataNodeLocationAddr(string(storageParameter.Type))
+	correspondingPort := location.Port
+	//find the corresponding port
+	for port, ploc := range *p.dataNodeMap {
+		if ploc.Ip == location.Ip && ploc.Port == location.Port {
+			correspondingPort = string(port)
+		}
 	}
+	
+	storageParameter.Type = []byte(location.Ip + ":" + correspondingPort)
+	
 	return req
 }
 

@@ -7,6 +7,7 @@ is handled here */
 import (
 	"fmt"
 	"strconv"
+	"strings"
 )
 
 type DataNodeLocation struct {
@@ -19,6 +20,15 @@ func NewDataNodeLocation(ip string, port string) *DataNodeLocation {
 		Port: port}
 
 	return &dnl	
+}
+
+//addr must be in the form "ip:addr"
+func NewDataNodeLocationAddr(addr string) *DataNodeLocation {
+	addrPieces := strings.Split(addr, ":")
+	ip := addrPieces[0]
+	port := addrPieces[1]
+
+	return NewDataNodeLocation(ip, port)
 }
 
 //returns something that net.Dial can use in order to connect

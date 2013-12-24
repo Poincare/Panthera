@@ -21,6 +21,21 @@ func TestDataNodeLocationConstructor (t *testing.T) {
 	}
 } 
 
+func TestDataNodeLocationAddrConstructor(t *testing.T) {
+	dnl := NewDataNodeLocationAddr("127.0.0.1:1389")
+	if dnl == nil {
+		t.Fail()
+	}
+
+	if dnl.Ip != "127.0.0.1" {
+		t.Fail()
+	}
+
+	if dnl.Port != "1389" {
+		t.Fail()
+	}
+}
+
 func TestDataNodeMapConstructor (t *testing.T) {
 	dnl := NewDataNodeLocation("127.0.0.1", "1337")
 	dnLocations := make([]*DataNodeLocation, 0)

@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"fmt"
 	"caches"
+	"configuration"
 )
 
 var eventChan chan ProcessorEvent = make(chan ProcessorEvent)
@@ -18,7 +19,14 @@ func init() {
 	gfiCacheSize := 15
 	cacheSet.GfiCache = caches.NewGetFileInfoCache(gfiCacheSize)
 	cacheSet.GetListingCache = caches.NewGetListingCache(gfiCacheSize)
-	p = NewProcessor(eventChan, cacheSet)
+	
+	dataNode := configuration.NewDataNodeLocation("127.0.0.1", "1337")
+	dataNodeList := make([]*configuration.DataNodeLocation, 0)
+	dataNodeList = append(dataNodeList, dataNode)
+	portOffset := 2010
+	dataNodeMap := configuration.MakeDataNodeMap(dataNodeList, portOffset)
+
+	p = NewProcessor(eventChan, cacheSet, &dataNodeMap)
 }
 
 func TestNewProcess(t *testing.T) {
@@ -138,5 +146,6 @@ func TestModifyBlockReport(t *testing.T) {
 	if string(req.Parameters[1].Value) != "DS-678002061-127.0.1.1-1389-1387734822426" {
 		t.Fail()
 	}
+
 	fmt.Println("Finished ModifyBlockReport()");
 }
