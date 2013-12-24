@@ -20,7 +20,7 @@ func init() {
 	cacheSet.GfiCache = caches.NewGetFileInfoCache(gfiCacheSize)
 	cacheSet.GetListingCache = caches.NewGetListingCache(gfiCacheSize)
 	
-	dataNode := configuration.NewDataNodeLocation("127.0.0.1", "1337")
+	dataNode := configuration.NewDataNodeLocation("127.0.0.1", "1389")
 	dataNodeList := make([]*configuration.DataNodeLocation, 0)
 	dataNodeList = append(dataNodeList, dataNode)
 	portOffset := 2010
@@ -137,13 +137,13 @@ func TestModifyBlockReport(t *testing.T) {
 	req := namenode_rpc.NewRequestPacket()
 	req.Load(BlockReportRequestTestCase)
 	
-	req = p.ModifyBlockReport(req)
+	p.ModifyBlockReport(req)
 	
-	if string(req.Parameters[1].Type) != "127.0.0.1:1389" {
+	if string(req.Parameters[1].Type) != "127.0.0.1:2010" {
 		t.Fail()
 	}
 
-	if string(req.Parameters[1].Value) != "DS-678002061-127.0.1.1-1389-1387734822426" {
+	if string(req.Parameters[1].Value) != "DS-678002061-127.0.1.1-2010-1387734822426" {
 		t.Fail()
 	}
 

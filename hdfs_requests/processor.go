@@ -11,6 +11,7 @@ import (
 	"encoding/binary"
 	"time"
 	"os"
+	"strings"
 
 	//used for the the DataNodeMap
 	"configuration"
@@ -141,12 +142,12 @@ func (p *Processor) readLength(conn net.Conn) (uint32, error) {
 
 
 //takes a request object, and if it is DatanodeRegistration related, it modifies the storageID
-//and port number
-func (p *Processor) ModifyBlockReport(req *namenode_rpc.RequestPacket) *namenode_rpc.RequestPacket {
+//and port number (all operations done in place on req)
+func (p *Processor) ModifyBlockReport(req *namenode_rpc.RequestPacket) {
 	//we need to change the port numbers on the blockReport calls
 	//so that it registers the cache layer instead of the DN port number
 	
-	storageParameter := &(req.Parameters[1])
+	storageParameter := req.Parameters[1]
 	
 	location := configuration.NewDataNodeLocationAddr(string(storageParameter.Type))
 	correspondingPort := location.Port
@@ -156,10 +157,17 @@ func (p *Processor) ModifyBlockReport(req *namenode_rpc.RequestPacket) *namenode
 			correspondingPort = string(port)
 		}
 	}
-	
-	storageParameter.Type = []byte(location.Ip + ":" + correspondingPort)
-	
-	return req
+	fmt.Println("Corresponding port: ", correspondingPort)
+
+	//something like "DS-678002061-127.0.1.1-1389-1387734822426"
+	storageString := string(storageParameter.Value)
+	//something like ["DS", "678002061", "127.0.1.1", "1389", "1387734822426"]
+	storagePieces := strings.Split(storageString, "-")
+	storagePieces[3] = correspondingPort
+	storageString = strings.Join(storagePieces, "-")
+
+	req.Parameters[1].Value = []byte(storageString)
+	req.Parameters[1].Type = []byte(location.Ip + ":" + correspondingPort)
 }
 
 //this method takes a request object and operates on it to produce an altered request object
@@ -169,6 +177,8 @@ func (p *Processor) ModifyBlockReport(req *namenode_rpc.RequestPacket) *namenode
 func (p *Processor) Preprocess(req *namenode_rpc.RequestPacket) *namenode_rpc.RequestPacket {
 	//here we check if the datanode is trying to register
 	if string(req.MethodName) == "blockReport" {
+		p.ModifyBlockReport(req)
+		return req
 	}
 
 	return req
