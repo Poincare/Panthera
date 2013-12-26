@@ -38,7 +38,7 @@ type Configuration struct {
 var config Configuration;
 
 //main reactor function called by main
-func loop(server net.Listener, caches *caches.CacheSet) {
+func loop(server net.Listener, caches *caches.CacheSet, dnMap *configuration.DataNodeMap) {
 	fmt.Println("looping...")
 	eventChannel := make(chan hdfs_requests.ProcessorEvent)
 
@@ -70,7 +70,7 @@ func loop(server net.Listener, caches *caches.CacheSet) {
 
 		//create new process and process the connected client
 		//pass it the caches that are currently initialized
-		processor := hdfs_requests.NewProcessor(eventChannel, caches)
+		processor := hdfs_requests.NewProcessor(eventChannel, caches, dnMap)
 		go processor.HandleConnection(conn, hdfs);
 		go processor.HandleHDFS(conn, hdfs);
 	}
@@ -135,6 +135,9 @@ func main() {
 	cacheSet := caches.NewCacheSet()
 	cacheSet.GfiCache = caches.NewGetFileInfoCache(gfiCacheSize)
 	cacheSet.GetListingCache = caches.NewGetListingCache(getListingCacheSize)
+	
+	//disable the metadata cache for now
+	cacheSet.Disable()
 
 	server, err := net.Listen("tcp", config.serverHost + ":" + config.serverPort)
 	log.SetOutput(ioutil.Discard)
@@ -151,7 +154,7 @@ func main() {
 	/* setup the data layer */
 	//TODO should probably be a configuration option
 	portOffset := 2010
-	dataNode := configuration.NewDataNodeLocation("127.0.0.1", "1337")
+	dataNode := configuration.NewDataNodeLocation("127.0.0.1", "1389")
 	dataNodeList := make([]*configuration.DataNodeLocation, 0)
 	dataNodeList = append(dataNodeList, dataNode)
 	dataNodeMap := configuration.MakeDataNodeMap(dataNodeList, portOffset)
@@ -160,7 +163,7 @@ func main() {
 	runDataNodeMap(dataNodeMap, dataCache)
 
 	/* start the server */
-	loop(server, cacheSet)
+	loop(server, cacheSet, &dataNodeMap)
 }
 
 

@@ -426,8 +426,21 @@ func TestGetCreateRequestPath (t *testing.T) {
 //GetListingResponse tests
 //simple constructor test
 func TestNewGetListingResponse (t *testing.T) {
-	glr := TestNewGetListingResponse()
+	glr := NewGetListingResponse()
 	if glr == nil {
 		t.Fail()
+	}
+}
+
+//test the Bytes() method of the RequestPacket
+func TestRequestPacketBytes(t *testing.T) {
+	rp := NewRequestPacket()
+	rp.Load(CreateRequestPacketTestCase)
+
+	if !reflect.DeepEqual(rp.Bytes(), CreateRequestPacketTestCase) {
+		t.Fail()
+		fmt.Println("TestRequestPacketBytes, not equal: ")
+		fmt.Println(rp.Bytes())
+		fmt.Println(CreateRequestPacketTestCase)
 	}
 }

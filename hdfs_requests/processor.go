@@ -146,7 +146,6 @@ func (p *Processor) readLength(conn net.Conn) (uint32, error) {
 func (p *Processor) ModifyBlockReport(req *namenode_rpc.RequestPacket) {
 	//we need to change the port numbers on the blockReport calls
 	//so that it registers the cache layer instead of the DN port number
-	
 	storageParameter := req.Parameters[1]
 	
 	location := configuration.NewDataNodeLocationAddr(string(storageParameter.Type))
@@ -165,6 +164,7 @@ func (p *Processor) ModifyBlockReport(req *namenode_rpc.RequestPacket) {
 	storagePieces := strings.Split(storageString, "-")
 	storagePieces[3] = correspondingPort
 	storageString = strings.Join(storagePieces, "-")
+	fmt.Println("New storageString: ", storageString)
 
 	req.Parameters[1].Value = []byte(storageString)
 	req.Parameters[1].Type = []byte(location.Ip + ":" + correspondingPort)
@@ -176,11 +176,16 @@ func (p *Processor) ModifyBlockReport(req *namenode_rpc.RequestPacket) {
 //the configuration files).
 func (p *Processor) Preprocess(req *namenode_rpc.RequestPacket) *namenode_rpc.RequestPacket {
 	//here we check if the datanode is trying to register
-	if string(req.MethodName) == "blockReport" {
+	fmt.Println("Preprocessing, methodname: ", string(req.MethodName))
+
+	if string(req.MethodName) == "blockReport" || string(req.MethodName) == "blocksBeingWrittenReport" {
+		fmt.Println("Modifying request...")
 		p.ModifyBlockReport(req)
+		fmt.Println("New request.Parameters[1].Type", string(req.Parameters[1].Type))
+		fmt.Println("New request.Parameters[1].Value", string(req.Parameters[1].Value))
+
 		return req
 	}
-
 	return req
 }
 
@@ -257,7 +262,7 @@ func (p *Processor) HandleConnection(conn net.Conn, hdfs net.Conn) {
 					//kept swooping these up
 					util.Log("not found in cache")
 
-					hdfs.Write(byteBuffer);
+					hdfs.Write(rp.Bytes());
 				}
 			}
 		}

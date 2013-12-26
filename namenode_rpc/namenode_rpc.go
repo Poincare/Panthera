@@ -208,6 +208,27 @@ func (rp *RequestPacket) Load(buf []byte) error {
 	return nil
 }
 
+//this method returns a byte representation of the packet
+func (rp *RequestPacket) Bytes() []byte {
+	var byteBuf bytes.Buffer
+	
+	binary.Write(&byteBuf, binary.BigEndian, rp.Length)
+	binary.Write(&byteBuf, binary.BigEndian, rp.PacketNumber)
+	binary.Write(&byteBuf, binary.BigEndian, rp.NameLength)
+	byteBuf.Write(rp.MethodName)
+	binary.Write(&byteBuf, binary.BigEndian, rp.ParameterNumber)
+
+	for i := 0; i<int(rp.ParameterNumber); i++ {
+		param := rp.Parameters[i]
+		binary.Write(&byteBuf, binary.BigEndian, param.TypeLength)
+		byteBuf.Write(param.Type)
+		binary.Write(&byteBuf, binary.BigEndian, param.ValueLength)
+		byteBuf.Write(param.Value)
+	}
+
+	return (byteBuf.Bytes()[0:rp.Length])
+}
+
 //utility method - reads the packet number from any kind of response packet
 func GetPacketNumber(buf []byte) uint32 {
 	byte_buffer := bytes.NewBuffer(buf)
