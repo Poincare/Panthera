@@ -3,6 +3,7 @@ package namenode_rpc
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
 )
 
 //this is the maximum size for an HDFS packet
@@ -218,15 +219,18 @@ func (rp *RequestPacket) Bytes() []byte {
 	byteBuf.Write(rp.MethodName)
 	binary.Write(&byteBuf, binary.BigEndian, rp.ParameterNumber)
 
+	fmt.Println("Parameter number: ", rp.ParameterNumber)
+
 	for i := 0; i<int(rp.ParameterNumber); i++ {
 		param := rp.Parameters[i]
 		binary.Write(&byteBuf, binary.BigEndian, param.TypeLength)
-		byteBuf.Write(param.Type)
+		byteBuf.Write(param.Type[0:param.TypeLength])
 		binary.Write(&byteBuf, binary.BigEndian, param.ValueLength)
-		byteBuf.Write(param.Value)
+		byteBuf.Write(param.Value[0:param.ValueLength])
+		fmt.Println("i = ", i, ", bytes: ", byteBuf.Bytes())
 	}
 
-	return (byteBuf.Bytes()[0:rp.Length])
+	return (byteBuf.Bytes()[0:rp.Length+5])
 }
 
 //utility method - reads the packet number from any kind of response packet

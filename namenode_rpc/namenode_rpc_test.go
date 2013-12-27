@@ -439,6 +439,7 @@ func TestRequestPacketBytes(t *testing.T) {
 
 	if !reflect.DeepEqual(rp.Bytes(), CreateRequestPacketTestCase) {
 		t.Fail()
+		fmt.Println("real param number: ", rp.ParameterNumber)
 		fmt.Println("TestRequestPacketBytes, not equal: ")
 		fmt.Println(rp.Bytes())
 		fmt.Println(CreateRequestPacketTestCase)
