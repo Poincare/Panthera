@@ -432,6 +432,8 @@ func TestNewGetListingResponse (t *testing.T) {
 	}
 }
 
+var BlockBeingWrittenTestCase = []byte{0,0,1,11,0,0,0,3,0,24,98,108,111,99,107,115,66,101,105,110,103,87,114,105,116,116,101,110,82,101,112,111,114,116,0,0,0,2,0,59,111,114,103,46,97,112,97,99,104,101,46,104,97,100,111,111,112,46,104,100,102,115,46,115,101,114,118,101,114,46,112,114,111,116,111,99,111,108,46,68,97,116,97,110,111,100,101,82,101,103,105,115,116,114,97,116,105,111,110,0,59,111,114,103,46,97,112,97,99,104,101,46,104,97,100,111,111,112,46,104,100,102,115,46,115,101,114,118,101,114,46,112,114,111,116,111,99,111,108,46,68,97,116,97,110,111,100,101,82,101,103,105,115,116,114,97,116,105,111,110,0,14,49,50,55,46,48,46,48,46,49,58,49,51,56,57,0,41,68,83,45,54,55,56,48,48,50,48,54,49,45,49,50,55,46,48,46,49,46,49,45,49,51,56,57,45,49,51,56,55,55,51,52,56,50,50,52,50,54,195,155,195,100,255,255,255,215,4,220,11,33,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,255,0,0,0,0,0,2,91,74,0,0,0,0,0}
+
 //test the Bytes() method of the RequestPacket
 func TestRequestPacketBytes(t *testing.T) {
 	rp := NewRequestPacket()
@@ -442,6 +444,54 @@ func TestRequestPacketBytes(t *testing.T) {
 		fmt.Println("real param number: ", rp.ParameterNumber)
 		fmt.Println("TestRequestPacketBytes, not equal: ")
 		fmt.Println(rp.Bytes())
+		fmt.Println("Real type length for i = 2: ", rp.Parameters[2].TypeLength)
+		fmt.Println("Real type for i=2", rp.Parameters[2].Type)
 		fmt.Println(CreateRequestPacketTestCase)
 	}
+}
+
+func TestRequestPacketBytesReverse(t *testing.T) {
+	rp := NewRequestPacket()
+	rp.Load(BlockBeingWrittenTestCase)
+	
+	bytes := rp.Bytes()
+	new_rp := NewRequestPacket()
+	new_rp.Load(bytes)
+
+	if !reflect.DeepEqual(bytes, BlockBeingWrittenTestCase) {
+		fmt.Println("Not equal: ");
+		fmt.Println("Correct: ", BlockBeingWrittenTestCase)
+		fmt.Println("Bytes(): ", bytes)
+		t.Fail();
+	}
+
+	if !reflect.DeepEqual(new_rp.MethodName, rp.MethodName) {
+		fmt.Println("Method names do not match")
+		t.Fail()
+	}
+
+	if !reflect.DeepEqual(new_rp.ParameterNumber, rp.ParameterNumber) {
+		fmt.Println("ParameterNumbers not equal")
+		t.Fail()
+	} else {
+		fmt.Println("Parameter numbers match: ", rp.ParameterNumber)
+	}
+
+	if !reflect.DeepEqual(new_rp.Parameters[0], rp.Parameters[0]) {
+		fmt.Println("Parameter[0] does not match")
+		t.Fail()
+	} else {
+		fmt.Println("Paramter[0] matches: ", rp.Parameters[0])
+	}
+
+	if !reflect.DeepEqual(new_rp.Parameters[1], rp.Parameters[1]) {
+		fmt.Println("Parameter[1] does not match")
+		t.Fail()
+	} else {
+		fmt.Println("Paramter[1] matches: ", rp.Parameters[1])
+	}
+	
+	fmt.Println("rp.Length: ", rp.Length)
+	fmt.Println("Length of bytes: ", len(bytes))
+	fmt.Println("Length of expected: ", len(BlockBeingWrittenTestCase)) 
 }

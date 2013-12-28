@@ -15,6 +15,7 @@ import (
 
 	//used for the the DataNodeMap
 	"configuration"
+	"reflect"
 )
 
 type PacketNumber uint32
@@ -46,6 +47,8 @@ type Processor struct {
 	//log the total time spent
 	cachedTimeLogger *log.Logger
 	hdfsTimeLogger *log.Logger
+	//log useless, debugging things
+	randomLogger *log.Logger
 
 	//we need the datanode map to make replacements in block reports
 	dataNodeMap *configuration.DataNodeMap
@@ -75,7 +78,12 @@ func NewProcessor(event_chan chan ProcessorEvent, cacheSet *caches.CacheSet,
 		util.LogError("Failed open to cache log file")
 	}
 	p.hdfsTimeLogger = log.New(hdfsLogFile, "", 0)
+	randomLogFile, err := os.OpenFile("random_log", os.O_RDWR | os.O_APPEND | os.O_CREATE, 0666)
+	if err != nil {
+		util.LogError("Failed to open random log file")
+	}
 
+	p.randomLogger = log.New(randomLogFile, "", 0)
 	go p.EventLoop()
 
 	/* disable the caches or enable them here */
@@ -174,7 +182,9 @@ func (p *Processor) ModifyBlockReport(req *namenode_rpc.RequestPacket) {
 //the primary purpose of this method (currently) is to prevent the DataNode from registering
 //with the wrong port number (with the current version of Hadoop, this cannot be managed from
 //the configuration files).
-func (p *Processor) Preprocess(req *namenode_rpc.RequestPacket) *namenode_rpc.RequestPacket {
+//returns the new request packet and also a boolean value that is set to true if the initial
+//request packet was modified
+func (p *Processor) Preprocess(req *namenode_rpc.RequestPacket) (*namenode_rpc.RequestPacket, bool) {
 	//here we check if the datanode is trying to register
 	fmt.Println("Preprocessing, methodname: ", string(req.MethodName))
 
@@ -183,10 +193,10 @@ func (p *Processor) Preprocess(req *namenode_rpc.RequestPacket) *namenode_rpc.Re
 		p.ModifyBlockReport(req)
 		fmt.Println("New request.Parameters[1].Type", string(req.Parameters[1].Type))
 		fmt.Println("New request.Parameters[1].Value", string(req.Parameters[1].Value))
-
-		return req
+		
+		return req, true
 	}
-	return req
+	return req, false
 }
 
 //this gets called by the main function on a new instance of Processor
@@ -234,7 +244,7 @@ func (p *Processor) HandleConnection(conn net.Conn, hdfs net.Conn) {
 			} else {
 				//first we process the request in case we want to 
 				//weed out anything (e.g. port numbers for the DN)
-				rp = p.Preprocess(rp)
+				rp, modified := p.Preprocess(rp)
 				
 				//deal with checking the cache
 				resp := p.Process(rp)
@@ -262,7 +272,21 @@ func (p *Processor) HandleConnection(conn net.Conn, hdfs net.Conn) {
 					//kept swooping these up
 					util.Log("not found in cache")
 
-					hdfs.Write(rp.Bytes());
+					if !reflect.DeepEqual(byteBuffer, rp.Bytes()) {
+						fmt.Println("Byte comparison FAILED")
+						if modified {
+							p.randomLogger.Println("not equal: ")
+							p.randomLogger.Println("correct: ", byteBuffer)
+							p.randomLogger.Println("bytes(): ", rp.Bytes())
+						}
+					} else {
+						fmt.Println("Byte comparison SUCCESSFUL")
+					}
+					if !modified {
+						hdfs.Write(byteBuffer)
+					} else {
+						hdfs.Write(rp.Bytes())
+					}
 				}
 			}
 		}
@@ -302,7 +326,7 @@ func (p *Processor) HandleHDFS(conn net.Conn, hdfs net.Conn) {
 			fmt.Println("From HDFS: \n", genericResp.Bytes(), "\nlength: ", len(genericResp.Bytes()), "\n------------------\n")
 			fmt.Println("Time in getting response: ", time.Now().Sub(TIMECOUNTER).Nanoseconds())
 			p.hdfsTimeLogger.Println(time.Now().Sub(TIMECOUNTER).Nanoseconds())
-
+ 
 			//cache the response (CacheResponse should find out if there is
 			//a matching request to this response)
 			p.CacheResponse(genericResp)

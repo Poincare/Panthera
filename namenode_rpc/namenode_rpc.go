@@ -223,14 +223,31 @@ func (rp *RequestPacket) Bytes() []byte {
 
 	for i := 0; i<int(rp.ParameterNumber); i++ {
 		param := rp.Parameters[i]
+		//fmt.Println("i = ", i);
+		//fmt.Println("param.TypeLength: ", param.TypeLength)
 		binary.Write(&byteBuf, binary.BigEndian, param.TypeLength)
+		//fmt.Println("param.Type: ", string(param.Type), param.Type)
 		byteBuf.Write(param.Type[0:param.TypeLength])
-		binary.Write(&byteBuf, binary.BigEndian, param.ValueLength)
-		byteBuf.Write(param.Value[0:param.ValueLength])
-		fmt.Println("i = ", i, ", bytes: ", byteBuf.Bytes())
-	}
 
-	return (byteBuf.Bytes()[0:rp.Length+5])
+		//fmt.Println("param.ValueLength: ", param.ValueLength)
+		binary.Write(&byteBuf, binary.BigEndian, param.ValueLength)
+		//fmt.Println("param.Value: ", string(param.Value), param.Value)
+		byteBuf.Write(param.Value[0:param.ValueLength])
+		//fmt.Println("bytes: ", byteBuf.Bytes())
+		//fmt.Println("-----------------------")
+	}
+	/*
+	if byteBuf.Len() < int(rp.Length) {
+		return byteBuf.Bytes()
+	} else {
+		return (byteBuf.Bytes()[0:rp.Length])
+	}
+	
+	//statement never reached...
+	return []byte{} */
+	res := byteBuf.Bytes()
+	//res = bytes.TrimRight(res, string([]byte{0}))
+	return res
 }
 
 //utility method - reads the packet number from any kind of response packet
