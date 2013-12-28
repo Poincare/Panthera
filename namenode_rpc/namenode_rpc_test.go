@@ -453,7 +453,8 @@ func TestRequestPacketBytes(t *testing.T) {
 func TestRequestPacketBytesReverse(t *testing.T) {
 	rp := NewRequestPacket()
 	rp.Load(BlockBeingWrittenTestCase)
-	
+	fmt.Println("Initial rp.Length: ", int(rp.Length))
+
 	bytes := rp.Bytes()
 	new_rp := NewRequestPacket()
 	new_rp.Load(bytes)

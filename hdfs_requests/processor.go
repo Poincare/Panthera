@@ -15,6 +15,7 @@ import (
 
 	//used for the the DataNodeMap
 	"configuration"
+	
 	"reflect"
 )
 
@@ -97,7 +98,7 @@ func NewProcessor(event_chan chan ProcessorEvent, cacheSet *caches.CacheSet,
 //to CacheResponse(), the cache spot is "filled"
 //TODO need to implement
 func (p *Processor) CacheRequest(req *namenode_rpc.RequestPacket) {
-	fmt.Println("Method name from CacheRequest(): ", string(req.MethodName))
+	//fmt.Println("Method name from CacheRequest(): ", string(req.MethodName))
 
 	if(string(req.MethodName) == "getFileInfo") {
 		//follow through with the GetFileInfoCache
@@ -151,9 +152,24 @@ func (p *Processor) readLength(conn net.Conn) (uint32, error) {
 
 //takes a request object, and if it is DatanodeRegistration related, it modifies the storageID
 //and port number (all operations done in place on req)
-func (p *Processor) ModifyBlockReport(req *namenode_rpc.RequestPacket) {
+//TODO this needs a fix to consider the case where the new port string length != old port string
+//length
+func (p *Processor) ModifyBlockReport(req *namenode_rpc.RequestPacket) []byte {
 	//we need to change the port numbers on the blockReport calls
 	//so that it registers the cache layer instead of the DN port number
+
+	//first we figure out how far Parameter[1] is offset in the byte array
+	var offsetBuffer bytes.Buffer
+	binary.Write(&offsetBuffer, binary.BigEndian, req.Length)
+	binary.Write(&offsetBuffer, binary.BigEndian, req.PacketNumber)
+	binary.Write(&offsetBuffer, binary.BigEndian, req.NameLength)
+	offsetBuffer.Write(req.MethodName)
+	binary.Write(&offsetBuffer, binary.BigEndian, req.ParameterNumber)
+	binary.Write(&offsetBuffer, binary.BigEndian, req.Parameters[0].TypeLength)
+	offsetBuffer.Write(req.Parameters[0].Type)
+	binary.Write(&offsetBuffer, binary.BigEndian, req.Parameters[0].ValueLength)
+	offsetBuffer.Write(req.Parameters[0].Value)
+	
 	storageParameter := req.Parameters[1]
 	
 	location := configuration.NewDataNodeLocationAddr(string(storageParameter.Type))
@@ -173,9 +189,23 @@ func (p *Processor) ModifyBlockReport(req *namenode_rpc.RequestPacket) {
 	storagePieces[3] = correspondingPort
 	storageString = strings.Join(storagePieces, "-")
 	fmt.Println("New storageString: ", storageString)
+	
+	//TODO consider the case where the length of the value is now different
+	binary.Write(&offsetBuffer, binary.BigEndian, req.Parameters[1].TypeLength)
+	offsetBuffer.Write([]byte(location.Ip + ":" + correspondingPort))
+	binary.Write(&offsetBuffer, binary.BigEndian, req.Parameters[1].ValueLength)
+	offsetBuffer.Write([]byte(storageString))
 
+	
+	//now write the rest of the byte array to the end of offsetBuffer 
+	loadedBytes := req.LoadedBytes()
+	offsetBuffer.Write(loadedBytes[offsetBuffer.Len():])
+
+	req.Load(offsetBuffer.Bytes())
+	return offsetBuffer.Bytes()
+	/*
 	req.Parameters[1].Value = []byte(storageString)
-	req.Parameters[1].Type = []byte(location.Ip + ":" + correspondingPort)
+	req.Parameters[1].Type = []byte(location.Ip + ":" + correspondingPort) */
 }
 
 //this method takes a request object and operates on it to produce an altered request object
@@ -186,8 +216,6 @@ func (p *Processor) ModifyBlockReport(req *namenode_rpc.RequestPacket) {
 //request packet was modified
 func (p *Processor) Preprocess(req *namenode_rpc.RequestPacket) (*namenode_rpc.RequestPacket, bool) {
 	//here we check if the datanode is trying to register
-	fmt.Println("Preprocessing, methodname: ", string(req.MethodName))
-
 	if string(req.MethodName) == "blockReport" || string(req.MethodName) == "blocksBeingWrittenReport" {
 		fmt.Println("Modifying request...")
 		p.ModifyBlockReport(req)
@@ -260,10 +288,11 @@ func (p *Processor) HandleConnection(conn net.Conn, hdfs net.Conn) {
 					fmt.Println("Sent to client, time elapsed (ns): ", time.Now().Sub(TIMECOUNTER).Nanoseconds())
 					p.cachedTimeLogger.Println(time.Now().Sub(TIMECOUNTER).Nanoseconds())
 				} else {
-					fmt.Println("Cache miss!, methodname: ", string(rp.MethodName))
+					//fmt.Println("Cache miss!, methodname: ", string(rp.MethodName))
 					//if it wasn't found in any of the
 					//caches, we should cache the request
 					util.Log("Trying to cache a request...")
+					fmt.Println("Rp.length: ", rp.Length)
 					p.CacheRequest(rp)
 
 					//TODO this is an important consideration - do we still need
@@ -282,11 +311,12 @@ func (p *Processor) HandleConnection(conn net.Conn, hdfs net.Conn) {
 					} else {
 						fmt.Println("Byte comparison SUCCESSFUL")
 					}
+
 					if !modified {
 						hdfs.Write(byteBuffer)
 					} else {
 						hdfs.Write(rp.Bytes())
-					}
+				  }
 				}
 			}
 		}

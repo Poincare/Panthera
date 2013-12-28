@@ -140,10 +140,12 @@ func TestModifyBlockReport(t *testing.T) {
 	p.ModifyBlockReport(req)
 	
 	if string(req.Parameters[1].Type) != "127.0.0.1:2010" {
+		fmt.Println("Type does not match, returned: ", string(req.Parameters[1].Type))
 		t.Fail()
 	}
 
 	if string(req.Parameters[1].Value) != "DS-678002061-127.0.1.1-2010-1387734822426" {
+		fmt.Println("Value does not match, returned: ", string(req.Parameters[1].Value))
 		t.Fail()
 	}
 
@@ -155,7 +157,7 @@ func TestPreprocess(t *testing.T) {
 	req := namenode_rpc.NewRequestPacket()
 	req.Load(BlockReportRequestTestCase)
 	
-	req = p.Preprocess(req)
+	req, _ = p.Preprocess(req)
 	if string(req.Parameters[1].Type) != "127.0.0.1:2010" {
 		t.Fail()
 	}
