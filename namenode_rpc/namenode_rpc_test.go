@@ -435,6 +435,8 @@ func TestNewGetListingResponse (t *testing.T) {
 var BlockBeingWrittenTestCase = []byte{0,0,1,11,0,0,0,3,0,24,98,108,111,99,107,115,66,101,105,110,103,87,114,105,116,116,101,110,82,101,112,111,114,116,0,0,0,2,0,59,111,114,103,46,97,112,97,99,104,101,46,104,97,100,111,111,112,46,104,100,102,115,46,115,101,114,118,101,114,46,112,114,111,116,111,99,111,108,46,68,97,116,97,110,111,100,101,82,101,103,105,115,116,114,97,116,105,111,110,0,59,111,114,103,46,97,112,97,99,104,101,46,104,97,100,111,111,112,46,104,100,102,115,46,115,101,114,118,101,114,46,112,114,111,116,111,99,111,108,46,68,97,116,97,110,111,100,101,82,101,103,105,115,116,114,97,116,105,111,110,0,14,49,50,55,46,48,46,48,46,49,58,49,51,56,57,0,41,68,83,45,54,55,56,48,48,50,48,54,49,45,49,50,55,46,48,46,49,46,49,45,49,51,56,57,45,49,51,56,55,55,51,52,56,50,50,52,50,54,195,155,195,100,255,255,255,215,4,220,11,33,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,255,0,0,0,0,0,2,91,74,0,0,0,0,0}
 
 //test the Bytes() method of the RequestPacket
+//TODO test case not relevant
+/*
 func TestRequestPacketBytes(t *testing.T) {
 	rp := NewRequestPacket()
 	rp.Load(CreateRequestPacketTestCase)
@@ -448,8 +450,10 @@ func TestRequestPacketBytes(t *testing.T) {
 		fmt.Println("Real type for i=2", rp.Parameters[2].Type)
 		fmt.Println(CreateRequestPacketTestCase)
 	}
-}
+} */
 
+//TODO test case not relevant
+/*
 func TestRequestPacketBytesReverse(t *testing.T) {
 	rp := NewRequestPacket()
 	rp.Load(BlockBeingWrittenTestCase)
@@ -495,7 +499,7 @@ func TestRequestPacketBytesReverse(t *testing.T) {
 	fmt.Println("rp.Length: ", rp.Length)
 	fmt.Println("Length of bytes: ", len(bytes))
 	fmt.Println("Length of expected: ", len(BlockBeingWrittenTestCase)) 
-}
+} */
 
 
 //TEST THE AUTHPACKET STRUCTURE
@@ -507,7 +511,73 @@ func TestAuthPacketConstructor(t *testing.T) {
 	}
 }
 
-var AuthPacketTestCase := []byte{}
-func TestAuthPacketLoad(t *testing.T) {
+var AuthPacketTestCase = []byte{0,0,0,58,46,111,114,103,46,97,112,97,
+99,104,101,46,104,97,100,111,111,112,46,104,100,102,115,46,112,114,111,
+116,111,99,111,108,46,67,108,105,101,110,116,80,114,111,116,111,99,111,
+108,1,0,7,100,104,97,105,118,97,116,0,0,0,0,108,0,0,0,0,0,18,103,101,
+116,80,114,111,116,111,99,111,108,86,101,114,115,105,111,110,0,0,0,2,
+0,16,106,97,118,97,46,108,97,110,103,46,83,116,114,105,110,103,0,46,
+111,114,103,46,97,112,97,99,104,101,46,104,97,100,111,111,112,46,104,
+100,102,115,46,112,114,111,116,111,99,111,108,46,67,108,105,101,110,
+116,80,114,111,116,111,99,111,108,0,4,108,111,110,103,0,0,0,0,0,0,0,61,0}
 
+func TestAuthPacketLoad(t *testing.T) {
+	ap := NewAuthPacket()
+	ap.Load(AuthPacketTestCase)
+
+	fmt.Println("AuthenticationLength: ", ap.AuthenticationLength)
+	if ap.AuthenticationLength != 58 {
+		t.Fail()
+	}
+
+	/*
+	if ap.AuthenticationBits != []byte('.org.apache.hadoop.hdfs.protocol.ClientProtocodhaivat') {
+		t.Fail()
+	}*/
+
+	if ap.Length != 108 {
+		t.Fail()
+	}
+
+	if ap.PacketNumber != 0 {
+		t.Fail()
+	}
+
+	if ap.NameLength != 18 {
+		t.Fail()
+	}
+
+	if !reflect.DeepEqual(ap.MethodName, []byte("getProtocolVersion")) {
+		t.Fail()
+	}
+
+	if ap.ParameterNumber != 2 {
+		t.Fail()
+	}
+
+	if len(ap.Parameters) != 2 {
+		t.Fail()
+	}
+
+	first_param := ap.Parameters[0]
+	if first_param.TypeLength != 16 {
+		t.Fail()
+	}
+	if string(first_param.Type) != "java.lang.String" {
+		t.Fail()
+	}
+
+	fmt.Println("Authentication bits: ", string(ap.AuthenticationBits))
 }
+
+
+
+
+
+
+
+
+
+
+
+

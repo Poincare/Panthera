@@ -513,11 +513,11 @@ func NewPacketPair() *PacketPair {
 //authentication packet structure; essentially, it is a request
 //packet but has some extra details that we have to deal with
 type AuthPacket struct {
-	AuthenticationLength []byte
+	AuthenticationLength uint32
 	AuthenticationBits []byte
 	Length uint32
 	PacketNumber uint32
-	MethodNameLength uint16
+	NameLength uint16
 	MethodName []byte
 	ParameterNumber uint32
 	Parameters []Parameter
@@ -540,8 +540,9 @@ func (ap *AuthPacket) Load(buf []byte) {
 	//of the data
 	rp := NewRequestPacket()
 	byteBuffer := bytes.NewBuffer(buf)
-	
-	binary.Read(byteBuffer, binary.BigEndian, ap.AuthenticationLength)
+	fmt.Println("Length of bb: ", byteBuffer.Len())
+
+	binary.Read(byteBuffer, binary.BigEndian, &(ap.AuthenticationLength))
 	ap.AuthenticationBits = make([]byte, ap.AuthenticationLength)
 	byteBuffer.Read(ap.AuthenticationBits)
 
@@ -553,7 +554,7 @@ func (ap *AuthPacket) Load(buf []byte) {
 	//the good portions of the RequestPacket.Load() here
 	ap.Length = rp.Length
 	ap.PacketNumber = rp.PacketNumber
-	ap.MethodNameLength = rp.MethodNameLength
+	ap.NameLength = rp.NameLength
 	ap.MethodName = rp.MethodName
 	ap.ParameterNumber = rp.ParameterNumber
 	ap.Parameters = rp.Parameters	
