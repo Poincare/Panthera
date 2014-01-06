@@ -245,24 +245,33 @@ func (p *Processor) HandleConnection(conn net.Conn, hdfs net.Conn) {
 
 		//if we're still on the first packet, we can't read in the length
 		if(!p.HandledFirstPacket) {
+			fmt.Println("HAVE NOT HANDLED FIRST PACKET YET.")
 			bytesRead, read_err = conn.Read(byteBuffer);
-			byteBuffer = byteBuffer[0:bytesRead]	
-		} else {	
+			byteBuffer = byteBuffer[0:bytesRead]
+			p.HandledFirstPacket = true
+		} else {
+			fmt.Println("HEEYEYYEYEYEYE Processing request!");
 			len, err := p.readLength(conn)
 			if err != nil {
 				continue
 			}
 
-			byteBuffer = make([]byte, len)
+			byteBuffer = make([]byte, len-4)
 			bytesRead, read_err = conn.Read(byteBuffer)
 			byteBuffer = byteBuffer[0:bytesRead]
+
+			var finalBuffer bytes.Buffer
+			binary.Write(&finalBuffer, binary.BigEndian, len)
+			finalBuffer.Write(byteBuffer)
+
+			byteBuffer = finalBuffer.Bytes()
 		}
-		
-		//this means we are on the second packet
-		//the second packet is the authentication packet
-		if p.PacketsProcessed == 1 {
-			//TODO fill in something here
-		}
+		/*else if p.PacketsProcessed == 1 {
+			authenticationLength, _ := p.readLength(conn)
+			byteBuffer = make([]byte, authenticationLength)
+			
+		} */
+
 
 		if read_err != nil {
 			util.LogError(read_err.Error())

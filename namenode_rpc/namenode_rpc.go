@@ -172,7 +172,7 @@ func NewRequestPacket () *RequestPacket {
 //unit tested with data read from Wireshark
 //there doesn't seem to be a formal description of the 
 //protocol that Hadoop is currently using, since they seem
-//to have droopped the custom "Writeables" altogether in favor of 
+//to have dropped the custom "Writeables" altogether in favor of 
 //Google's Protocol Buffers.
 func (rp *RequestPacket) Load(buf []byte) error {
 	byte_buffer := bytes.NewBuffer(buf)
@@ -530,6 +530,27 @@ func NewAuthPacket() *AuthPacket {
 	return &ap
 }
 
+/*
+func (ap *AuthPacket) LiveLoad(byteBuffer io.Reader) {
+	rp := NewRequestPacket()
+	binary.Read(byteBuffer, binary.BigEndian, &(ap.AuthenticationLength))
+	ap.AuthenticationBits = make([]byte, ap.AuthenticationLength)
+	byteBuffer.Read(ap.AuthenticationBits)
+
+	restOfPacket := byteBuffer.Bytes()
+	rp.Load(restOfPacket)
+
+	//copy parts of the loaded RequestPacket into the 
+	//authentication packet; we are essentially using
+	//the good portions of the RequestPacket.Load() here
+	ap.Length = rp.Length
+	ap.PacketNumber = rp.PacketNumber
+	ap.NameLength = rp.NameLength
+	ap.MethodName = rp.MethodName
+	ap.ParameterNumber = rp.ParameterNumber
+	ap.Parameters = rp.Parameters	
+} */
+
 func (ap *AuthPacket) Load(buf []byte) {
 	ap.LoadedBytes = buf
 	
@@ -538,10 +559,8 @@ func (ap *AuthPacket) Load(buf []byte) {
 	//wrapped around it, so we are going to use a 
 	//request packet load method in order to load a majority
 	//of the data
-	rp := NewRequestPacket()
 	byteBuffer := bytes.NewBuffer(buf)
-	fmt.Println("Length of bb: ", byteBuffer.Len())
-
+	rp := NewRequestPacket()
 	binary.Read(byteBuffer, binary.BigEndian, &(ap.AuthenticationLength))
 	ap.AuthenticationBits = make([]byte, ap.AuthenticationLength)
 	byteBuffer.Read(ap.AuthenticationBits)
@@ -559,3 +578,4 @@ func (ap *AuthPacket) Load(buf []byte) {
 	ap.ParameterNumber = rp.ParameterNumber
 	ap.Parameters = rp.Parameters	
 }
+
