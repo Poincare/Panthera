@@ -496,3 +496,18 @@ func TestRequestPacketBytesReverse(t *testing.T) {
 	fmt.Println("Length of bytes: ", len(bytes))
 	fmt.Println("Length of expected: ", len(BlockBeingWrittenTestCase)) 
 }
+
+
+//TEST THE AUTHPACKET STRUCTURE
+
+func TestAuthPacketConstructor(t *testing.T) {
+	ap := NewAuthPacket()
+	if ap == nil {
+		t.Fail();
+	}
+}
+
+var AuthPacketTestCase := []byte{}
+func TestAuthPacketLoad(t *testing.T) {
+
+}

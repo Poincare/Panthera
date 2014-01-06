@@ -492,3 +492,69 @@ func NewPacketPair() *PacketPair {
 	pp := PacketPair{}
 	return &pp
 }
+
+/*
+    HDFS authentication length: 
+    HDFS authorization bits: .org.apache.hadoop.hdfs.protocol.ClientProtocol\001
+    HDFS length: 108
+    HDFS packet number: 0
+    HDFS name length: 18
+    HDFS method name: getProtocolVersion
+    HDFS number of parameters: 2
+    HDFS name length: 16
+    HDFS parameter type: java.lang.String
+    HDFS name length: 46
+    HDFS parameter value: org.apache.hadoop.hdfs.protocol.ClientProtocol
+    HDFS name length: 4
+    HDFS parameter type: long
+    HDFS parameter value: 61
+*/
+
+//authentication packet structure; essentially, it is a request
+//packet but has some extra details that we have to deal with
+type AuthPacket struct {
+	AuthenticationLength []byte
+	AuthenticationBits []byte
+	Length uint32
+	PacketNumber uint32
+	MethodNameLength uint16
+	MethodName []byte
+	ParameterNumber uint32
+	Parameters []Parameter
+
+	LoadedBytes []byte
+}
+
+func NewAuthPacket() *AuthPacket {
+	ap := AuthPacket{}
+	return &ap
+}
+
+func (ap *AuthPacket) Load(buf []byte) {
+	ap.LoadedBytes = buf
+	
+	//the authentication packet is essentially
+	//a request packet with some authentication stuff
+	//wrapped around it, so we are going to use a 
+	//request packet load method in order to load a majority
+	//of the data
+	rp := NewRequestPacket()
+	byteBuffer := bytes.NewBuffer(buf)
+	
+	binary.Read(byteBuffer, binary.BigEndian, ap.AuthenticationLength)
+	ap.AuthenticationBits = make([]byte, ap.AuthenticationLength)
+	byteBuffer.Read(ap.AuthenticationBits)
+
+	restOfPacket := byteBuffer.Bytes()
+	rp.Load(restOfPacket)
+
+	//copy parts of the loaded RequestPacket into the 
+	//authentication packet; we are essentially using
+	//the good portions of the RequestPacket.Load() here
+	ap.Length = rp.Length
+	ap.PacketNumber = rp.PacketNumber
+	ap.MethodNameLength = rp.MethodNameLength
+	ap.MethodName = rp.MethodName
+	ap.ParameterNumber = rp.ParameterNumber
+	ap.Parameters = rp.Parameters	
+}

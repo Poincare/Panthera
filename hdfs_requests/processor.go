@@ -16,7 +16,7 @@ import (
 	//used for the the DataNodeMap
 	"configuration"
 	
-	"reflect"
+	//"reflect"
 )
 
 type PacketNumber uint32
@@ -45,6 +45,9 @@ type Processor struct {
 	//set to true after the first packet is handled from the client
 	HandledFirstPacket bool
 
+	//the second packet is the authentication/registration packet
+	PacketsProcessed int
+
 	//log the total time spent
 	cachedTimeLogger *log.Logger
 	hdfsTimeLogger *log.Logger
@@ -67,6 +70,7 @@ func NewProcessor(event_chan chan ProcessorEvent, cacheSet *caches.CacheSet,
 	p.EventChannel = event_chan
 	p.cacheSet = cacheSet
 	p.HandledFirstPacket = false
+	p.PacketsProcessed = 0
 
 	cacheLogFile, err := os.OpenFile("cache_times", os.O_RDWR | os.O_APPEND | os.O_CREATE, 0666)
 	if err != nil {
@@ -192,9 +196,11 @@ func (p *Processor) ModifyBlockReport(req *namenode_rpc.RequestPacket) []byte {
 	
 	//TODO consider the case where the length of the value is now different
 	binary.Write(&offsetBuffer, binary.BigEndian, req.Parameters[1].TypeLength)
-	offsetBuffer.Write([]byte(location.Ip + ":" + correspondingPort))
+	//offsetBuffer.Write([]byte(location.Ip + ":" + correspondingPort))
+	offsetBuffer.Write([]byte("127.0.0.1:2010"))
 	binary.Write(&offsetBuffer, binary.BigEndian, req.Parameters[1].ValueLength)
-	offsetBuffer.Write([]byte(storageString))
+	offsetBuffer.Write([]byte("DS-678002061-127.0.1.1-2010-1387734822426"))
+	//offsetBuffer.Write([]byte(storageString))
 
 	
 	//now write the rest of the byte array to the end of offsetBuffer 
@@ -205,8 +211,8 @@ func (p *Processor) ModifyBlockReport(req *namenode_rpc.RequestPacket) []byte {
 	return offsetBuffer.Bytes()
 	/*
 	req.Parameters[1].Value = []byte(storageString)
-	req.Parameters[1].Type = []byte(location.Ip + ":" + correspondingPort) */
-}
+	req.Parameters[1].Type = []byte(location.Ip + ":" + correspondingPort) */}
+	
 
 //this method takes a request object and operates on it to produce an altered request object
 //the primary purpose of this method (currently) is to prevent the DataNode from registering
@@ -224,6 +230,7 @@ func (p *Processor) Preprocess(req *namenode_rpc.RequestPacket) (*namenode_rpc.R
 		
 		return req, true
 	}
+	
 	return req, false
 }
 
@@ -250,6 +257,12 @@ func (p *Processor) HandleConnection(conn net.Conn, hdfs net.Conn) {
 			bytesRead, read_err = conn.Read(byteBuffer)
 			byteBuffer = byteBuffer[0:bytesRead]
 		}
+		
+		//this means we are on the second packet
+		//the second packet is the authentication packet
+		if p.PacketsProcessed == 1 {
+			//TODO fill in something here
+		}
 
 		if read_err != nil {
 			util.LogError(read_err.Error())
@@ -273,7 +286,9 @@ func (p *Processor) HandleConnection(conn net.Conn, hdfs net.Conn) {
 				//first we process the request in case we want to 
 				//weed out anything (e.g. port numbers for the DN)
 				rp, modified := p.Preprocess(rp)
-				
+				fmt.Println("Method name: ", string(rp.MethodName))
+				fmt.Println("Modified: ", modified)
+
 				//deal with checking the cache
 				resp := p.Process(rp)
 				log.Println("Resp: ", resp)
@@ -301,6 +316,7 @@ func (p *Processor) HandleConnection(conn net.Conn, hdfs net.Conn) {
 					//kept swooping these up
 					util.Log("not found in cache")
 
+					/*
 					if !reflect.DeepEqual(byteBuffer, rp.Bytes()) {
 						fmt.Println("Byte comparison FAILED")
 						if modified {
@@ -310,15 +326,17 @@ func (p *Processor) HandleConnection(conn net.Conn, hdfs net.Conn) {
 						}
 					} else {
 						fmt.Println("Byte comparison SUCCESSFUL")
-					}
-
+					} */
 					if !modified {
 						hdfs.Write(byteBuffer)
 					} else {
-						hdfs.Write(rp.Bytes())
+						fmt.Println("modified true, byteBuffer: ", byteBuffer)
+						fmt.Println("loadedBytes: ", rp.LoadedBytes())
+						hdfs.Write(rp.LoadedBytes())
 				  }
 				}
 			}
+			p.PacketsProcessed += 1
 		}
 	}
 }

@@ -158,7 +158,12 @@ func main() {
 	dataNodeList := make([]*configuration.DataNodeLocation, 0)
 	dataNodeList = append(dataNodeList, dataNode)
 	dataNodeMap := configuration.MakeDataNodeMap(dataNodeList, portOffset)
+	
+	//retrofitted modification
+	//dataNodeMap[configuration.Port(1389)] = dataNodeMap[configuration.Port(2010)]
+	//delete(dataNodeMap, configuration.Port(2010))
 
+	
 	//start the datanode servers
 	runDataNodeMap(dataNodeMap, dataCache)
 
