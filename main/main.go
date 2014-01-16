@@ -41,32 +41,37 @@ var config Configuration;
 func loop(server net.Listener, caches *caches.CacheSet, dnMap *configuration.DataNodeMap) {
 	fmt.Println("looping...")
 	eventChannel := make(chan hdfs_requests.ProcessorEvent)
-
+	
 	for {
 		fmt.Println("Waiting for a connection...")
 		conn, err := server.Accept()
+		fmt.Println("Accepted connection...");
 
 		if err != nil {
 			util.LogError(err.Error())
 			continue
 		}
-
-		util.Log("Client accepted.");
+		util.DebugLog("Client Accepted; no errors received...");
 
 		//set up connection to HDFS
+		util.DebugLog("Connecting to HDFS host: " + string(config.hdfsHostname) + ":" + string(config.hdfsPort))
 		hdfs, hdfs_err := net.Dial("tcp", config.hdfsHostname + ":" + config.hdfsPort)
 		if hdfs_err != nil {
 			util.LogError(err.Error())
 			continue
 		}
+		util.DebugLog("Dialed HDFS...")
+		time.Sleep(1000 * time.Millisecond)
+
 		//check if the socket connected
 		if hdfs == nil {
 			util.LogError("Connection to HDFS failed. Closing client socket");
 			conn.Close()
 			continue
 		}
-
-		util.Log("Connected to HDFS.")
+		util.DebugLog("Connected to HDFS.")
+		
+		time.Sleep(1000 * time.Millisecond);
 
 		//create new process and process the connected client
 		//pass it the caches that are currently initialized

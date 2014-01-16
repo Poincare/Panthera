@@ -266,7 +266,7 @@ func (p *Processor) HandleConnection(conn net.Conn, hdfs net.Conn) {
 
 			byteBuffer = finalBuffer.Bytes()
 		}
-		/*else if p.PacketsProcessed == 1 {
+		/* else if p.PacketsProcessed == 1 {
 			authenticationLength, _ := p.readLength(conn)
 			byteBuffer = make([]byte, authenticationLength)
 			

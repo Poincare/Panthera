@@ -5,6 +5,7 @@ import (
 )
 
 var LoggingEnabled bool = true
+var DebugLoggingEnabled bool = true
 
 //log general information
 func Log(x string) {
@@ -24,5 +25,12 @@ func LogError(x string) {
 func LogRecvd(source string, x string) {
 	if LoggingEnabled {
 		fmt.Println("RECVD FROM: " + source + ", DATA: " + x)
+	}
+}
+
+//log debugging information
+func DebugLog(x string) {
+	if DebugLoggingEnabled {
+		fmt.Println(x);
 	}
 }
