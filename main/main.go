@@ -76,7 +76,7 @@ func loop(server net.Listener, caches *caches.CacheSet, dnMap *configuration.Dat
 		//create new process and process the connected client
 		//pass it the caches that are currently initialized
 		processor := hdfs_requests.NewProcessor(eventChannel, caches, dnMap)
-		go processor.HandleConnection(conn, hdfs);
+		go processor.HandleConnectionReimp(conn, hdfs);
 		go processor.HandleHDFS(conn, hdfs);
 	}
 }

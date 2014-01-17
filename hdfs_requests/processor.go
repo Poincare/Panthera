@@ -13,6 +13,7 @@ import (
 	"os"
 	"strings"
 
+
 	//used for the the DataNodeMap
 	"configuration"
 	
@@ -139,7 +140,10 @@ func (p *Processor) CacheResponse(resp namenode_rpc.ResponsePacket) {
 //read the length from the client
 func (p *Processor) readLength(conn net.Conn) (uint32, error) {
 	buf := make([]byte, 40)
+
+	util.DebugLog("readLength: beginning read...")
 	bytesRead, read_err := conn.Read(buf)
+	util.DebugLog("readLength: ended read...")
 
 	buf = buf[0:bytesRead]
 	if bytesRead != 0 {
@@ -234,6 +238,71 @@ func (p *Processor) Preprocess(req *namenode_rpc.RequestPacket) (*namenode_rpc.R
 	return req, false
 }
 
+//called by HandleConnectionReimp in order to process the first packet
+//which sets up the protocol
+func (p *Processor) HandleConnZeroPacket(conn net.Conn, hdfs net.Conn) error {
+	byteBuffer := make([]byte, 1024)
+	bytesRead, read_err := conn.Read(byteBuffer)
+	byteBuffer = byteBuffer[0:bytesRead]
+	if read_err != nil {
+		return read_err
+	}
+
+	_, writeError := hdfs.Write(byteBuffer)
+	return writeError
+}
+
+func (p *Processor) readAuthPacketLength(conn net.Conn, hdfs net.Conn) (uint32, error) {
+	var packetLength uint32
+	buf := make([]byte, 4)
+	bytesRead, readErr := conn.Read(buf)
+	buf = buf[0:bytesRead]
+	if readErr != nil || bytesRead != 4 {
+		return 0, readErr
+	}
+	//readErr := binary.Read(conn, binary.BigEndian, &packetLength)
+	/*
+	if readErr != nil {
+		return packetLength, readErr
+	} */
+	//return packetLength, readErr
+	byteBuffer := bytes.NewBuffer(buf)
+	fmt.Println("buf before: ", byteBuffer.Bytes())
+	binary.Read(byteBuffer, binary.BigEndian, &packetLength)
+	fmt.Println("buf: ", byteBuffer.Bytes(), "pack len: ", packetLength)
+	return packetLength, readErr
+}
+
+func (p *Processor) HandleConnAuthPacket(conn net.Conn, hdfs net.Conn) error {
+	packetLength, lengthErr := p.readAuthPacketLength(conn, hdfs)
+	fmt.Println("Packet length: ", packetLength);
+
+	return lengthErr
+}
+
+//this gets called by the main function on a new instance of Processor
+//when we get a new connection
+func (p *Processor) HandleConnectionReimp(conn net.Conn, hdfs net.Conn) {
+	for {
+		//initialize the buffer, etc.
+		//if it is the first packet, pass it onto a different method
+		switch(p.PacketsProcessed) {
+		//process the first packet (which sets up the protocol)
+		case 0:
+			err := p.HandleConnZeroPacket(conn, hdfs)
+			if err != nil {
+				util.DebugLog("Error reading first packet of connection.")
+			}
+			p.PacketsProcessed++
+		case 1:
+			p.HandleConnAuthPacket(conn, hdfs)
+			p.PacketsProcessed++
+		}
+		//if it is the second packet, it is the authentication packet
+		//after that, process them as request packets
+	}
+}
+
 //this gets called by the main function on a new instance of Processor
 //when we get a new connection
 func (p *Processor) HandleConnection(conn net.Conn, hdfs net.Conn) {
@@ -245,15 +314,20 @@ func (p *Processor) HandleConnection(conn net.Conn, hdfs net.Conn) {
 
 		//if we're still on the first packet, we can't read in the length
 		if(!p.HandledFirstPacket) {
-			fmt.Println("HAVE NOT HANDLED FIRST PACKET YET.")
+			//fmt.Println("HAVE NOT HANDLED FIRST PACKET YET.")
 			bytesRead, read_err = conn.Read(byteBuffer);
 			byteBuffer = byteBuffer[0:bytesRead]
 			p.HandledFirstPacket = true
 		} else {
-			fmt.Println("HEEYEYYEYEYEYE Processing request!");
+			//fmt.Println("Processing a full request.");
 			len, err := p.readLength(conn)
-			if err != nil {
-				continue
+			util.DebugLog("Read length: " + string(len));
+
+			if err != nil || len == 0 {
+				//if we get an error reading the length, that
+				//means the socket was closed, so we will 
+				//just return this socket
+				return
 			}
 
 			byteBuffer = make([]byte, len-4)
@@ -269,13 +343,12 @@ func (p *Processor) HandleConnection(conn net.Conn, hdfs net.Conn) {
 		/* else if p.PacketsProcessed == 1 {
 			authenticationLength, _ := p.readLength(conn)
 			byteBuffer = make([]byte, authenticationLength)
-			
 		} */
 
 
 		if read_err != nil {
 			util.LogError(read_err.Error())
-			fmt.Println("error: ", read_err.Error())
+			//fmt.Println("error: ", read_err.Error())
 			conn.Close()
 			hdfs.Close()
 			return
@@ -284,7 +357,7 @@ func (p *Processor) HandleConnection(conn net.Conn, hdfs net.Conn) {
 		util.Log("Handling the packet...")
 
 		TIMECOUNTER = time.Now()
-		fmt.Println("BYTES READ: ", bytesRead)
+		//fmt.Println("BYTES READ: ", bytesRead)
 		
 		if bytesRead > 0 {
 			rp := namenode_rpc.NewRequestPacket()
@@ -295,8 +368,8 @@ func (p *Processor) HandleConnection(conn net.Conn, hdfs net.Conn) {
 				//first we process the request in case we want to 
 				//weed out anything (e.g. port numbers for the DN)
 				rp, modified := p.Preprocess(rp)
-				fmt.Println("Method name: ", string(rp.MethodName))
-				fmt.Println("Modified: ", modified)
+				//fmt.Println("Method name: ", string(rp.MethodName))
+				//fmt.Println("Modified: ", modified)
 
 				//deal with checking the cache
 				resp := p.Process(rp)
@@ -309,14 +382,14 @@ func (p *Processor) HandleConnection(conn net.Conn, hdfs net.Conn) {
 					fmt.Println("Cache hit!")
 					conn.Write(resp.Bytes())
 					//hdfs.Write(byteBuffer)
-					fmt.Println("Sent to client, time elapsed (ns): ", time.Now().Sub(TIMECOUNTER).Nanoseconds())
+					//fmt.Println("Sent to client, time elapsed (ns): ", time.Now().Sub(TIMECOUNTER).Nanoseconds())
 					p.cachedTimeLogger.Println(time.Now().Sub(TIMECOUNTER).Nanoseconds())
 				} else {
 					//fmt.Println("Cache miss!, methodname: ", string(rp.MethodName))
 					//if it wasn't found in any of the
 					//caches, we should cache the request
 					util.Log("Trying to cache a request...")
-					fmt.Println("Rp.length: ", rp.Length)
+					//fmt.Println("Rp.length: ", rp.Length)
 					p.CacheRequest(rp)
 
 					//TODO this is an important consideration - do we still need
@@ -339,8 +412,8 @@ func (p *Processor) HandleConnection(conn net.Conn, hdfs net.Conn) {
 					if !modified {
 						hdfs.Write(byteBuffer)
 					} else {
-						fmt.Println("modified true, byteBuffer: ", byteBuffer)
-						fmt.Println("loadedBytes: ", rp.LoadedBytes())
+						//fmt.Println("modified true, byteBuffer: ", byteBuffer)
+						//fmt.Println("loadedBytes: ", rp.LoadedBytes())
 						hdfs.Write(rp.LoadedBytes())
 				  }
 				}
@@ -380,8 +453,8 @@ func (p *Processor) HandleHDFS(conn net.Conn, hdfs net.Conn) {
 		}
 
 		if(bytesRead > 0) {
-			fmt.Println("From HDFS: \n", genericResp.Bytes(), "\nlength: ", len(genericResp.Bytes()), "\n------------------\n")
-			fmt.Println("Time in getting response: ", time.Now().Sub(TIMECOUNTER).Nanoseconds())
+			//fmt.Println("From HDFS: \n", genericResp.Bytes(), "\nlength: ", len(genericResp.Bytes()))
+			//fmt.Println("Time in getting response: ", time.Now().Sub(TIMECOUNTER).Nanoseconds())
 			p.hdfsTimeLogger.Println(time.Now().Sub(TIMECOUNTER).Nanoseconds())
  
 			//cache the response (CacheResponse should find out if there is
