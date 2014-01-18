@@ -252,13 +252,13 @@ func (p *Processor) HandleConnZeroPacket(conn net.Conn, hdfs net.Conn) error {
 	return writeError
 }
 
-func (p *Processor) readAuthPacketLength(conn net.Conn, hdfs net.Conn) (uint32, error) {
+func (p *Processor) readAuthPacketLength(conn net.Conn, hdfs net.Conn) (uint32, []byte, error) {
 	var packetLength uint32
 	buf := make([]byte, 4)
 	bytesRead, readErr := conn.Read(buf)
 	buf = buf[0:bytesRead]
 	if readErr != nil || bytesRead != 4 {
-		return 0, readErr
+		return 0, []byte{}, readErr
 	}
 	//readErr := binary.Read(conn, binary.BigEndian, &packetLength)
 	/*
@@ -270,18 +270,106 @@ func (p *Processor) readAuthPacketLength(conn net.Conn, hdfs net.Conn) (uint32, 
 	fmt.Println("buf before: ", byteBuffer.Bytes())
 	binary.Read(byteBuffer, binary.BigEndian, &packetLength)
 	fmt.Println("buf: ", byteBuffer.Bytes(), "pack len: ", packetLength)
-	return packetLength, readErr
+	return packetLength, buf, readErr
 }
 
+//called to handle the 1st or authentication packet
 func (p *Processor) HandleConnAuthPacket(conn net.Conn, hdfs net.Conn) error {
-	packetLength, lengthErr := p.readAuthPacketLength(conn, hdfs)
-	fmt.Println("Packet length: ", packetLength);
+	packetLength, buf, lengthErr := p.readAuthPacketLength(conn, hdfs)
+	if lengthErr != nil {
+		return lengthErr
+	}
+	
+	lengthLeft := packetLength - 4
+	restBuf := make([]byte, lengthLeft)
+	bytesRead, readErr := conn.Read(restBuf)
+	restBuf = restBuf[0:bytesRead]
+	if readErr != nil {
+		return readErr
+	}
 
-	return lengthErr
+	finalBuf := []byte{}
+	finalBuf = append(finalBuf, buf...)
+	finalBuf = append(finalBuf, restBuf...)
+	_, writeError := hdfs.Write(finalBuf)
+	return writeError
+}
+
+//read the length of the request packet from the connection
+func (p *Processor) readRequestPacketLength(conn net.Conn) (uint32, []byte, error) {
+	var packetLength uint32
+	buf := make([]byte, 4)
+	bytesRead, readErr := conn.Read(buf)
+	buf = buf[0:bytesRead]
+	if readErr != nil || bytesRead != 4 {
+		return 0, []byte{}, readErr
+	}
+	//readErr := binary.Read(conn, binary.BigEndian, &packetLength)
+	/*
+	if readErr != nil {
+		return packetLength, readErr
+	} */
+	//return packetLength, readErr
+	byteBuffer := bytes.NewBuffer(buf)
+	binary.Read(byteBuffer, binary.BigEndian, &packetLength)
+	return packetLength, buf, readErr	
+}
+ 
+//read the request packet from the connection
+func (p *Processor) readRequestPacket(conn net.Conn) (*namenode_rpc.RequestPacket, error) {
+	packetLength, lengthBuf, lengthError := p.readRequestPacketLength(conn)
+	if lengthError != nil {
+		return nil, lengthError
+	}
+
+	restBuf := make([]byte, int(packetLength)-len(lengthBuf))
+	bytesRead, readError := conn.Read(restBuf)
+	if bytesRead == 0 || readError != nil {
+		return nil, readError
+	}
+
+	finalBuf := make([]byte, packetLength)
+	finalBuf = append(finalBuf, lengthBuf...)
+	finalBuf = append(finalBuf, restBuf...)
+
+	reqPacket := namenode_rpc.NewRequestPacket()
+	reqPacket.Load(finalBuf)
+
+	return reqPacket, nil
+}
+
+//HAVE TO IMPLEMENT
+//processes general request packets (e.g. checks against cache, responds,
+//modifies, etc.)
+func (p *Processor) HandleRequestPacket(conn net.Conn, hdfs net.Conn) error {
+	//read the whole request packet (length first)
+	reqPacket, reqPacketError := p.readRequestPacket(conn)
+	if reqPacketError != nil {
+		return reqPacketError
+	}
+
+	//preprocess the request
+	reqPacket, _ = p.Preprocess(reqPacket)
+
+	//check the cache and write the corresponding request
+	respPacket := p.Process(reqPacket)
+	//hit in the cache
+	if respPacket != nil {
+		conn.Write(respPacket.Bytes())
+	} else {
+		p.CacheRequest(reqPacket)
+	}
+
+	//write the request to HDFS (differently depending on
+	//whether or not the request was modified)
+	hdfs.Write(reqPacket.LoadedBytes())
+
+	return nil
 }
 
 //this gets called by the main function on a new instance of Processor
 //when we get a new connection
+//TODO at the moment, this is not called by any internal functions
 func (p *Processor) HandleConnectionReimp(conn net.Conn, hdfs net.Conn) {
 	for {
 		//initialize the buffer, etc.
@@ -296,6 +384,9 @@ func (p *Processor) HandleConnectionReimp(conn net.Conn, hdfs net.Conn) {
 			p.PacketsProcessed++
 		case 1:
 			p.HandleConnAuthPacket(conn, hdfs)
+			p.PacketsProcessed++
+		case 2:
+			p.HandleRequestPacket(conn, hdfs)
 			p.PacketsProcessed++
 		}
 		//if it is the second packet, it is the authentication packet
