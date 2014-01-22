@@ -61,7 +61,6 @@ func loop(server net.Listener, caches *caches.CacheSet, dnMap *configuration.Dat
 			continue
 		}
 		util.DebugLog("Dialed HDFS...")
-		time.Sleep(1000 * time.Millisecond)
 
 		//check if the socket connected
 		if hdfs == nil {
@@ -70,8 +69,7 @@ func loop(server net.Listener, caches *caches.CacheSet, dnMap *configuration.Dat
 			continue
 		}
 		util.DebugLog("Connected to HDFS.")
-		
-		time.Sleep(1000 * time.Millisecond);
+	
 
 		//create new process and process the connected client
 		//pass it the caches that are currently initialized

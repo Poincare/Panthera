@@ -12,7 +12,7 @@ import (
 	"time"
 	"os"
 	"strings"
-
+	"strconv"
 
 	//used for the the DataNodeMap
 	"configuration"
@@ -241,7 +241,7 @@ func (p *Processor) Preprocess(req *namenode_rpc.RequestPacket) (*namenode_rpc.R
 //called by HandleConnectionReimp in order to process the first packet
 //which sets up the protocol
 func (p *Processor) HandleConnZeroPacket(conn net.Conn, hdfs net.Conn) error {
-	byteBuffer := make([]byte, 1024)
+	byteBuffer := make([]byte, 6)
 	bytesRead, read_err := conn.Read(byteBuffer)
 	byteBuffer = byteBuffer[0:bytesRead]
 	if read_err != nil {
@@ -249,10 +249,12 @@ func (p *Processor) HandleConnZeroPacket(conn net.Conn, hdfs net.Conn) error {
 	}
 
 	_, writeError := hdfs.Write(byteBuffer)
+	fmt.Println("Zero packet: ", byteBuffer)
+
 	return writeError
 }
 
-func (p *Processor) readAuthPacketLength(conn net.Conn, hdfs net.Conn) (uint32, []byte, error) {
+func (p *Processor) readAuthPacketLength(conn net.Conn) (uint32, []byte, error) {
 	var packetLength uint32
 	buf := make([]byte, 4)
 	bytesRead, readErr := conn.Read(buf)
@@ -273,25 +275,44 @@ func (p *Processor) readAuthPacketLength(conn net.Conn, hdfs net.Conn) (uint32, 
 	return packetLength, buf, readErr
 }
 
-//called to handle the 1st or authentication packet
+//called to handle the authentication packet
 func (p *Processor) HandleConnAuthPacket(conn net.Conn, hdfs net.Conn) error {
-	packetLength, buf, lengthErr := p.readAuthPacketLength(conn, hdfs)
+	util.DebugLog("Reading auth packet...")
+	//first we have to read in the authorization bits length
+	authLength, authLengthBuf, lengthErr := p.readAuthPacketLength(conn)
 	if lengthErr != nil {
 		return lengthErr
 	}
-	
-	lengthLeft := packetLength - 4
+
+	//then we read in the actual authorization signature
+	authSignature := make([]byte, authLength)
+	bytesRead, readErr := conn.Read(authSignature)
+	if readErr != nil || bytesRead != int(authLength) {
+		util.DebugLog("Error occurred while reading auth signature.")
+		return readErr
+	}
+	authSignature = authSignature[0:authLength]
+
+	//read another length field in
+	lengthLeft, lengthBuf, lengthErr := p.readAuthPacketLength(conn)
+	if lengthErr != nil {
+		return lengthErr
+	}
+
 	restBuf := make([]byte, lengthLeft)
-	bytesRead, readErr := conn.Read(restBuf)
+	bytesRead, readErr = conn.Read(restBuf)
 	restBuf = restBuf[0:bytesRead]
 	if readErr != nil {
 		return readErr
 	}
 
 	finalBuf := []byte{}
-	finalBuf = append(finalBuf, buf...)
+	finalBuf = append(finalBuf, authLengthBuf...)
+	finalBuf = append(finalBuf, authSignature...)
+	finalBuf = append(finalBuf, lengthBuf...)
 	finalBuf = append(finalBuf, restBuf...)
 	_, writeError := hdfs.Write(finalBuf)
+	fmt.Println("Authentication packet bytes: ", finalBuf);
 	return writeError
 }
 
@@ -301,7 +322,7 @@ func (p *Processor) readRequestPacketLength(conn net.Conn) (uint32, []byte, erro
 	buf := make([]byte, 4)
 	bytesRead, readErr := conn.Read(buf)
 	buf = buf[0:bytesRead]
-	if readErr != nil || bytesRead != 4 {
+	if readErr != nil {
 		return 0, []byte{}, readErr
 	}
 	//readErr := binary.Read(conn, binary.BigEndian, &packetLength)
@@ -311,7 +332,10 @@ func (p *Processor) readRequestPacketLength(conn net.Conn) (uint32, []byte, erro
 	} */
 	//return packetLength, readErr
 	byteBuffer := bytes.NewBuffer(buf)
+	fmt.Println("read request packet buf: ", buf, byteBuffer.Bytes(), string(byteBuffer.Bytes()))
 	binary.Read(byteBuffer, binary.BigEndian, &packetLength)
+
+	util.DebugLog("Read request packet length: " + strconv.FormatInt(int64(packetLength), 10))
 	return packetLength, buf, readErr	
 }
  
@@ -322,19 +346,20 @@ func (p *Processor) readRequestPacket(conn net.Conn) (*namenode_rpc.RequestPacke
 		return nil, lengthError
 	}
 
-	restBuf := make([]byte, int(packetLength)-len(lengthBuf))
+	restBuf := make([]byte, int(packetLength))
 	bytesRead, readError := conn.Read(restBuf)
+	fmt.Println("read request packet, bytesRead: ", bytesRead)
 	if bytesRead == 0 || readError != nil {
 		return nil, readError
 	}
 
-	finalBuf := make([]byte, packetLength)
+	finalBuf := []byte{}
 	finalBuf = append(finalBuf, lengthBuf...)
 	finalBuf = append(finalBuf, restBuf...)
 
 	reqPacket := namenode_rpc.NewRequestPacket()
 	reqPacket.Load(finalBuf)
-
+	fmt.Println("Request packet final buf: ", finalBuf)
 	return reqPacket, nil
 }
 
@@ -342,6 +367,7 @@ func (p *Processor) readRequestPacket(conn net.Conn) (*namenode_rpc.RequestPacke
 //processes general request packets (e.g. checks against cache, responds,
 //modifies, etc.)
 func (p *Processor) HandleRequestPacket(conn net.Conn, hdfs net.Conn) error {
+
 	//read the whole request packet (length first)
 	reqPacket, reqPacketError := p.readRequestPacket(conn)
 	if reqPacketError != nil {
@@ -363,9 +389,9 @@ func (p *Processor) HandleRequestPacket(conn net.Conn, hdfs net.Conn) error {
 	//write the request to HDFS (differently depending on
 	//whether or not the request was modified)
 	hdfs.Write(reqPacket.LoadedBytes())
-
 	return nil
 }
+
 
 //this gets called by the main function on a new instance of Processor
 //when we get a new connection
@@ -382,15 +408,20 @@ func (p *Processor) HandleConnectionReimp(conn net.Conn, hdfs net.Conn) {
 				util.DebugLog("Error reading first packet of connection.")
 			}
 			p.PacketsProcessed++
+			util.DebugLog("Handled zero packet")
+
 		case 1:
 			p.HandleConnAuthPacket(conn, hdfs)
 			p.PacketsProcessed++
-		case 2:
+			util.DebugLog("Handled auth packet")
+			
+		//if it is the second packet, it is the authentication packet
+		//after that, process them as request packets
+		default:
 			p.HandleRequestPacket(conn, hdfs)
 			p.PacketsProcessed++
 		}
-		//if it is the second packet, it is the authentication packet
-		//after that, process them as request packets
+
 	}
 }
 
