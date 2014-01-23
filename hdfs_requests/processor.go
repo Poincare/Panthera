@@ -13,6 +13,7 @@ import (
 	"os"
 	"strings"
 	"strconv"
+	"io"
 
 	//used for the the DataNodeMap
 	"configuration"
@@ -395,7 +396,6 @@ func (p *Processor) HandleRequestPacket(conn net.Conn, hdfs net.Conn) error {
 
 //this gets called by the main function on a new instance of Processor
 //when we get a new connection
-//TODO at the moment, this is not called by any internal functions
 func (p *Processor) HandleConnectionReimp(conn net.Conn, hdfs net.Conn) {
 	for {
 		//initialize the buffer, etc.
@@ -406,6 +406,11 @@ func (p *Processor) HandleConnectionReimp(conn net.Conn, hdfs net.Conn) {
 			err := p.HandleConnZeroPacket(conn, hdfs)
 			if err != nil {
 				util.DebugLog("Error reading first packet of connection.")
+				//if we have an EOF error we can close the connection.
+				if err == io.EOF {
+					util.DebugLog("Client connection closed. Closing local socket...")
+					conn.Close()
+				}
 			}
 			p.PacketsProcessed++
 			util.DebugLog("Handled zero packet")
@@ -418,7 +423,14 @@ func (p *Processor) HandleConnectionReimp(conn net.Conn, hdfs net.Conn) {
 		//if it is the second packet, it is the authentication packet
 		//after that, process them as request packets
 		default:
-			p.HandleRequestPacket(conn, hdfs)
+			err := p.HandleRequestPacket(conn, hdfs)
+			if err != nil {
+				util.DebugLog("Error handling request packet.")
+				if err == io.EOF {
+					util.DebugLog("Client connection closed. Closing local socket...")
+					return
+				}
+			}
 			p.PacketsProcessed++
 		}
 
@@ -551,6 +563,13 @@ func (p *Processor) HandleHDFS(conn net.Conn, hdfs net.Conn) {
 
 		//Read() blocks
 		bytesRead, readErr := hdfs.Read(buf)
+		if readErr != nil {
+			util.DebugLog("Error occurred while reading from HDFS.")
+			if readErr == io.EOF {
+				util.DebugLog("HDFS socket closed. Closing local socket...")
+				hdfs.Close()
+			}
+		}
 		buf = buf[0:bytesRead]
 
 		//TODO POTENTIAL BUG the packet number should always be at the front of the response packet
@@ -612,6 +631,7 @@ func (p *Processor) Process(req *namenode_rpc.RequestPacket) namenode_rpc.Respon
 	} else if methodName == "getListing" {
 		fmt.Println("Checking getListing cache...")
 		res := p.cacheSet.GetListingCache.Query(req)
+		fmt.Println("Checked getListing cache.")
 		return res
 	} else if methodName == "create" {
 		//if a new object is being created, we're going to to wrap it
