@@ -276,6 +276,29 @@ func (p *Processor) readAuthPacketLength(conn net.Conn) (uint32, []byte, error) 
 	return packetLength, buf, readErr
 }
 
+//called by preprocessAuthPacket() to modify the authentication packet to change the 
+//datanode location. In essence, it tricks the namenode
+//into believing the datanode is somewhere isn't
+//TODO have to implement
+func (p *Processor) preprocessAuthRegister(authPacket *namenode_rpc.AuthPacket, loadedBytes []byte) []byte {
+	//figure out the length of assembled vs. the length of the loadedBytes
+	packetBytes := authPacket.Bytes()
+	fmt.Println("Length of packet bytes: ", len(packetBytes))
+	fmt.Println("Length of loaded bytes: ", len(loadedBytes))
+	
+	return loadedBytes
+}
+
+//decides how to preprocess authentication packets
+func (p *Processor) preprocessAuthPacket(authPacket *namenode_rpc.AuthPacket, loadedBytes []byte) []byte {
+	if string(authPacket.MethodName) == "register" {
+		return p.preprocessAuthRegister(authPacket, loadedBytes)
+	}
+
+	//if it is not to be modified, just return the loadedBytes
+	return loadedBytes
+}
+
 //called to handle the authentication packet
 func (p *Processor) HandleConnAuthPacket(conn net.Conn, hdfs net.Conn) error {
 	util.DebugLog("Reading auth packet...")
@@ -312,8 +335,15 @@ func (p *Processor) HandleConnAuthPacket(conn net.Conn, hdfs net.Conn) error {
 	finalBuf = append(finalBuf, authSignature...)
 	finalBuf = append(finalBuf, lengthBuf...)
 	finalBuf = append(finalBuf, restBuf...)
+	
+	//deal with the auth packet processing
+	authPacket := namenode_rpc.NewAuthPacket()
+	authPacket.Load(finalBuf)
+	finalBuf = p.preprocessAuthPacket(authPacket, finalBuf)
+
+	fmt.Println("Auth packet authentication method name: ", string(authPacket.MethodName))
 	_, writeError := hdfs.Write(finalBuf)
-	fmt.Println("Authentication packet bytes: ", finalBuf);
+	
 	return writeError
 }
 
@@ -360,11 +390,10 @@ func (p *Processor) readRequestPacket(conn net.Conn) (*namenode_rpc.RequestPacke
 
 	reqPacket := namenode_rpc.NewRequestPacket()
 	reqPacket.Load(finalBuf)
-	fmt.Println("Request packet final buf: ", finalBuf)
+
 	return reqPacket, nil
 }
 
-//HAVE TO IMPLEMENT
 //processes general request packets (e.g. checks against cache, responds,
 //modifies, etc.)
 func (p *Processor) HandleRequestPacket(conn net.Conn, hdfs net.Conn) error {
@@ -376,7 +405,7 @@ func (p *Processor) HandleRequestPacket(conn net.Conn, hdfs net.Conn) error {
 	}
 
 	//preprocess the request
-	reqPacket, _ = p.Preprocess(reqPacket)
+	//reqPacket, _ = p.Preprocess(reqPacket)
 
 	//check the cache and write the corresponding request
 	respPacket := p.Process(reqPacket)

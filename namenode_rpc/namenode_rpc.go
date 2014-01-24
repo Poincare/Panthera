@@ -551,6 +551,25 @@ func (ap *AuthPacket) LiveLoad(byteBuffer io.Reader) {
 	ap.Parameters = rp.Parameters	
 } */
 
+func (ap *AuthPacket) Bytes() []byte {
+	res := new(bytes.Buffer)
+	binary.Write(res, binary.BigEndian, ap.AuthenticationLength)
+	res.Write(ap.AuthenticationBits)
+	binary.Write(res, binary.BigEndian, ap.Length)
+	binary.Write(res, binary.BigEndian, ap.PacketNumber)
+	binary.Write(res, binary.BigEndian, ap.NameLength)
+	res.Write(ap.MethodName)
+	binary.Write(res, binary.BigEndian, ap.ParameterNumber)
+	for i := 0; i<int(ap.ParameterNumber); i++ {
+		binary.Write(res, binary.BigEndian, ap.Parameters[i].TypeLength)
+		res.Write(ap.Parameters[i].Type)
+		binary.Write(res, binary.BigEndian, ap.Parameters[i].ValueLength)
+		res.Write(ap.Parameters[i].Value)
+	}
+
+	return res.Bytes()
+}
+
 func (ap *AuthPacket) Load(buf []byte) {
 	ap.LoadedBytes = buf
 	
