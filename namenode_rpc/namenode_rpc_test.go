@@ -570,6 +570,66 @@ func TestAuthPacketLoad(t *testing.T) {
 	fmt.Println("Authentication bits: ", string(ap.AuthenticationBits))
 }
 
+var GenericResponsePacketTestCase = []byte{0,0,0,2,0,0,0,0,0,59,111,114,103,46,97,112,97,99,104,101,46,104,97,100,111,111,112,46,104,100,102,115,46,115,101,114,118,101,114,46,112,114,111,116,111,99,111,108,46,68,97,116,
+97,110,111,100,101,82,101,103,105,115,116,114,97,116,105,111,110,0,59,111,114,103,46,97,112,97,99,104,101,46,104,97,100,111,111,112,46,104,100,102,115,46,115,101,114,118,101,114,46,112,114,111,116,111,99,111,108,46,68,
+97,116,97,110,111,100,101,82,101,103,105,115,116,114,97,116,105,111,110,0,14,49,50,55,46,48,46,48,46,49,58,50,48,49,48,0,41,68,83,45,54,55,56,48,48,50,48,54,49,45,49,50,55,46,48,46,49,46,49,45,50,48,49,48,45,49,51,56,
+55,55,51,52,56,50,50,52,50,54,195,155,195,100,255,255,255,215,4,220,11,33,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,255,0,0,0,0,0}
+
+var GenericResponsePacketRes = GenericResponsePacket{
+	PacketNumber: 2,
+	Success: 0,
+	ObjectNameLength1: 59,
+	ObjectName1: []byte("org.apache.hadoop.hdfs.server.protocol.DatanodeRegistration"),
+	ObjectNameLength2: 59,
+	ObjectName2: []byte("org.apache.hadoop.hdfs.server.protocol.DatanodeRegistration"),
+	ParameterLength: 14,
+	ParameterValue: []byte("127.0.0.1:2010")}
+
+func TestGenericResponsePacketLoad(t *testing.T) {
+	ap := NewGenericResponsePacket([]byte{}, 0)
+	ap.Load(GenericResponsePacketTestCase)
+	grpr := GenericResponsePacketRes
+
+	if ap.PacketNumber != grpr.PacketNumber {
+		t.Fail()
+	}
+
+	if ap.Success != grpr.Success {
+		t.Fail()
+	}
+
+	if !reflect.DeepEqual(ap.ObjectName1, grpr.ObjectName1) {
+		t.Fail()
+	}
+
+	if !reflect.DeepEqual(ap.ObjectNameLength1, grpr.ObjectNameLength1) {
+		t.Fail()
+	}
+	
+	if ap.ObjectNameLength2 != grpr.ObjectNameLength2 {
+		t.Fail()
+	}
+
+	if !reflect.DeepEqual(ap.ObjectName2, grpr.ObjectName2) {
+		t.Fail()
+	}
+
+	if ap.ParameterLength != grpr.ParameterLength {
+		t.Fail()
+	}
+
+	if !reflect.DeepEqual(ap.ParameterValue, grpr.ParameterValue) {
+		t.Fail()
+	}
+	
+	fmt.Println(GenericResponsePacketRes)
+	fmt.Println(*ap)
+}
+
+
+
+
+
 
 
 

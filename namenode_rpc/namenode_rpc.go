@@ -67,6 +67,11 @@ type ResponsePacket interface {
 	GetPacketNumber() uint32
 }
 
+type ResponseObject struct {
+	NameLength uint16
+	ObjectName []byte
+}
+
 //this is used when we aren't exactly sure (or don't care)
 //what type of response a certain packet is
 //so we can just stuff into some random data structure.
@@ -75,6 +80,16 @@ type ResponsePacket interface {
 type GenericResponsePacket struct {
 	buf []byte
 	PacketNumber uint32
+	Success uint32
+
+	ObjectNameLength1 uint16
+	ObjectName1 []byte
+
+	ObjectNameLength2 uint16
+	ObjectName2 []byte
+
+	ParameterLength uint16
+	ParameterValue []byte
 }
 
 func NewGenericResponsePacket(buf []byte, packNum uint32) *GenericResponsePacket {
@@ -84,7 +99,21 @@ func NewGenericResponsePacket(buf []byte, packNum uint32) *GenericResponsePacket
 }
 
 func (grp *GenericResponsePacket) Load(buf []byte) error {
-	grp.buf = buf
+	byteBuffer := bytes.NewBuffer(buf)
+	binary.Read(byteBuffer, binary.BigEndian, &(grp.PacketNumber))
+	binary.Read(byteBuffer, binary.BigEndian, &(grp.Success))
+	binary.Read(byteBuffer, binary.BigEndian, &(grp.ObjectNameLength1))
+	
+	grp.ObjectName1 = make([]byte, grp.ObjectNameLength1)
+	byteBuffer.Read(grp.ObjectName1)
+	
+	binary.Read(byteBuffer, binary.BigEndian, &(grp.ObjectNameLength2))
+	grp.ObjectName2 = make([]byte, grp.ObjectNameLength2)
+	byteBuffer.Read(grp.ObjectName2)
+
+	binary.Read(byteBuffer, binary.BigEndian, &(grp.ParameterLength))
+	grp.ParameterValue = make([]byte, grp.ParameterLength)
+	byteBuffer.Read(grp.ParameterValue)
 	return nil
 }
 

@@ -285,8 +285,23 @@ func (p *Processor) preprocessAuthRegister(authPacket *namenode_rpc.AuthPacket, 
 	packetBytes := authPacket.Bytes()
 	fmt.Println("Length of packet bytes: ", len(packetBytes))
 	fmt.Println("Length of loaded bytes: ", len(loadedBytes))
-	
-	return loadedBytes
+	fmt.Println("Diff bytes: ", loadedBytes[len(packetBytes):])
+	fmt.Println("Diff string: ", string(loadedBytes[len(packetBytes):]))
+
+	correctBytes := []byte{0, 24, 100, 104, 97, 105, 118, 97, 116, 45, 71, 65, 45, 56, 55, 48, 65, 45, 85, 68, 51, 58}
+	correctBytes = append(correctBytes, []byte("2010")...)
+	correctBytes = append(correctBytes, []byte{0, 41, 68, 83, 45, 54, 55, 56,
+	48, 48, 50, 48, 54, 49, 45, 49, 50, 55, 46, 48, 46, 49, 46, 49, 45}...)
+	correctBytes = append(correctBytes, []byte("2010")...)
+	correctBytes = append(correctBytes, []byte{45, 49, 51, 56, 55, 55, 51, 52, 56, 50, 50, 52, 50, 54, 195, 155, 195, 
+		100, 255, 255, 255, 215, 4, 220, 11, 33, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+		0, 0, 0, 255, 0, 0, 0, 0}...)
+
+	fmt.Println("Correct bytes: ", string(correctBytes))
+	packetBytes = append(packetBytes, correctBytes...)
+	fmt.Println("Packet bytes: ", packetBytes)
+	fmt.Println("Loaded bytes: ", loadedBytes)
+	return packetBytes
 }
 
 //decides how to preprocess authentication packets
