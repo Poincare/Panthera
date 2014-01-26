@@ -288,6 +288,7 @@ func (p *Processor) preprocessAuthRegister(authPacket *namenode_rpc.AuthPacket, 
 	fmt.Println("Diff bytes: ", loadedBytes[len(packetBytes):])
 	fmt.Println("Diff string: ", string(loadedBytes[len(packetBytes):]))
 
+	//TODO make this generic so that we can actually set a port #, id, etc.
 	correctBytes := []byte{0, 24, 100, 104, 97, 105, 118, 97, 116, 45, 71, 65, 45, 56, 55, 48, 65, 45, 85, 68, 51, 58}
 	correctBytes = append(correctBytes, []byte("2010")...)
 	correctBytes = append(correctBytes, []byte{0, 41, 68, 83, 45, 54, 55, 56,
@@ -409,6 +410,20 @@ func (p *Processor) readRequestPacket(conn net.Conn) (*namenode_rpc.RequestPacke
 	return reqPacket, nil
 }
 
+func (p *Processor) preprocessBeingWrittenReport(reqPacket *namenode_rpc.RequestPacket) (*namenode_rpc.RequestPacket, bool) {
+	//TODO need to generalize this
+	reqPacket.Parameters[1].Value = []byte("DS-678002061-127.0.1.1-2010-1387734822426")
+
+	return reqPacket, true
+}
+
+func (p *Processor) preprocessRequestPacket(reqPacket *namenode_rpc.RequestPacket) (*namenode_rpc.RequestPacket, bool) {
+	if string(reqPacket.MethodName) == "blocksBeingWrittenReport" {
+		return p.preprocessBeingWrittenReport(reqPacket)
+	}
+	return reqPacket, false
+}
+
 //processes general request packets (e.g. checks against cache, responds,
 //modifies, etc.)
 func (p *Processor) HandleRequestPacket(conn net.Conn, hdfs net.Conn) error {
@@ -422,6 +437,8 @@ func (p *Processor) HandleRequestPacket(conn net.Conn, hdfs net.Conn) error {
 	//preprocess the request
 	//reqPacket, _ = p.Preprocess(reqPacket)
 
+	reqPacket, modified := p.preprocessRequestPacket(reqPacket)
+
 	//check the cache and write the corresponding request
 	respPacket := p.Process(reqPacket)
 	//hit in the cache
@@ -433,7 +450,19 @@ func (p *Processor) HandleRequestPacket(conn net.Conn, hdfs net.Conn) error {
 
 	//write the request to HDFS (differently depending on
 	//whether or not the request was modified)
-	hdfs.Write(reqPacket.LoadedBytes())
+	if !modified {
+		hdfs.Write(reqPacket.LoadedBytes())
+	} else {
+		reqBytes := reqPacket.BytesNoPad()
+		loadedBytes := reqPacket.LoadedBytes()
+		fmt.Println("Request modified (request method: ", string(reqPacket.MethodName), ")",
+			"request byte length: ", len(reqBytes))
+		fmt.Println("Loaded bytes: ", reqPacket.LoadedBytes())
+		reqBytes = append(reqBytes, loadedBytes[len(reqBytes):]...)
+		fmt.Println("Packet bytes: ", reqBytes)
+
+		hdfs.Write(reqBytes)
+	}
 	return nil
 }
 
@@ -601,6 +630,42 @@ func (p *Processor) HandleConnection(conn net.Conn, hdfs net.Conn) {
 	}
 }
 
+func (p *Processor) preprocessRegistrationResponse(genericResp *namenode_rpc.GenericResponsePacket) *namenode_rpc.GenericResponsePacket {
+	//get the bytes from the structure
+	packetBytes := genericResp.Bytes()
+
+	//get the bytes actually received
+	readBytes := genericResp.Buf
+	
+	//get the Writable portion
+	writable := readBytes[len(packetBytes):]
+	fmt.Println("Writable: ", writable)
+	fmt.Println("StrWrita: ", string(writable))
+
+	//TODO need to make this generic with an implementation of writables
+	genericResp.ParameterValue = []byte("127.0.0.1:1389")
+	genericResp.ParameterLength = uint16(len(genericResp.ParameterValue))
+	correctBytes := packetBytes
+	correctBytes = append(correctBytes, []byte{0, 41, 68, 83, 45, 54, 55, 56, 48, 48, 50, 48, 54, 49, 45, 49, 50, 55, 
+		46, 48, 46, 49, 46, 49, 45}...)
+	correctBytes = append(correctBytes, []byte("1389")...)
+	correctBytes = append(correctBytes, []byte{45, 49, 51, 56, 55, 55, 51, 52, 56, 50, 50, 52, 50, 54, 195, 155, 195,
+		100, 255, 255, 255, 215, 4, 220, 11, 33, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 255, 0, 0, 0, 0}...)
+
+	genericResp.Buf = correctBytes
+	return genericResp
+}
+
+//preprocess HDFS responses. Calls other methods depending on the type
+//of modification needed.
+func (p *Processor) preprocessHDFS(genericResp *namenode_rpc.GenericResponsePacket) *namenode_rpc.GenericResponsePacket {
+	if string(genericResp.ObjectName1) == "org.apache.hadoop.hdfs.server.protocol.DatanodeRegistration" {
+		return p.preprocessRegistrationResponse(genericResp)
+	}
+	return genericResp
+}
+
 func (p *Processor) HandleHDFS(conn net.Conn, hdfs net.Conn) {
 	for {
 		buf := make([]byte, namenode_rpc.HDFS_PACKET_SIZE)
@@ -614,8 +679,8 @@ func (p *Processor) HandleHDFS(conn net.Conn, hdfs net.Conn) {
 				hdfs.Close()
 			}
 		}
-		buf = buf[0:bytesRead]
 
+		buf = buf[0:bytesRead]
 		//TODO POTENTIAL BUG the packet number should always be at the front of the response packet
 		//but, the docs don't actually explicitly mention this
 		var packetNumber uint32
@@ -628,6 +693,10 @@ func (p *Processor) HandleHDFS(conn net.Conn, hdfs net.Conn) {
 		//number, it doesn't particularly matter what type of packet it 
 		//actually is
 		genericResp := namenode_rpc.NewGenericResponsePacket(buf, packetNumber)
+		
+		//load in the buffer contents as field values
+		genericResp.Load(buf)
+		genericResp = p.preprocessHDFS(genericResp)
 
 		//detects EOF's etc.
 		if readErr != nil {
@@ -647,7 +716,7 @@ func (p *Processor) HandleHDFS(conn net.Conn, hdfs net.Conn) {
 			p.CacheResponse(genericResp)
 
 			//proxy the read data to the associated client socket
-			conn.Write(genericResp.Bytes())
+			conn.Write(genericResp.Buf)
 		}
 	}
 }

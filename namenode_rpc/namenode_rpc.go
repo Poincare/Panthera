@@ -78,7 +78,7 @@ type ResponseObject struct {
 //implements the ResponsePacket interface
 //used in processor.HandleHDFS
 type GenericResponsePacket struct {
-	buf []byte
+	Buf []byte
 	PacketNumber uint32
 	Success uint32
 
@@ -93,7 +93,7 @@ type GenericResponsePacket struct {
 }
 
 func NewGenericResponsePacket(buf []byte, packNum uint32) *GenericResponsePacket {
-	grp := GenericResponsePacket{buf: buf, 
+	grp := GenericResponsePacket{Buf: buf, 
 		PacketNumber: packNum}
 	return &grp
 }
@@ -117,8 +117,22 @@ func (grp *GenericResponsePacket) Load(buf []byte) error {
 	return nil
 }
 
+//turn the Load()-ed structure into a byte array
 func (grp *GenericResponsePacket) Bytes() []byte {
-	return grp.buf
+	byteBuffer := new(bytes.Buffer)
+	binary.Write(byteBuffer, binary.BigEndian, grp.PacketNumber)
+	binary.Write(byteBuffer, binary.BigEndian, grp.Success)
+
+	binary.Write(byteBuffer, binary.BigEndian, grp.ObjectNameLength1)
+	byteBuffer.Write(grp.ObjectName1)
+
+	binary.Write(byteBuffer, binary.BigEndian, grp.ObjectNameLength2)
+	byteBuffer.Write(grp.ObjectName2)
+
+	binary.Write(byteBuffer, binary.BigEndian, grp.ParameterLength)
+	byteBuffer.Write(grp.ParameterValue)
+
+	return byteBuffer.Bytes()
 }
 
 func (grp *GenericResponsePacket) GetPacketNumber() uint32 {
@@ -245,6 +259,25 @@ func (rp *RequestPacket) Load(buf []byte) error {
 //returns the bytes that were used for Load()
 func (rp *RequestPacket) LoadedBytes() []byte {
 	return rp.loadedBytes
+}
+
+//get the bytes array without padding it to match the expected length
+func (rp *RequestPacket) BytesNoPad() []byte {
+	byteBuf := new(bytes.Buffer)
+	binary.Write(byteBuf, binary.BigEndian, rp.Length)
+	binary.Write(byteBuf, binary.BigEndian, rp.PacketNumber)
+	binary.Write(byteBuf, binary.BigEndian, rp.NameLength)
+	byteBuf.Write(rp.MethodName)
+	binary.Write(byteBuf, binary.BigEndian, rp.ParameterNumber)
+	for i := 0; i<int(rp.ParameterNumber); i++ {
+		param := rp.Parameters[i]
+		binary.Write(byteBuf, binary.BigEndian, param.TypeLength)
+		byteBuf.Write(param.Type)
+		binary.Write(byteBuf, binary.BigEndian, param.ValueLength)
+		byteBuf.Write(param.Value)
+	}
+
+	return byteBuf.Bytes()
 }
 
 //this method returns a byte representation of the packet
