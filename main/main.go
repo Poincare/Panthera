@@ -144,6 +144,12 @@ func main() {
 
 	server, err := net.Listen("tcp", config.serverHost + ":" + config.serverPort)
 	log.SetOutput(ioutil.Discard)
+	
+	err = util.Init()
+	if err != nil {
+		fmt.Println("Error ocurred in initializing the utilities: ", err)
+		return
+	}
 
 	if err != nil {
 		util.LogError(err.Error());

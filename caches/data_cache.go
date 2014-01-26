@@ -47,6 +47,10 @@ func NewDataCache(cache_size int) *DataCache {
 	return &dc
 }
 
+func (dc *DataCache) CurrSize() int {
+	return len(dc.RpcStore)
+}
+
 func (dc *DataCache) Disable() {
 	dc.Lock()
 	defer dc.Unlock()

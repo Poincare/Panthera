@@ -18,6 +18,7 @@ import (
 	"datanode_rpc"
 	"caches"
 	"configuration"
+	"math/rand"
 )
 
 //these messages are passed through a channel
@@ -54,6 +55,9 @@ type Processor struct {
 
 	//set to true if we want to skip relaying a response from HDFS
 	skipResponse bool
+
+	//id number that identifies this processor
+	id int64
 }
 
 func NewProcessor(dataCache *caches.DataCache, nodeLocation *configuration.DataNodeLocation) *Processor {
@@ -62,6 +66,11 @@ func NewProcessor(dataCache *caches.DataCache, nodeLocation *configuration.DataN
 		retryDataNode: true,
 		nodeLocation: nodeLocation}
 	p.commChan = make(chan CommMessage)
+
+	//generate a psuedo-random id number for this processor
+	//doesn't really *have* to be unique; mostly only used
+	//for debugging purposes
+	p.id = rand.Int63n(999999999)
 	return &p
 }
 
@@ -88,42 +97,42 @@ func (p *Processor) sendCloseSocket() {
 	p.commChan <- msg
 }
 
+//called as a goroutine - handles the connection with a client; forwards
+//requests to the datanode and responds from memory cache when possible
 func (p *Processor) HandleConnection(conn net.Conn, dataNode net.Conn) {
 	for {
 		go p.checkComm(conn)
-		util.Log("Handling client data connection...")
+		util.DataReqLogger.Println("Connected to client.")
 		dataRequest := datanode_rpc.NewDataRequest()
 
 		//read in the request object (should block)
 		err := dataRequest.LiveLoad(conn)
+		util.DataReqLogger.Println(p.id, " Received request: ", dataRequest)
 		if err != nil {
-			util.LogError("Could not load data request object; assuming socket is closed.")
+			util.DataReqLogger.Println(p.id, " Could not load data request object; assuming socket is closed.")
+			util.DataReqLogger.Println("---")
 			conn.Close()
 
-			//tell the DataNode routine that it has to return
 			go p.sendCloseSocket()
 			return
 		}
 
 		util.Log("Loaded object...")
 
-		/*
-		buf := make([]byte, 1024)
-		bytesRead := 0
-		bytesRead, err := conn.Read(buf)
-		if err != nil {
-			util.LogError("Error in reading from client connection.")
-		} */
-
 		if dataRequest != nil {
 			p.currentRequest = *dataRequest
-			
+			util.DataReqLogger.Println(p.id, " Set current request.")
+
 			resp := p.dataCache.Query(*dataRequest)
+			util.DataReqLogger.Println(p.id, " Returned from cache request: ", resp)
 			if resp != nil {
+				util.DataReqLogger.Println(p.id, " Cache hit!")
 				fmt.Println("Cache hit!")
 				//write the response from the cache
 				conn.Write(resp.Bytes())
 				p.skipResponse = true
+			} else {
+				util.DataReqLogger.Println(p.id, " Cache miss. (cache size: ", p.dataCache.CurrSize(), ")")
 			}
 			//write the buffer to the datanode, essentially relaying the information
 			//between the client and the data node
@@ -174,9 +183,12 @@ func (p *Processor) HandleDataNode(conn net.Conn, dataNode net.Conn) {
 	}
 	
 	for {
+		util.DataReqLogger.Println("Handling DataNode response.")
 		keepRunning := p.checkComm(dataNode)
 		//telling us that we've received a close down message
 		if !keepRunning {
+			util.DataReqLogger.Println("Close down message received. Shutting down...")
+			defer util.DataReqLogger.Println("HandleDataNode() closed.")
 			return
 		}
 
@@ -187,7 +199,7 @@ func (p *Processor) HandleDataNode(conn net.Conn, dataNode net.Conn) {
 
 		//unable to connect/read from the dataNode?
 		if err != nil {
-			util.LogError("DataNode connection seems to be closed.")
+			util.DataReqLogger.Println("DataNode connection closed.")
 			res := p.retryDataNodeConnection(conn, dataNode)
 			if !res {
 				util.LogError("Could not retry successfully. Returning from HandleDataNode")
@@ -205,10 +217,10 @@ func (p *Processor) HandleDataNode(conn net.Conn, dataNode net.Conn) {
 		} */
 
 		if dataResponse != nil {
-
 			//we skip a response because we might be responding to something
 			//that has already been responded to by the cache
 			if p.skipResponse {
+				util.DataReqLogger.Println("Response skipped.")
 				p.skipResponse = false
 				continue
 			}
@@ -216,9 +228,10 @@ func (p *Processor) HandleDataNode(conn net.Conn, dataNode net.Conn) {
 			pair := datanode_rpc.NewRequestResponse(&p.currentRequest, dataResponse)
 			//add the pair to the cache
 			p.dataCache.AddRpcPair(*pair)
-
+			util.DataReqLogger.Println(p.id, "Cached request/response pair.")
 			//write the information back to the client
 			conn.Write(dataResponse.Bytes())
+			util.DataReqLogger.Println(p.id, "Wrote response to client.")
 		}
 	}
 }
