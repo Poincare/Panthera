@@ -4,9 +4,10 @@ import (
 	//golang imports
 	"sync"
 
+	
 	//local imports
 	"datanode_rpc"
-	"reflect"
+	"util"
 )
 
 /* Describes a basic data caching mechanism
@@ -51,6 +52,32 @@ func (dc *DataCache) CurrSize() int {
 	return len(dc.RpcStore)
 }
 
+//return a list of the cached requests
+func (dc *DataCache) CachedRequests() []datanode_rpc.DataRequest {
+	res := make([]datanode_rpc.DataRequest, 0)
+	for i := 0; i < len(dc.RpcStore); i++ {
+		pair := dc.RpcStore[i]
+
+		//add the request packet
+		res = append(res, *pair.Request)
+	}
+
+	return res
+}
+
+//return a list of the cached responses
+func (dc *DataCache) CachedResponses() []datanode_rpc.DataResponse {
+	res := make([]datanode_rpc.DataResponse, 0)
+	for i := 0; i<len(dc.RpcStore); i++ {
+		pair := dc.RpcStore[i]
+		
+		//add the response packet
+		res = append(res, *pair.Response)
+	}
+
+	return res
+}
+
 func (dc *DataCache) Disable() {
 	dc.Lock()
 	defer dc.Unlock()
@@ -88,11 +115,13 @@ func (dc *DataCache) Query(req datanode_rpc.DataRequest) *datanode_rpc.DataRespo
 
 	for i := 0; i < len(dc.RpcStore); i++ {
 		pair := dc.RpcStore[i]
+		util.DataReqLogger.Println("Pair request: ", *pair.Request)
+		util.DataReqLogger.Println("Req:          ", req)
 		//NOTE: this is an important bit of this file.
 		//it compares two requests with a complete deepEquals,
 		//so if the request packet has a different client 
 		//signing, etc. the cache will not produce a hit
-		if reflect.DeepEqual(*pair.Request, req) {
+		if pair.Request.Equals(&req) {
 			return pair.Response
 		}
 	}

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"io"
+	"reflect"
 )
 
 //TODO POTENTIAL BUG:
@@ -39,6 +40,66 @@ type DataRequest struct {
 func NewDataRequest() *DataRequest {
 	dr := DataRequest{}
 	return &dr
+}
+
+//TODO this code is incredibly bashy
+//Compares two dataRequests. Note that the 
+//ClientId and ClientIdLength are not compared
+//since those are largely irrelevant.
+func (dr *DataRequest) Equals(p *DataRequest) bool {
+	if p.ProtocolVersion != dr.ProtocolVersion {
+		return false
+	}
+
+	if p.Command != dr.Command {
+		return false
+	}
+
+	if p.BlockId != dr.BlockId {
+		return false
+	}
+	
+	if p.Timestamp != dr.Timestamp {
+		return false
+	}
+
+	if p.StartOffset != dr.StartOffset {
+		return false
+	}
+
+	if p.BlockLength != dr.BlockLength {
+		return false
+	}
+
+	if p.AccessIdLength != dr.AccessIdLength {
+		return false
+	}
+
+	if !reflect.DeepEqual(p.AccessId, dr.AccessId) {
+		return false
+	}
+
+	if p.AccessPasswordLength != dr.AccessPasswordLength {
+		return false
+	}
+
+	if !reflect.DeepEqual(p.AccessPassword, dr.AccessPassword) {
+		return false
+	}
+
+	if p.AccessTypeLength != dr.AccessTypeLength {
+		return false
+	}
+
+	if p.AccessServiceLength != dr.AccessServiceLength {
+		return false
+	}
+
+	if !reflect.DeepEqual(p.AccessService, dr.AccessService) {
+		return false
+	}
+
+	return true
 }
 
 func (dr *DataRequest) Bytes() []byte {

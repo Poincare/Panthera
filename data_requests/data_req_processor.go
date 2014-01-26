@@ -133,6 +133,8 @@ func (p *Processor) HandleConnection(conn net.Conn, dataNode net.Conn) {
 				p.skipResponse = true
 			} else {
 				util.DataReqLogger.Println(p.id, " Cache miss. (cache size: ", p.dataCache.CurrSize(), ")")
+				util.DataReqLogger.Println(p.id, " Cache contents: ", p.dataCache.CachedRequests())
+				util.DataReqLogger.Println(p.id, " Cached responses: ", p.dataCache.CachedResponses())
 			}
 			//write the buffer to the datanode, essentially relaying the information
 			//between the client and the data node
