@@ -34,6 +34,10 @@ type DataRequest struct {
 
 	AccessServiceLength uint8
 	AccessService []byte
+
+	//this is only used for some Command #'s
+	ChecksumType uint8
+	ChunkSize uint32
 }
 
 //constructor
@@ -127,6 +131,11 @@ func (dr *DataRequest) Bytes() []byte {
 	binary.Write(byte_buffer, binary.BigEndian, dr.AccessServiceLength)
 	byte_buffer.Write(dr.AccessService)
 
+	//only certain commands use the Checksum fields
+	if dr.Command == 80 {
+		binary.Write(byte_buffer, binary.BigEndian, dr.ChecksumType)
+		binary.Write(byte_buffer, binary.BigEndian, dr.ChunkSize)
+	}
 	return byte_buffer.Bytes()
 }
 
@@ -165,6 +174,22 @@ func (dr *DataRequest) LiveLoad(byte_buffer io.Reader) error {
 
 	dr.AccessService = make([]byte, dr.AccessServiceLength)
 	byte_buffer.Read(dr.AccessService)
+
+	//this is a complicated part of the code. Some request packets use the
+	//checksum fields, others do not. Specifically, the command # = 80 packets
+	//definitely use the checksum fields (i.e. the PUT method, essentially), so
+	//we have to load those correctly
+	if dr.Command == 80 {
+		err = binary.Read(byte_buffer, binary.BigEndian, &(dr.ChecksumType))
+		if err != nil {
+			return nil
+		}
+
+		err = binary.Read(byte_buffer, binary.BigEndian, &(dr.ChunkSize))
+		if err != nil {
+			return nil
+		}
+	}
 	return nil
 }
 
