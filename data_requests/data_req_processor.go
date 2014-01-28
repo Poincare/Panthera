@@ -109,6 +109,13 @@ func (p *Processor) RecordCachedLatency() {
 	util.CachedLatencyLog.Println(duration.Nanoseconds())
 }
 
+//closes the connection socket
+func (p *Processor) closeConnSocket(conn net.Conn) {
+	util.DataReqLogger.Println("Closing socket...")
+	conn.Close()
+	go p.sendCloseSocket()
+}
+
 //called as a goroutine - handles the connection with a client; forwards
 //requests to the datanode and responds from memory cache when possible
 func (p *Processor) HandleConnection(conn net.Conn, dataNode net.Conn) {
@@ -118,16 +125,20 @@ func (p *Processor) HandleConnection(conn net.Conn, dataNode net.Conn) {
 		dataRequest := datanode_rpc.NewDataRequest()
 
 		//read in the request object (should block)
-		err := dataRequest.LiveLoad(conn)
+		ir, err := datanode_rpc.LiveReadInitial(conn)
+		if err != nil {
+			util.DataReqLogger.Println("Failed LiveReadInitial(): ", err)
+			p.closeConnSocket(conn)
+			return
+		}
+		err = dataRequest.LiveLoad(conn, ir)
+
 		util.DataReqLogger.Println(p.id, " Received request: ", dataRequest)
 		p.startTimeCached = time.Now()
 
 		if err != nil {
 			util.DataReqLogger.Println(p.id, " Could not load data request object; assuming socket is closed.")
-			util.DataReqLogger.Println("---")
-			conn.Close()
-
-			go p.sendCloseSocket()
+			p.closeConnSocket(conn)
 			return
 		}
 
@@ -153,7 +164,13 @@ func (p *Processor) HandleConnection(conn net.Conn, dataNode net.Conn) {
 			}
 			//write the buffer to the datanode, essentially relaying the information
 			//between the client and the data node
-			dataNode.Write(dataRequest.Bytes())
+			dataBytes, err := dataRequest.Bytes()
+			if err != nil {
+				util.DataReqLogger.Println(p.id, "Could not get dataRequest bytes: ", err)
+				p.closeConnSocket(conn)
+				return
+			}
+			dataNode.Write(dataBytes)
 			p.startTime = time.Now()
 		}
 	}
