@@ -208,7 +208,6 @@ func (p *Processor) HandleDataNode(conn net.Conn, dataNode net.Conn) {
 	}
 	
 	for {
-		util.DataReqLogger.Println("Handling DataNode response.")
 		keepRunning := p.checkComm(dataNode)
 		//telling us that we've received a close down message
 		if !keepRunning {

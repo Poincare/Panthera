@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"io"
 	"reflect"
+	"util"
 )
 
 //TODO POTENTIAL BUG:
@@ -34,8 +35,36 @@ type DataRequest struct {
 
 	AccessServiceLength uint8
 	AccessService []byte
+}
 
-	//this is only used for some Command #'s
+//special type of data request (command # = 80)
+//has a different structure than DataRequeest
+type PutDataRequest struct {
+	ProtocolVersion uint16
+	Command uint8
+	BlockId uint64
+	Timestamp uint64
+	NumberInPipeline uint32
+	RecoveryBoolean uint8
+
+	ClientIdLength uint8
+	ClientId []byte
+
+	SourceNode uint8
+	CurrNumNodes uint32
+
+	AccessIdLength uint8
+	AccessId []byte
+	
+	AccessPasswordLength uint8
+	AccessPassword []byte
+
+	AccessTypeLength uint8
+	AccessType []byte
+	
+	AccessServiceLength uint8
+	AccessService []byte
+
 	ChecksumType uint8
 	ChunkSize uint32
 }
@@ -139,11 +168,35 @@ func (dr *DataRequest) Bytes() []byte {
 	return byte_buffer.Bytes()
 }
 
+type InitialRead struct {
+	ProtocolVersion uint16
+	Command uint8
+}
+
+//read and return the initial parameters (protocol version and command number) for a request.
+//used to decide what kind of packet to parse for.
+func LiveReadInitial(byte_buffer io.Reader) (*InitialRead, error) {
+	ir := new(InitialRead)
+
+	err := binary.Read(byte_buffer, binary.BigEndian, &(ir.ProtocolVersion))
+	if err != nil {
+		return nil, err
+	}
+
+	err := binary.Read(byte_buffer, binary.BigEndian, &(ir.Command))
+	if err != nil {
+		return nil, err
+	}
+
+	return ir, nil
+}
+
 //liveload the data from the connection (or any kind of reader, e.g. byte
 //buffer).
 //there is no length quantity at the head of the packet, so we have 
 //to load all the fields manually.
 func (dr *DataRequest) LiveLoad(byte_buffer io.Reader) error {
+	util.DataReqLogger.Println("Live loading request...")
 	binary.Read(byte_buffer, binary.BigEndian, &(dr.ProtocolVersion))
 	binary.Read(byte_buffer, binary.BigEndian, &(dr.Command))
 	binary.Read(byte_buffer, binary.BigEndian, &(dr.BlockId))
