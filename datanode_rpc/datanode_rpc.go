@@ -8,6 +8,11 @@ import (
 	"util"
 )
 
+//interface that DataRequest and PutDataRequest
+//should satisfy
+type ReqPacket interface {
+}
+
 //TODO POTENTIAL BUG:
 //this packet structure has been
 //obtained from the Wireshark
@@ -135,37 +140,92 @@ func (dr *DataRequest) Equals(p *DataRequest) bool {
 	return true
 }
 
-func (dr *DataRequest) Bytes() []byte {
+
+//TODO error checking in this function is just nonsensical; find some
+//other way to do it.
+func (dr *DataRequest) Bytes() ([]byte, error) {
 	byte_buffer := new(bytes.Buffer)
 
-	binary.Write(byte_buffer, binary.BigEndian, dr.ProtocolVersion)
-	binary.Write(byte_buffer, binary.BigEndian, dr.Command)
-	binary.Write(byte_buffer, binary.BigEndian, dr.BlockId)
-	binary.Write(byte_buffer, binary.BigEndian, dr.Timestamp)
-	binary.Write(byte_buffer, binary.BigEndian, dr.StartOffset)
-	binary.Write(byte_buffer, binary.BigEndian, dr.BlockLength)
-
-	binary.Write(byte_buffer, binary.BigEndian, dr.ClientIdLength)
-	byte_buffer.Write(dr.ClientId)
-
-	binary.Write(byte_buffer, binary.BigEndian, dr.AccessIdLength)
-	byte_buffer.Write(dr.AccessId)
-
-	binary.Write(byte_buffer, binary.BigEndian, dr.AccessPasswordLength)
-	byte_buffer.Write(dr.AccessPassword)
-
-	binary.Write(byte_buffer, binary.BigEndian, dr.AccessTypeLength)
-	byte_buffer.Write(dr.AccessType)
-
-	binary.Write(byte_buffer, binary.BigEndian, dr.AccessServiceLength)
-	byte_buffer.Write(dr.AccessService)
-
-	//only certain commands use the Checksum fields
-	if dr.Command == 80 {
-		binary.Write(byte_buffer, binary.BigEndian, dr.ChecksumType)
-		binary.Write(byte_buffer, binary.BigEndian, dr.ChunkSize)
+	err := binary.Write(byte_buffer, binary.BigEndian, dr.ProtocolVersion)
+	if err != nil {
+		return []byte{}, err
 	}
-	return byte_buffer.Bytes()
+
+	err = binary.Write(byte_buffer, binary.BigEndian, dr.Command)
+	if err != nil {
+		return []byte{}, err
+	}
+
+	err = binary.Write(byte_buffer, binary.BigEndian, dr.BlockId)
+	if err != nil {
+		return []byte{}, err
+	}
+
+	err = binary.Write(byte_buffer, binary.BigEndian, dr.Timestamp)
+	if err != nil {
+		return []byte{}, err
+	}
+
+	err = binary.Write(byte_buffer, binary.BigEndian, dr.StartOffset)
+	if err != nil {
+		return []byte{}, err
+	}
+	err = binary.Write(byte_buffer, binary.BigEndian, dr.BlockLength)
+	if err != nil {
+		return []byte{}, err
+	}
+
+	err = binary.Write(byte_buffer, binary.BigEndian, dr.ClientIdLength)
+	if err != nil {
+		return []byte{}, err
+	}
+	
+	_, err = byte_buffer.Write(dr.ClientId)
+	if err != nil {
+		return []byte{}, err
+	}
+
+	err = binary.Write(byte_buffer, binary.BigEndian, dr.AccessIdLength)
+	if err != nil {
+		return []byte{}, err
+	}
+
+	_, err = byte_buffer.Write(dr.AccessId)
+	if err != nil {
+		return []byte{}, err
+	}
+
+	err = binary.Write(byte_buffer, binary.BigEndian, dr.AccessPasswordLength)
+	if err != nil {
+		return []byte{}, err
+	}
+	
+	_, err = byte_buffer.Write(dr.AccessPassword)
+	if err != nil {
+		return []byte{}, err
+	}
+
+	err = binary.Write(byte_buffer, binary.BigEndian, dr.AccessTypeLength)
+	if err != nil {
+		return []byte{}, err
+	}
+
+	_, err = byte_buffer.Write(dr.AccessType)
+	if err != nil {
+		return []byte{}, err
+	}
+
+	err = binary.Write(byte_buffer, binary.BigEndian, dr.AccessServiceLength)
+	if err != nil {
+		return []byte{}, err
+	}
+
+	_, err = byte_buffer.Write(dr.AccessService)
+	if err != nil {
+		return []byte{}, err
+	}
+
+	return byte_buffer.Bytes(), nil
 }
 
 type InitialRead struct {
@@ -183,7 +243,7 @@ func LiveReadInitial(byte_buffer io.Reader) (*InitialRead, error) {
 		return nil, err
 	}
 
-	err := binary.Read(byte_buffer, binary.BigEndian, &(ir.Command))
+	err = binary.Read(byte_buffer, binary.BigEndian, &(ir.Command))
 	if err != nil {
 		return nil, err
 	}
@@ -191,14 +251,37 @@ func LiveReadInitial(byte_buffer io.Reader) (*InitialRead, error) {
 	return ir, nil
 }
 
+//called to decide what kind of packet to load
+func LoadRequestPacket(byteBuffer io.Reader) (ReqPacket, error) {
+	initialRead, err := LiveReadInitial(byteBuffer)
+	if err != nil {
+		return nil, err
+	}
+
+	//the command determines what kind of loading we want to be doing
+	switch(initialRead.Command) {
+	//a command number of 81 signfies a DataRequest packet structure
+	case 81:
+		dataRequest := NewDataRequest()
+		dataRequest.LiveLoad(byteBuffer, initialRead)
+		return dataRequest, nil
+	}
+
+	return nil, nil
+}
+
 //liveload the data from the connection (or any kind of reader, e.g. byte
 //buffer).
 //there is no length quantity at the head of the packet, so we have 
 //to load all the fields manually.
-func (dr *DataRequest) LiveLoad(byte_buffer io.Reader) error {
-	util.DataReqLogger.Println("Live loading request...")
-	binary.Read(byte_buffer, binary.BigEndian, &(dr.ProtocolVersion))
-	binary.Read(byte_buffer, binary.BigEndian, &(dr.Command))
+func (dr *DataRequest) LiveLoad(byte_buffer io.Reader, initialRead *InitialRead) error {
+	util.DataReqLogger.Println("Live loading DataRequest...")
+	
+	dr.ProtocolVersion = initialRead.ProtocolVersion
+	dr.Command = initialRead.Command
+
+	//binary.Read(byte_buffer, binary.BigEndian, &(dr.ProtocolVersion))
+	//binary.Read(byte_buffer, binary.BigEndian, &(dr.Command))
 	binary.Read(byte_buffer, binary.BigEndian, &(dr.BlockId))
 	binary.Read(byte_buffer, binary.BigEndian, &(dr.Timestamp))
 	binary.Read(byte_buffer, binary.BigEndian, &(dr.StartOffset))
@@ -228,21 +311,6 @@ func (dr *DataRequest) LiveLoad(byte_buffer io.Reader) error {
 	dr.AccessService = make([]byte, dr.AccessServiceLength)
 	byte_buffer.Read(dr.AccessService)
 
-	//this is a complicated part of the code. Some request packets use the
-	//checksum fields, others do not. Specifically, the command # = 80 packets
-	//definitely use the checksum fields (i.e. the PUT method, essentially), so
-	//we have to load those correctly
-	if dr.Command == 80 {
-		err = binary.Read(byte_buffer, binary.BigEndian, &(dr.ChecksumType))
-		if err != nil {
-			return nil
-		}
-
-		err = binary.Read(byte_buffer, binary.BigEndian, &(dr.ChunkSize))
-		if err != nil {
-			return nil
-		}
-	}
 	return nil
 }
 
@@ -251,7 +319,11 @@ func (dr *DataRequest) Load(buf []byte) error {
 
 	//use the byte buffer as a Reader instance
 	//to get it to Load
-	dr.LiveLoad(byte_buffer)
+	ir, err := LiveReadInitial(byte_buffer)
+	if err != nil {
+		return err
+	}
+	dr.LiveLoad(byte_buffer, ir)
 
 	//TODO add proper error correction into this whole method
 	//maybe using the reflect module
