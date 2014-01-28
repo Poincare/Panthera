@@ -12,13 +12,14 @@ import (
 	//go packages
 	"net"
 	"fmt"
+	"math/rand"
+	"time"
 
 	//local packages
 	"util"
 	"datanode_rpc"
 	"caches"
 	"configuration"
-	"math/rand"
 )
 
 //these messages are passed through a channel
@@ -58,6 +59,10 @@ type Processor struct {
 
 	//id number that identifies this processor
 	id int64
+
+	//time variables to get latency values
+	startTime time.Time
+	startTimeCached time.Time
 }
 
 func NewProcessor(dataCache *caches.DataCache, nodeLocation *configuration.DataNodeLocation) *Processor {
@@ -97,6 +102,13 @@ func (p *Processor) sendCloseSocket() {
 	p.commChan <- msg
 }
 
+//records the latency of writing from cache
+func (p *Processor) RecordCachedLatency() {
+	now := time.Now()
+	duration := now.Sub(p.startTimeCached)
+	util.CachedLatencyLog.Println(duration.Nanoseconds())
+}
+
 //called as a goroutine - handles the connection with a client; forwards
 //requests to the datanode and responds from memory cache when possible
 func (p *Processor) HandleConnection(conn net.Conn, dataNode net.Conn) {
@@ -108,6 +120,8 @@ func (p *Processor) HandleConnection(conn net.Conn, dataNode net.Conn) {
 		//read in the request object (should block)
 		err := dataRequest.LiveLoad(conn)
 		util.DataReqLogger.Println(p.id, " Received request: ", dataRequest)
+		p.startTimeCached = time.Now()
+
 		if err != nil {
 			util.DataReqLogger.Println(p.id, " Could not load data request object; assuming socket is closed.")
 			util.DataReqLogger.Println("---")
@@ -130,6 +144,7 @@ func (p *Processor) HandleConnection(conn net.Conn, dataNode net.Conn) {
 				fmt.Println("Cache hit!")
 				//write the response from the cache
 				conn.Write(resp.Bytes())
+				p.RecordCachedLatency();
 				p.skipResponse = true
 			} else {
 				util.DataReqLogger.Println(p.id, " Cache miss. (cache size: ", p.dataCache.CurrSize(), ")")
@@ -139,6 +154,7 @@ func (p *Processor) HandleConnection(conn net.Conn, dataNode net.Conn) {
 			//write the buffer to the datanode, essentially relaying the information
 			//between the client and the data node
 			dataNode.Write(dataRequest.Bytes())
+			p.startTime = time.Now()
 		}
 	}
 }
@@ -165,6 +181,13 @@ func (p *Processor) retryDataNodeConnection(conn net.Conn, dataNode net.Conn) bo
 	}
 
 	return true
+}
+
+//record the latency time (w/o a cache) to the log
+func (p *Processor) RecordNoCacheLatency() {
+	now := time.Now()
+	duration := now.Sub(p.startTime)
+	util.NoCacheLatencyLog.Println(duration.Nanoseconds())
 }
 
 func (p *Processor) HandleDataNode(conn net.Conn, dataNode net.Conn) {
@@ -219,6 +242,8 @@ func (p *Processor) HandleDataNode(conn net.Conn, dataNode net.Conn) {
 		} */
 
 		if dataResponse != nil {
+			p.RecordNoCacheLatency();
+
 			//we skip a response because we might be responding to something
 			//that has already been responded to by the cache
 			if p.skipResponse {
