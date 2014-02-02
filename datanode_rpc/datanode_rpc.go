@@ -11,6 +11,8 @@ import (
 //interface that DataRequest and PutDataRequest
 //should satisfy
 type ReqPacket interface {
+	//equality comparator
+	Equals(ReqPacket) bool
 }
 
 //TODO POTENTIAL BUG:
@@ -436,7 +438,7 @@ func (dr *DataResponse) Load(buf []byte) error {
 
 //a pair of request, response
 type RequestResponse struct {
-	Request *DataRequest
+	Request ReqPacket
 	Response *DataResponse
 }
 

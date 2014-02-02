@@ -37,7 +37,7 @@ type Processor struct {
 	//sent out. There isn't something like a packet number 
 	//method in the protocol, so the response *must* be
 	//paired with the currentRequest in the cache
-	currentRequest datanode_rpc.DataRequest
+	currentRequest datanode_rpc.ReqPacket
 
 	//pointer to a global DataCache shared across all the
 	//processors
@@ -122,16 +122,14 @@ func (p *Processor) HandleConnection(conn net.Conn, dataNode net.Conn) {
 	for {
 		go p.checkComm(conn)
 		util.DataReqLogger.Println("Connected to client.")
-		dataRequest := datanode_rpc.NewDataRequest()
 
 		//read in the request object (should block)
-		ir, err := datanode_rpc.LiveReadInitial(conn)
+		dataRequest, err := datanode_rpc.LoadRequestPacket(conn)
 		if err != nil {
 			util.DataReqLogger.Println("Failed LiveReadInitial(): ", err)
 			p.closeConnSocket(conn)
 			return
 		}
-		err = dataRequest.LiveLoad(conn, ir)
 
 		util.DataReqLogger.Println(p.id, " Received request: ", dataRequest)
 		p.startTimeCached = time.Now()
@@ -145,10 +143,10 @@ func (p *Processor) HandleConnection(conn net.Conn, dataNode net.Conn) {
 		util.Log("Loaded object...")
 
 		if dataRequest != nil {
-			p.currentRequest = *dataRequest
+			p.currentRequest = dataRequest
 			util.DataReqLogger.Println(p.id, " Set current request.")
 
-			resp := p.dataCache.Query(*dataRequest)
+			resp := p.dataCache.Query(dataRequest)
 			util.DataReqLogger.Println(p.id, " Returned from cache request: ", resp)
 			if resp != nil {
 				util.DataReqLogger.Println(p.id, " Cache hit!")

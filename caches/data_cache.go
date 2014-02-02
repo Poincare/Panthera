@@ -53,13 +53,13 @@ func (dc *DataCache) CurrSize() int {
 }
 
 //return a list of the cached requests
-func (dc *DataCache) CachedRequests() []datanode_rpc.DataRequest {
-	res := make([]datanode_rpc.DataRequest, 0)
+func (dc *DataCache) CachedRequests() []datanode_rpc.ReqPacket {
+	res := make([]datanode_rpc.ReqPacket, 0)
 	for i := 0; i < len(dc.RpcStore); i++ {
 		pair := dc.RpcStore[i]
 
 		//add the request packet
-		res = append(res, *pair.Request)
+		res = append(res, pair.Request)
 	}
 
 	return res
@@ -115,7 +115,7 @@ func (dc *DataCache) Query(req datanode_rpc.DataRequest) *datanode_rpc.DataRespo
 
 	for i := 0; i < len(dc.RpcStore); i++ {
 		pair := dc.RpcStore[i]
-		util.DataReqLogger.Println("Pair request: ", *pair.Request)
+		util.DataReqLogger.Println("Pair request: ", pair.Request)
 		util.DataReqLogger.Println("Req:          ", req)
 		//NOTE: this is an important bit of this file.
 		//it compares two requests with a complete deepEquals,
