@@ -12,6 +12,7 @@ import (
 //should satisfy
 type ReqPacket interface {
 	//equality comparator
+	Bytes() ([]byte, error)
 	Equals(ReqPacket) bool
 }
 
@@ -75,6 +76,98 @@ type PutDataRequest struct {
 	ChecksumType uint8
 	ChunkSize uint32
 }
+//constructor
+func NewPutDataRequest() *PutDataRequest {
+	dr := PutDataRequest{}
+	return &dr
+}
+
+//compare tow putDataRequests
+//this switch is likely pretty slow
+func (p *PutDataRequest) Equals(r ReqPacket) bool {
+	switch r.(type) {
+	default:
+		//return false if the types do not match
+		return false
+		
+	case *PutDataRequest: 
+		r := r.(*PutDataRequest)
+		//if the type is correct, than we have to do more comparisons
+		if p.ProtocolVersion != r.ProtocolVersion {
+			return false
+		}
+
+		if p.Command != r.Command {
+			return false
+		}
+
+		if p.BlockId != r.BlockId {
+			return false
+		}
+
+		//NOTE: the equals method does not compare the timestamps
+		//as these can differ even between the same request packet.
+		if p.NumberInPipeline != r.NumberInPipeline {
+			return false
+		}
+
+		if p.RecoveryBoolean != r.RecoveryBoolean {
+			return false
+		}
+
+		if p.ClientIdLength != r.ClientIdLength {
+			return false
+		}
+
+		if !reflect.DeepEqual(p.ClientId, r.ClientId) {
+			return false
+		}
+
+		if p.SourceNode != r.SourceNode {
+			return false
+		}
+
+		if p.CurrNumNodes != r.CurrNumNodes {
+			return false
+		}
+		return true
+	}
+
+	return false
+}
+
+//return the byte content of a loaded PutDataRequest struct
+func (p *PutDataRequest) Bytes() ([]byte, error) {
+	byteBuf := new(bytes.Buffer)
+	binary.Write(byteBuf, binary.BigEndian, p.ProtocolVersion)
+	binary.Write(byteBuf, binary.BigEndian, p.Command)
+	binary.Write(byteBuf, binary.BigEndian, p.BlockId)
+	binary.Write(byteBuf, binary.BigEndian, p.Timestamp)
+	binary.Write(byteBuf, binary.BigEndian, p.NumberInPipeline)
+	binary.Write(byteBuf, binary.BigEndian, p.RecoveryBoolean)
+
+	binary.Write(byteBuf, binary.BigEndian, p.ClientIdLength)
+	byteBuf.Write(p.ClientId)
+	
+	binary.Write(byteBuf, binary.BigEndian, p.SourceNode)
+	binary.Write(byteBuf, binary.BigEndian, p.CurrNumNodes)
+	binary.Write(byteBuf, binary.BigEndian, p.AccessIdLength)
+	byteBuf.Write(p.AccessId)
+
+	binary.Write(byteBuf, binary.BigEndian, p.AccessPasswordLength)
+	byteBuf.Write(p.AccessPassword)
+	
+	binary.Write(byteBuf, binary.BigEndian, p.AccessTypeLength)
+	byteBuf.Write(p.AccessType)
+	
+	binary.Write(byteBuf, binary.BigEndian, p.AccessServiceLength)
+	byteBuf.Write(p.AccessService)
+
+	binary.Write(byteBuf, binary.BigEndian, p.ChecksumType)
+	binary.Write(byteBuf, binary.BigEndian, p.ChunkSize)
+
+	return byteBuf.Bytes(), nil
+}
 
 //constructor
 func NewDataRequest() *DataRequest {
@@ -86,60 +179,67 @@ func NewDataRequest() *DataRequest {
 //Compares two dataRequests. Note that the 
 //ClientId and ClientIdLength are not compared
 //since those are largely irrelevant.
-func (dr *DataRequest) Equals(p *DataRequest) bool {
-	if p.ProtocolVersion != dr.ProtocolVersion {
+func (dr *DataRequest) Equals(p ReqPacket) bool {
+	switch p.(type) {
+	default:
 		return false
-	}
+	case *DataRequest:
+		p := p.(*DataRequest)
+		if p.ProtocolVersion != dr.ProtocolVersion {
+			return false
+		}
 
-	if p.Command != dr.Command {
-		return false
-	}
+		if p.Command != dr.Command {
+			return false
+		}
 
-	if p.BlockId != dr.BlockId {
-		return false
-	}
-	
-	if p.Timestamp != dr.Timestamp {
-		return false
-	}
+		if p.BlockId != dr.BlockId {
+			return false
+		}
+		
+		if p.Timestamp != dr.Timestamp {
+			return false
+		}
 
-	if p.StartOffset != dr.StartOffset {
-		return false
-	}
+		if p.StartOffset != dr.StartOffset {
+			return false
+		}
 
-	if p.BlockLength != dr.BlockLength {
-		return false
-	}
+		if p.BlockLength != dr.BlockLength {
+			return false
+		}
 
-	if p.AccessIdLength != dr.AccessIdLength {
-		return false
-	}
+		if p.AccessIdLength != dr.AccessIdLength {
+			return false
+		}
 
-	if !reflect.DeepEqual(p.AccessId, dr.AccessId) {
-		return false
-	}
+		if !reflect.DeepEqual(p.AccessId, dr.AccessId) {
+			return false
+		}
 
-	if p.AccessPasswordLength != dr.AccessPasswordLength {
-		return false
-	}
+		if p.AccessPasswordLength != dr.AccessPasswordLength {
+			return false
+		}
 
-	if !reflect.DeepEqual(p.AccessPassword, dr.AccessPassword) {
-		return false
-	}
+		if !reflect.DeepEqual(p.AccessPassword, dr.AccessPassword) {
+			return false
+		}
 
-	if p.AccessTypeLength != dr.AccessTypeLength {
-		return false
-	}
+		if p.AccessTypeLength != dr.AccessTypeLength {
+			return false
+		}
 
-	if p.AccessServiceLength != dr.AccessServiceLength {
-		return false
-	}
+		if p.AccessServiceLength != dr.AccessServiceLength {
+			return false
+		}
 
-	if !reflect.DeepEqual(p.AccessService, dr.AccessService) {
-		return false
-	}
+		if !reflect.DeepEqual(p.AccessService, dr.AccessService) {
+			return false
+		}
 
-	return true
+		return true
+	}
+	return false
 }
 
 
@@ -442,10 +542,20 @@ type RequestResponse struct {
 	Response *DataResponse
 }
 
-func NewRequestResponse(req *DataRequest, resp *DataResponse) *RequestResponse {
+func NewRequestResponse(req ReqPacket, resp *DataResponse) *RequestResponse {
 	rr := RequestResponse{
 		Request: req,
 		Response: resp}
 	return &rr
 }
+
+
+
+
+
+
+
+
+
+
 

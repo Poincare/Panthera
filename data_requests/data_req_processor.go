@@ -14,6 +14,7 @@ import (
 	"fmt"
 	"math/rand"
 	"time"
+	"errors"
 
 	//local packages
 	"util"
@@ -116,6 +117,50 @@ func (p *Processor) closeConnSocket(conn net.Conn) {
 	go p.sendCloseSocket()
 }
 
+func (p *Processor) setCurrentRequest(dataRequest datanode_rpc.ReqPacket) {
+	p.currentRequest = dataRequest
+	util.DataReqLogger.Println(p.id, " Set current request.")
+}
+
+func (p *Processor) queryCache(dataRequest *datanode_rpc.DataRequest) *datanode_rpc.DataResponse {
+	resp := p.dataCache.Query(*dataRequest)
+	util.DataReqLogger.Println(p.id, " Returned from cache request: ", resp)
+	return resp
+}
+
+//handle the request if it is an instance of datanode_rpc.DataRequest
+func (p *Processor) handleDataRequest(conn net.Conn, dataNode net.Conn, dataRequest *datanode_rpc.DataRequest) error {
+	if dataRequest == nil {
+		return errors.New("Data request value is nil")
+	}
+
+	p.setCurrentRequest(dataRequest)
+	resp := p.queryCache(dataRequest)
+	
+	if resp != nil {
+		util.DataReqLogger.Println(p.id, "Cache hit!")
+		fmt.Println("Cache hit!")
+		
+		conn.Write(resp.Bytes())
+		p.RecordCachedLatency();
+		p.skipResponse = true
+	} else {
+		util.DataReqLogger.Println(p.id, " Cache miss. (cache size: ", p.dataCache.CurrSize(), ")")
+		util.DataReqLogger.Println(p.id, " Cache contents: ", p.dataCache.CachedRequests())
+		util.DataReqLogger.Println(p.id, " Cached responses: ", p.dataCache.CachedResponses())
+	}
+
+	dataBytes, err := dataRequest.Bytes()
+	if err != nil {
+		util.DataReqLogger.Println(p.id, "Could not get dataRequest bytes: ", err)
+		p.closeConnSocket(conn)
+		return err
+	}
+	dataNode.Write(dataBytes)
+	p.startTime = time.Now()
+	return nil
+}
+
 //called as a goroutine - handles the connection with a client; forwards
 //requests to the datanode and responds from memory cache when possible
 func (p *Processor) HandleConnection(conn net.Conn, dataNode net.Conn) {
@@ -130,46 +175,15 @@ func (p *Processor) HandleConnection(conn net.Conn, dataNode net.Conn) {
 			p.closeConnSocket(conn)
 			return
 		}
-
 		util.DataReqLogger.Println(p.id, " Received request: ", dataRequest)
 		p.startTimeCached = time.Now()
 
-		if err != nil {
-			util.DataReqLogger.Println(p.id, " Could not load data request object; assuming socket is closed.")
-			p.closeConnSocket(conn)
-			return
-		}
 
-		util.Log("Loaded object...")
-
-		if dataRequest != nil {
-			p.currentRequest = dataRequest
-			util.DataReqLogger.Println(p.id, " Set current request.")
-
-			resp := p.dataCache.Query(dataRequest)
-			util.DataReqLogger.Println(p.id, " Returned from cache request: ", resp)
-			if resp != nil {
-				util.DataReqLogger.Println(p.id, " Cache hit!")
-				fmt.Println("Cache hit!")
-				//write the response from the cache
-				conn.Write(resp.Bytes())
-				p.RecordCachedLatency();
-				p.skipResponse = true
-			} else {
-				util.DataReqLogger.Println(p.id, " Cache miss. (cache size: ", p.dataCache.CurrSize(), ")")
-				util.DataReqLogger.Println(p.id, " Cache contents: ", p.dataCache.CachedRequests())
-				util.DataReqLogger.Println(p.id, " Cached responses: ", p.dataCache.CachedResponses())
-			}
-			//write the buffer to the datanode, essentially relaying the information
-			//between the client and the data node
-			dataBytes, err := dataRequest.Bytes()
-			if err != nil {
-				util.DataReqLogger.Println(p.id, "Could not get dataRequest bytes: ", err)
-				p.closeConnSocket(conn)
-				return
-			}
-			dataNode.Write(dataBytes)
-			p.startTime = time.Now()
+		//switch according to the type of packet we are managing
+		switch dataRequest.(type) {
+		case *datanode_rpc.DataRequest:
+			dataRequest := dataRequest.(*datanode_rpc.DataRequest)
+			p.handleDataRequest(conn, dataNode, dataRequest)
 		}
 	}
 }
@@ -266,7 +280,8 @@ func (p *Processor) HandleDataNode(conn net.Conn, dataNode net.Conn) {
 				continue
 			}
 
-			pair := datanode_rpc.NewRequestResponse(&p.currentRequest, dataResponse)
+			pair := datanode_rpc.NewRequestResponse(p.currentRequest, dataResponse)
+
 			//add the pair to the cache
 			p.dataCache.AddRpcPair(*pair)
 			util.DataReqLogger.Println(p.id, "Cached request/response pair.")
