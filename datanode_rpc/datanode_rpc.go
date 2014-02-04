@@ -242,7 +242,6 @@ func (dr *DataRequest) Equals(p ReqPacket) bool {
 	return false
 }
 
-
 //TODO error checking in this function is just nonsensical; find some
 //other way to do it.
 func (dr *DataRequest) Bytes() ([]byte, error) {
@@ -367,9 +366,58 @@ func LoadRequestPacket(byteBuffer io.Reader) (ReqPacket, error) {
 		dataRequest := NewDataRequest()
 		dataRequest.LiveLoad(byteBuffer, initialRead)
 		return dataRequest, nil
+	case 80:
+		putDataRequest := NewPutDataRequest()
+		putDataRequest.LiveLoad(byteBuffer, initialRead)
+		return putDataRequest, nil
 	}
 
 	return nil, nil
+}
+
+//liveload the data from the connection (or any kind of io.Reader, e.g. bytes.Buffer)
+//There is no length quantity at the end of the packet, so we have to load all of the 
+//field one by one
+func (p *PutDataRequest) LiveLoad(byte_buffer io.Reader, initialRead *initialRead) error {
+	util.DataReqLogger.Println("Live loading PutDataRequest...")
+	
+	p.ProtocolVersion = initialRead.ProtocolVersion
+	p.Command = initialRead.Command
+
+	binary.Read(byte_buffer, binary.BigEndian, &(p.BlockId))
+	binary.Read(byte_buffer, binary.BigEndian, &(p.Timestamp))
+	binary.Read(byte_buffer, binary.BigEndian, &(p.NumberInPipeline))
+	binary.Read(byte_buffer, binary.BigEndian, &(p.RecoveryBoolean))
+
+	binary.Read(byte_buffer, binary.BigEndian, &(p.ClientIdLength))
+	p.ClientId = make([]byte, p.ClientIdLength)
+	byte_buffer.Read(dr.ClientId)
+	
+	binary.Read(byte_buffer, binary.BigEndian, &(p.SourceNode))
+	binary.Read(byte_buffer, binary.BigEndian, &(p.CurrNumNodes))
+	
+	binary.Read(byte_buffer, binary.BigEndian, &(p.AccessIdLength))
+	p.AccessId = make([]byte, p.AccessIdLength)
+	byte_buffer.Read(p.AccessId)
+
+	binary.Read(byte_buffer, binary.BigEndian, &(p.AccessPasswordLength))
+	p.AccessPassword = make([]byte, p.AccessPasswordLength)
+	byte_buffer.Read(p.AccessPassword)
+
+	binary.Read(byte_buffer, binary.BigEndian, &(p.AccessTypeLength))
+	p.AccessType = make([]byte, p.AccessTypeLength)
+	byte_buffer.Read(p.AccessType)
+
+	binary.Read(byte_buffer, binary.BigEndian, &(p.AccessServiceLength))
+	p.AccessService = make([]byte, p.AccessServiceLength)
+	byte_buffer.Read(p.AccessService)
+
+	binary.Read(byte_buffer, binary.BigEndian, &(p.ChecksumType))
+	binary.Read(byte_buffer, binary.BigEndian, &(p.ChunkSize))
+	
+	//TODO do real error checking here, especially since this will probably
+	//be reading off the network.
+	return nil
 }
 
 //liveload the data from the connection (or any kind of reader, e.g. byte
