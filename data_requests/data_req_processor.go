@@ -161,6 +161,26 @@ func (p *Processor) handleDataRequest(conn net.Conn, dataNode net.Conn, dataRequ
 	return nil
 }
 
+//handle requests that are instances of datanode_rpc.PutDataRequest
+//this should initially work as a proxy since we are not interested in caching
+//or modifying put data requests
+func (p *Processor) handlePutDataRequest(conn net.Conn, dataNode net.Conn, 
+putDataRequest *datanode_rpc.PutDataRequest) error {
+	if putDataRequest == nil {
+		return errors.New("PutDataRequest is nil; cannot proceed with HandlingPutDataRequest")
+	}
+
+	dataBytes, err := putDataRequest.Bytes()
+	if err != nil {
+		util.DataReqLogger.Println(p.id, "Could not get putDataRequestBytes, err: ", err)
+		p.closeConnSocket(conn)
+		return err
+	}
+	dataNode.Write(dataBytes)
+	p.startTime = time.Now()
+	return nil
+}
+
 //called as a goroutine - handles the connection with a client; forwards
 //requests to the datanode and responds from memory cache when possible
 func (p *Processor) HandleConnection(conn net.Conn, dataNode net.Conn) {
@@ -184,7 +204,11 @@ func (p *Processor) HandleConnection(conn net.Conn, dataNode net.Conn) {
 		case *datanode_rpc.DataRequest:
 			dataRequest := dataRequest.(*datanode_rpc.DataRequest)
 			p.handleDataRequest(conn, dataNode, dataRequest)
+		case *datanode_rpc.PutDataRequest:
+			putDataRequest := dataRequest.(*datanode_rpc.PutDataRequest)
+			p.handlePutDataRequest(conn, dataNode, putDataRequest)
 		}
+		
 	}
 }
 
