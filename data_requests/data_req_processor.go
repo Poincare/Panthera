@@ -284,6 +284,7 @@ func (p *Processor) loadResponse(conn net.Conn, dataNode net.Conn) {
 	//the current request is
 	switch p.currentRequest.(type) {
 	case *datanode_rpc.DataRequest:
+		util.DataReqLogger.Println(p.id, " CurrRequest is DataRequest, no handling dataResponse")
 		p.handleDataResponse(conn, dataNode)
 	}
 }
@@ -291,6 +292,7 @@ func (p *Processor) loadResponse(conn net.Conn, dataNode net.Conn) {
 func (p *Processor) HandleDataNode(conn net.Conn, dataNode net.Conn) {
 	fmt.Println("here, dataNode: ", dataNode)
 
+	
 	if dataNode == nil {
 		fmt.Println("the datanode is nil, address", p.nodeLocation.Address())
 		var err error
@@ -319,6 +321,71 @@ func (p *Processor) HandleDataNode(conn net.Conn, dataNode net.Conn) {
 		//handles all of the intricacies of the different response types, etc.
 		p.loadResponse(conn, dataNode)
 	}
+
+	/*
+	fmt.Println("here, dataNode: ", dataNode)
+	if dataNode == nil {
+		fmt.Println("the datanode is nil, address", p.nodeLocation.Address())
+		var err error
+		dataNode, err = net.Dial("tcp", p.nodeLocation.Address())
+		fmt.Println("new datanode: ", dataNode)
+		if err != nil || dataNode == nil {
+			util.Log("here")
+			res := p.retryDataNodeConnection(conn, dataNode)
+			util.Log("there")
+			if !res {
+				return
+			}
+		}
+	}
+	
+	for {
+		keepRunning := p.checkComm(dataNode)
+		//telling us that we've received a close down message
+		if !keepRunning {
+			util.DataReqLogger.Println("Close down message received. Shutting down...")
+			defer util.DataReqLogger.Println("HandleDataNode() closed.")
+			return
+		}
+
+		util.Log("Handling dataNode connection...")
+		dataResponse := datanode_rpc.NewDataResponse()
+
+		err := dataResponse.LiveLoad(dataNode)
+
+		//unable to connect/read from the dataNode?
+		if err != nil {
+			util.DataReqLogger.Println("DataNode connection closed.")
+			res := p.retryDataNodeConnection(conn, dataNode)
+			if !res {
+				util.LogError("Could not retry successfully. Returning from HandleDataNode")
+				//connections were closed, no point in continuing with the processor
+				return
+			}
+		}
+
+		if dataResponse != nil {
+			p.RecordNoCacheLatency();
+
+			//we skip a response because we might be responding to something
+			//that has already been responded to by the cache
+			if p.skipResponse {
+				util.DataReqLogger.Println("Response skipped.")
+				p.skipResponse = false
+				continue
+			}
+
+			pair := datanode_rpc.NewRequestResponse(p.currentRequest, dataResponse)
+
+			//add the pair to the cache
+			p.dataCache.AddRpcPair(*pair)
+			util.DataReqLogger.Println(p.id, "Cached request/response pair.")
+			//write the information back to the client
+			dataRespBytes, _ := dataResponse.Bytes()
+			conn.Write(dataRespBytes)
+			util.DataReqLogger.Println(p.id, "Wrote response to client.")
+		}
+	} */
 }
 
 
