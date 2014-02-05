@@ -245,6 +245,7 @@ func (p *Processor) RecordNoCacheLatency() {
 
 func (p *Processor) HandleDataNode(conn net.Conn, dataNode net.Conn) {
 	fmt.Println("here, dataNode: ", dataNode)
+
 	if dataNode == nil {
 		fmt.Println("the datanode is nil, address", p.nodeLocation.Address())
 		var err error

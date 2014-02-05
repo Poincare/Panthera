@@ -369,6 +369,8 @@ func LoadRequestPacket(byteBuffer io.Reader) (ReqPacket, error) {
 	case 80:
 		putDataRequest := NewPutDataRequest()
 		putDataRequest.LiveLoad(byteBuffer, initialRead)
+		putDataRequestBytes, _ := putDataRequest.Bytes()
+		util.DataReqLogger.Println("PutDataRequest bytes: ", putDataRequestBytes)
 		return putDataRequest, nil
 	}
 
@@ -378,7 +380,7 @@ func LoadRequestPacket(byteBuffer io.Reader) (ReqPacket, error) {
 //liveload the data from the connection (or any kind of io.Reader, e.g. bytes.Buffer)
 //There is no length quantity at the end of the packet, so we have to load all of the 
 //field one by one
-func (p *PutDataRequest) LiveLoad(byte_buffer io.Reader, initialRead *initialRead) error {
+func (p *PutDataRequest) LiveLoad(byte_buffer io.Reader, initialRead *InitialRead) error {
 	util.DataReqLogger.Println("Live loading PutDataRequest...")
 	
 	p.ProtocolVersion = initialRead.ProtocolVersion
@@ -391,7 +393,7 @@ func (p *PutDataRequest) LiveLoad(byte_buffer io.Reader, initialRead *initialRea
 
 	binary.Read(byte_buffer, binary.BigEndian, &(p.ClientIdLength))
 	p.ClientId = make([]byte, p.ClientIdLength)
-	byte_buffer.Read(dr.ClientId)
+	byte_buffer.Read(p.ClientId)
 	
 	binary.Read(byte_buffer, binary.BigEndian, &(p.SourceNode))
 	binary.Read(byte_buffer, binary.BigEndian, &(p.CurrNumNodes))
@@ -582,6 +584,33 @@ func (dr *DataResponse) Load(buf []byte) error {
 
 	//TODO add proper error detection to this method
 	return nil
+}
+
+//response that is delivered if a PutDataRequest is the
+//current request
+type PutDataResponse struct {
+	PiplineStatus uint8
+}
+
+func (p *PutDataResponse) LiveLoad(byte_buffer io.Reader) error {
+	binary.Read(byte_buffer, binary.BigEndian, &(p.PiplineStatus))
+	return nil
+}
+
+func (p *PutDataResponse) Bytes() ([]byte, error) {
+	byteBuf := new(bytes.Buffer)
+	
+	err := binary.Write(byteBuf, binary.BigEndian, &(p.PiplineStatus))
+	if err != nil {
+		return []byte{}, err
+	}
+
+	return byteBuf.Bytes(), nil
+}
+
+func NewPutDataResponse() *PutDataResponse {
+	pdr := PutDataResponse{}
+	return &pdr
 }
 
 //a pair of request, response
