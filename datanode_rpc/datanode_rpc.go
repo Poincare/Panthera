@@ -482,9 +482,13 @@ func (dr *DataRequest) Load(buf []byte) error {
 	return nil
 }
 
+type ResponsePacket interface {
+	Bytes() ([]byte, error)
+	LiveLoad(io.Reader)
+}
+
 /* the response format that contains the file requested from 
 the data node */
-
 //NOTE the responses from HDFS can actually be split
 //into multiple packets. SequenceNumber and LastPacketNumber
 //determine whether or not this is the last packet
@@ -513,8 +517,8 @@ func NewDataResponse() *DataResponse {
 	return &dr
 }
 
-func (dr *DataResponse) Bytes() []byte {
-	return dr.Buf
+func (dr *DataResponse) Bytes() ([]byte, error) {
+	return dr.Buf, nil
 }
 
 //read the data from a connection (or any other kind of reader)
