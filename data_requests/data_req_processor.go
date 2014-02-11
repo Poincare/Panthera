@@ -16,6 +16,7 @@ import (
 	"time"
 	"errors"
 
+
 	//local packages
 	"util"
 	"datanode_rpc"
@@ -28,6 +29,12 @@ import (
 //threads to communicate
 type CommMessage struct {
 	CloseSocket bool
+
+	//set to true if the currentRequestVariable is
+	//no longer nil or has been set to a new value
+	//i.e. means that handleDataNode should try to 
+	//handle a datanode response
+	CurrentRequestAvailable bool
 }
 
 //processes requests from clients and forwards
@@ -94,6 +101,17 @@ func (p *Processor) checkComm(sock net.Conn) bool {
 			return true
 	}
 	return true
+}
+
+//get message from the communication message queue/channel
+func (p *Processor) getMessage() CommMessage {
+	return <- p.commChan
+}
+
+//check the communication channel to see if the datanode 
+//can read in a new message
+func (p *Processor) currentRequestAvailable(msg CommMessage) bool {
+	return msg.CurrentRequestAvailable
 }
 
 func (p *Processor) sendCloseSocket() {
@@ -182,15 +200,81 @@ putDataRequest *datanode_rpc.PutDataRequest) error {
 	return nil
 }
 
+func (p *Processor) HandleConnectionSingular(conn net.Conn, dataNode net.Conn) {
+	for {
+		go p.checkComm(conn)
+		util.DataReqLogger.Println("Connected to client.")
+		dataRequest := datanode_rpc.NewDataRequest()
+
+		//read in the request object (should block)
+		err := dataRequest.FullLiveLoad(conn)
+		util.DataReqLogger.Println(p.id, " Received request: ", dataRequest)
+		p.startTimeCached = time.Now()
+
+		if err != nil {
+			util.DataReqLogger.Println(p.id, " Could not load data request object; assuming socket is closed.")
+			util.DataReqLogger.Println("---")
+			conn.Close()
+
+			go p.sendCloseSocket()
+			return
+		}
+
+		util.Log("Loaded object...")
+
+		if dataRequest != nil {
+			p.currentRequest = dataRequest
+			util.DataReqLogger.Println(p.id, " Set current request.")
+
+			resp := p.dataCache.Query(*dataRequest)
+			util.DataReqLogger.Println(p.id, " Returned from cache request: ", resp)
+			if resp != nil {
+				util.DataReqLogger.Println(p.id, " Cache hit!")
+				fmt.Println("Cache hit!")
+				
+				//write the response from the cache
+				respBytes, _ := resp.Bytes();
+				conn.Write(respBytes)
+				p.RecordCachedLatency();
+				p.skipResponse = true
+			} else {
+				util.DataReqLogger.Println(p.id, " Cache miss. (cache size: ", p.dataCache.CurrSize(), ")")
+				util.DataReqLogger.Println(p.id, " Cache contents: ", p.dataCache.CachedRequests())
+				util.DataReqLogger.Println(p.id, " Cached responses: ", p.dataCache.CachedResponses())
+			}
+			//write the buffer to the datanode, essentially relaying the information
+			//between the client and the data node
+			dataReqBytes, _ := dataRequest.Bytes()
+			dataNode.Write(dataReqBytes)
+			p.startTime = time.Now()
+		}
+	}
+}
+
+//tell the datanode that a new current request is available 
+//and it will need to handle a response soon
+func (p *Processor) sendCurrentRequestAvailable() {
+	msg := new(CommMessage)
+	msg.CloseSocket = false
+	msg.CurrentRequestAvailable = true
+
+	//push the message into the communication channel between the goroutines
+	p.commChan <- *msg
+}
+
 //called as a goroutine - handles the connection with a client; forwards
 //requests to the datanode and responds from memory cache when possible
 func (p *Processor) HandleConnection(conn net.Conn, dataNode net.Conn) {
 	for {
 		go p.checkComm(conn)
+		util.DebugLogger.Println("Waiting for request packet...")
 		util.DataReqLogger.Println("Connected to client.")
 
 		//read in the request object (should block)
 		dataRequest, err := datanode_rpc.LoadRequestPacket(conn)
+		go p.sendCurrentRequestAvailable();
+		util.DebugLogger.Println("Loaded packet.")
+
 		if err != nil {
 			util.DataReqLogger.Println("Failed LiveReadInitial(): ", err)
 			p.closeConnSocket(conn)
@@ -280,6 +364,10 @@ func (p *Processor) handleDataResponse(conn net.Conn, dataNode net.Conn) {
 }
 
 func (p *Processor) loadResponse(conn net.Conn, dataNode net.Conn) {
+	if p.currentRequest == nil {
+		return
+	}
+
 	//the type of response packet to load depends on what type 
 	//the current request is
 	switch p.currentRequest.(type) {
@@ -292,8 +380,8 @@ func (p *Processor) loadResponse(conn net.Conn, dataNode net.Conn) {
 func (p *Processor) HandleDataNode(conn net.Conn, dataNode net.Conn) {
 	fmt.Println("here, dataNode: ", dataNode)
 
-	
 	if dataNode == nil {
+		util.DebugLogger.Println("Datanode is nil...")
 		fmt.Println("the datanode is nil, address", p.nodeLocation.Address())
 		var err error
 		dataNode, err = net.Dial("tcp", p.nodeLocation.Address())
@@ -309,7 +397,11 @@ func (p *Processor) HandleDataNode(conn net.Conn, dataNode net.Conn) {
 	}
 	
 	for {
-		keepRunning := p.checkComm(dataNode)
+		util.DebugLogger.Println("In the DataNode mainloop...")
+
+		msg := p.getMessage()
+		util.DebugLogger.Println("Got message from the channel: ", msg)
+		keepRunning := !msg.CloseSocket
 		//telling us that we've received a close down message
 		if !keepRunning {
 			util.DataReqLogger.Println("Close down message received. Shutting down...")
@@ -317,9 +409,13 @@ func (p *Processor) HandleDataNode(conn net.Conn, dataNode net.Conn) {
 			return
 		}
 
+		util.DebugLogger.Println("Starting to load response from DataNode...")
 		util.Log("Handling dataNode connection...")
 		//handles all of the intricacies of the different response types, etc.
-		p.loadResponse(conn, dataNode)
+		if msg.CurrentRequestAvailable {
+			p.loadResponse(conn, dataNode)
+			util.DebugLogger.Println("Finished with response from DataNode.")
+		}
 	}
 
 	/*

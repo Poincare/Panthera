@@ -19,12 +19,25 @@ var NoCacheLatencyLogFile = "/home/dhaivat/dev/hadoopproxy/logs/no_cache_latency
 var CachedLatencyLog *log.Logger
 var CachedLatencyLogFile = "/home/dhaivat/dev/hadoopproxy/logs/cached_latency"
 
+var DebugLogger *log.Logger
+var DebugLogFile = "/home/dhaivat/dev/hadoopproxy/logs/debug.log"
+
 func InitDataReqLogger() error {
 	dataLogFile, err := os.OpenFile(DataReqLogFile, os.O_RDWR | os.O_CREATE | os.O_APPEND, 0666)
 	if err != nil {
 		return err
 	}
 	DataReqLogger = log.New(dataLogFile, "", 0)
+	return nil
+}
+
+func InitDebugLogger() error {
+	debugLogFile, err := os.OpenFile(DebugLogFile, os.O_RDWR | os.O_CREATE | os.O_APPEND, 0666)
+	if err != nil {
+		return err
+	}
+
+	DebugLogger = log.New(debugLogFile, "", 0)
 	return nil
 }
 
@@ -69,6 +82,12 @@ func Init() error {
 	if err != nil {
 		return err
 	}
+
+	err = InitDebugLogger()
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 

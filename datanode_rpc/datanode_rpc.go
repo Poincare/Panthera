@@ -339,7 +339,10 @@ type InitialRead struct {
 func LiveReadInitial(byte_buffer io.Reader) (*InitialRead, error) {
 	ir := new(InitialRead)
 
+	util.DebugLogger.Println("Starting read of ProtocolVersion...")
 	err := binary.Read(byte_buffer, binary.BigEndian, &(ir.ProtocolVersion))
+	util.DebugLogger.Println("Finished read of ProtocolVersion.")
+
 	if err != nil {
 		return nil, err
 	}
@@ -354,7 +357,10 @@ func LiveReadInitial(byte_buffer io.Reader) (*InitialRead, error) {
 
 //called to decide what kind of packet to load
 func LoadRequestPacket(byteBuffer io.Reader) (ReqPacket, error) {
+	util.DebugLogger.Println("Starting LiveReadInitial()...")
 	initialRead, err := LiveReadInitial(byteBuffer)
+	util.DebugLogger.Println("LiveReadInitial() completed.")
+
 	if err != nil {
 		return nil, err
 	}
@@ -419,6 +425,43 @@ func (p *PutDataRequest) LiveLoad(byte_buffer io.Reader, initialRead *InitialRea
 	
 	//TODO do real error checking here, especially since this will probably
 	//be reading off the network.
+	return nil
+}
+
+//live load the full packet, including the InitialRead bits
+//LiveLoad(), on the other hand, requires an existing InitialRead
+//value.
+func (dr *DataRequest) FullLiveLoad(byte_buffer io.Reader) error {
+	binary.Read(byte_buffer, binary.BigEndian, &(dr.ProtocolVersion))
+	binary.Read(byte_buffer, binary.BigEndian, &(dr.Command))
+	binary.Read(byte_buffer, binary.BigEndian, &(dr.BlockId))
+	binary.Read(byte_buffer, binary.BigEndian, &(dr.Timestamp))
+	binary.Read(byte_buffer, binary.BigEndian, &(dr.StartOffset))
+	binary.Read(byte_buffer, binary.BigEndian, &(dr.BlockLength))
+
+	binary.Read(byte_buffer, binary.BigEndian, &(dr.ClientIdLength))
+	dr.ClientId = make([]byte, dr.ClientIdLength)
+	byte_buffer.Read(dr.ClientId)
+
+	binary.Read(byte_buffer, binary.BigEndian, &(dr.AccessIdLength))
+	dr.AccessId = make([]byte, dr.AccessIdLength)
+	byte_buffer.Read(dr.AccessId)
+
+	binary.Read(byte_buffer, binary.BigEndian, &(dr.AccessPasswordLength))
+	dr.AccessPassword = make([]byte, dr.AccessPasswordLength)
+	byte_buffer.Read(dr.AccessPassword)
+
+	binary.Read(byte_buffer, binary.BigEndian, &(dr.AccessTypeLength))
+	dr.AccessType = make([]byte, dr.AccessTypeLength)
+	byte_buffer.Read(dr.AccessType)
+
+	err := binary.Read(byte_buffer, binary.BigEndian, &(dr.AccessServiceLength))
+	if err != nil {
+		return err
+	}
+
+	dr.AccessService = make([]byte, dr.AccessServiceLength)
+	byte_buffer.Read(dr.AccessService)
 	return nil
 }
 
