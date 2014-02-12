@@ -189,6 +189,8 @@ putDataRequest *datanode_rpc.PutDataRequest) error {
 		return errors.New("PutDataRequest is nil; cannot proceed with HandlingPutDataRequest")
 	}
 
+	p.setCurrentRequest(putDataRequest)
+
 	dataBytes, err := putDataRequest.Bytes()
 	if err != nil {
 		util.DataReqLogger.Println(p.id, "Could not get putDataRequestBytes, err: ", err)
@@ -272,7 +274,7 @@ func (p *Processor) HandleConnection(conn net.Conn, dataNode net.Conn) {
 
 		//read in the request object (should block)
 		dataRequest, err := datanode_rpc.LoadRequestPacket(conn)
-		go p.sendCurrentRequestAvailable();
+		go p.sendCurrentRequestAvailable()
 		util.DebugLogger.Println("Loaded packet.")
 
 		if err != nil {
@@ -363,17 +365,44 @@ func (p *Processor) handleDataResponse(conn net.Conn, dataNode net.Conn) {
 	}
 }
 
+func (p *Processor) handlePutDataResponse(conn net.Conn, dataNode net.Conn) {
+	//there are actually three responses  to be read for each put request
+	for i := 0; i<1; i++ {
+		util.DebugLogger.Println("Reading put data response #", i)
+		pdr := datanode_rpc.NewPutDataResponse()
+
+		util.DebugLogger.Println("Starting liveLoad() of pdr...")
+		//read the pdr from the dataNode connection
+		pdr.LiveLoad(dataNode)
+		util.DebugLogger.Println("Finished liveLoad() of pdr...")
+
+		//write the pdr to the client
+		pdrBytes, _ := pdr.Bytes()
+		bytesWritten, err := conn.Write(pdrBytes)
+		conn.Write(pdrBytes)
+		conn.Write(pdrBytes)
+
+		if err != nil || bytesWritten != len(pdrBytes) {
+			util.DataReqLogger.Println("Error ocurred in writing to DataNode. Possible closed socket (no action taken)")
+		}
+	}
+}
+
 func (p *Processor) loadResponse(conn net.Conn, dataNode net.Conn) {
 	if p.currentRequest == nil {
 		return
 	}
 
+	util.DebugLogger.Println("In loadResponse()")
 	//the type of response packet to load depends on what type 
 	//the current request is
 	switch p.currentRequest.(type) {
 	case *datanode_rpc.DataRequest:
-		util.DataReqLogger.Println(p.id, " CurrRequest is DataRequest, no handling dataResponse")
+		util.DataReqLogger.Println(p.id, " CurrRequest is DataRequest, now handling dataResponse")
 		p.handleDataResponse(conn, dataNode)
+	case *datanode_rpc.PutDataRequest:
+		util.DataReqLogger.Println(p.id, " CurrRequest is PutDataRequest, now handling putDataResponse")
+		p.handlePutDataResponse(conn, dataNode)
 	}
 }
 
