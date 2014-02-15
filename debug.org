@@ -1,0 +1,26 @@
+;; This buffer is for notes you don't want to save, and for Lisp evaluation.
+;; If you want to create a file, visit that file with C-x C-f,
+;; then enter the text in that file's own buffer.
+
+** Overall Debugging Strategy
+
+1. Identify the problem by printing the methodNames and observe what the difference is between using the LoadedBytes() and byteBuffer
+	 + There is an EOF with the byteBuffer on versionRequest
+	 + There is also a significant waiting time with the versionRequest w/ the byteBuffer
+	 + With the LoadedBytes(), there is an EOF on the blocksWrittenReport; could this be because the server
+		 can tell that we're giving it the wrong port?
+		 - Check if that is the case by checking the port to match the "correct" port number
+		 - Modify the datanodemap *after* the servers have started listening
+	 + Another explanation could be that the heartbeat packets are going to the "wrong" place (i.e. port 2010)
+		 + To check if this the case, use Wireshark to sniff out packets going to port 2010 and also check if there are any malformed packets
+	 + *PROBLEM IDENTIFIED: The server is having trouble with the new port*
+		 + Determine the specifics. First, figure out the packets are going to the new port.
+		 + There are no packets being sent to the new port.
+		 + Also, there is a bit of information at the end of the datanoderegistration packet that has the datanodeID on it.
+		 + *SOLUTION: Use the Preprocess() method to modify the datanoderegistration packet to reflect the new datanodeID*
+2. Figure out the difference between LoadedBytes() and Bytes(); does the LoadedBytes() solve the right problems?
+
+** Implementing the DataNodeRegistration modification
+1. First, get the Preprocess method to uniquely identify the DataNodeRegistration packets
+2. We have to make use of the fact that the packet that comes after the hRPC initial notification
+will be the dataNodeRegistration packet
