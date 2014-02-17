@@ -22,6 +22,17 @@ var CachedLatencyLogFile = "/home/dhaivat/dev/hadoopproxy/logs/cached_latency"
 var DebugLogger *log.Logger
 var DebugLogFile = "/home/dhaivat/dev/hadoopproxy/logs/debug.log"
 
+//NOTE this is a relative path; in deployment, the executable needs to be in the same directory
+//this file otherwise there will be problems in loading the logging configuration (it will
+//just default to the development values).
+var LoggingConfFile = "logging.json"
+
+//load, with a configuration file, the places where the logs are 
+//supposed to be going
+func InitLoggingConfiguration() {
+	loggingContents := string(ioutil.ReadFile(LoggingConfFile))
+}
+
 func InitDataReqLogger() error {
 	dataLogFile, err := os.OpenFile(DataReqLogFile, os.O_RDWR | os.O_CREATE | os.O_APPEND, 0666)
 	if err != nil {
