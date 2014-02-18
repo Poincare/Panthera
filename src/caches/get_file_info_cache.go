@@ -6,7 +6,9 @@ to call, so the cache layer can respond instead of having to go to the server.
 */
 
 import (
+	//local packages
 	"namenode_rpc"
+	"util"
 )
 
 type GetFileInfoCache struct {
@@ -36,6 +38,7 @@ func (gfi_cache *GetFileInfoCache) Disable() {
 //Query the cache. Returns nil if req is not found in the cache or the Enabled is set to false.
 //gfi_cache.Cache.Query should NOT be called since it suses the wrong kind of equality comparator
 func (gfi_cache *GetFileInfoCache) Query(req namenode_rpc.ReqPacket) namenode_rpc.ResponsePacket {
+	util.DebugLogger.Println("in GetFileInfoCache.Query()")
 	//if the cache is not enabled, we keep returning nil
 	if !gfi_cache.enabled {
 		return nil
@@ -55,11 +58,15 @@ func (gfi_cache *GetFileInfoCache) Query(req namenode_rpc.ReqPacket) namenode_rp
 		return false
 	})
 
+	util.DebugLogger.Println("Defined Equals method.")
+
 	res := gfi_cache.Cache.QueryCustom(req, equals)
+	util.DebugLogger.Println("Done querying cache.")
 
 	if res == nil {
 		return nil
 	}
+
 	return res
 }
 

@@ -14,6 +14,8 @@ import (
 	"strings"
 	"strconv"
 	"io"
+	"encoding/hex"
+	"reflect"
 
 	//used for the the DataNodeMap
 	"configuration"
@@ -27,6 +29,8 @@ type PacketNumber uint32
 var TIMECOUNTER time.Time
 
 type Processor struct {
+	currentRequest *namenode_rpc.RequestPacket
+
 	//array of the past requests received by this processor
 	//presumably by the same client (i.e. one client per processor)
 	PastRequests []namenode_rpc.RequestPacket
@@ -407,6 +411,8 @@ func (p *Processor) readRequestPacket(conn net.Conn) (*namenode_rpc.RequestPacke
 	reqPacket := namenode_rpc.NewRequestPacket()
 	reqPacket.Load(finalBuf)
 
+	p.currentRequest = reqPacket
+
 	return reqPacket, nil
 }
 
@@ -440,10 +446,15 @@ func (p *Processor) HandleRequestPacket(conn net.Conn, hdfs net.Conn) error {
 	reqPacket, modified := p.preprocessRequestPacket(reqPacket)
 
 	//check the cache and write the corresponding request
+	util.DebugLogger.Println("Calling process method...")
 	respPacket := p.Process(reqPacket)
+	util.DebugLogger.Println("Done with process method, respPacket.")
+
 	//hit in the cache
 	if respPacket != nil {
-		conn.Write(respPacket.Bytes())
+		util.DebugLogger.Println("Writing resp packet, type: ", reflect.TypeOf(respPacket), " bytes: \n", hex.Dump(respPacket.GetBuf()))
+		conn.Write(respPacket.GetBuf())
+		util.DebugLogger.Println("Done writing resp packet, bytes") 
 	} else {
 		p.CacheRequest(reqPacket)
 	}
@@ -496,6 +507,7 @@ func (p *Processor) HandleConnectionReimp(conn net.Conn, hdfs net.Conn) {
 		//if it is the second packet, it is the authentication packet
 		//after that, process them as request packets
 		default:
+			util.DebugLogger.Println("Starting to handle request packet...")
 			err := p.HandleRequestPacket(conn, hdfs)
 			if err != nil {
 				util.DebugLog("Error handling request packet.")
@@ -677,6 +689,7 @@ func (p *Processor) HandleHDFS(conn net.Conn, hdfs net.Conn) {
 			if readErr == io.EOF {
 				util.DebugLog("HDFS socket closed. Closing local socket...")
 				hdfs.Close()
+				return
 			}
 		}
 
@@ -692,11 +705,18 @@ func (p *Processor) HandleHDFS(conn net.Conn, hdfs net.Conn) {
 		//create a generic response packet. Since we know the packet
 		//number, it doesn't particularly matter what type of packet it 
 		//actually is
-		genericResp := namenode_rpc.NewGenericResponsePacket(buf, packetNumber)
-		
+		//genericResp := namenode_rpc.NewGenericResponsePacket(buf, packetNumber)
+		genericResp := namenode_rpc.BuildResponsePacket(buf, packetNumber, p.currentRequest)
+
 		//load in the buffer contents as field values
 		genericResp.Load(buf)
-		genericResp = p.preprocessHDFS(genericResp)
+		
+		//TODO this is a useful hack, but probably will not work at scale.
+		switch genericResp.(type) {
+		case *namenode_rpc.GenericResponsePacket:
+			genericResp := genericResp.(*namenode_rpc.GenericResponsePacket)
+			genericResp = p.preprocessHDFS(genericResp)
+		}
 
 		//detects EOF's etc.
 		if readErr != nil {
@@ -716,7 +736,11 @@ func (p *Processor) HandleHDFS(conn net.Conn, hdfs net.Conn) {
 			p.CacheResponse(genericResp)
 
 			//proxy the read data to the associated client socket
-			conn.Write(genericResp.Buf)
+
+			//BREAAAAAAAAAAAAAAAAAAAAKKKKKINNNNNGGGG CHANGE
+			util.DebugLogger.Println("About to write to connection...")
+			conn.Write(genericResp.GetBuf())
+			util.DebugLogger.Println("Written to connection.")
 		}
 	}
 }
@@ -734,7 +758,7 @@ func (p *Processor) Process(req *namenode_rpc.RequestPacket) namenode_rpc.Respon
 	methodName := string(req.MethodName)
 	log.Println("Trying to do something here...")
 	if methodName == "getFileInfo" {
-		fmt.Println("method is GFI, querying GFICache...")
+		util.DebugLogger.Println("method is GFI, querying GFICache...")
 
 		//this will return a correct response if we can find one
 		//cached, or it will simply return nil so that we now

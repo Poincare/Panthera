@@ -4,23 +4,24 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"io/ioutil"
 )
 
 //this logger is handled by the DataReqLogger
 var DataReqLogger *log.Logger
-var DataReqLogFile = "/home/dhaivat/dev/hadoopproxy/logs/data_req_log"
+var DataReqLogFile = "/home/dhaivat/dev/panthera/logs/data_req_log"
 
 var LoggingEnabled bool = true
 var DebugLoggingEnabled bool = true
 
 var NoCacheLatencyLog *log.Logger
-var NoCacheLatencyLogFile = "/home/dhaivat/dev/hadoopproxy/logs/no_cache_latency"
+var NoCacheLatencyLogFile = "/home/dhaivat/dev/panthera/logs/no_cache_latency"
 
 var CachedLatencyLog *log.Logger
-var CachedLatencyLogFile = "/home/dhaivat/dev/hadoopproxy/logs/cached_latency"
+var CachedLatencyLogFile = "/home/dhaivat/dev/panthera/logs/cached_latency"
 
 var DebugLogger *log.Logger
-var DebugLogFile = "/home/dhaivat/dev/hadoopproxy/logs/debug.log"
+var DebugLogFile = "/home/dhaivat/dev/panthera/logs/debug.log"
 
 //NOTE this is a relative path; in deployment, the executable needs to be in the same directory
 //this file otherwise there will be problems in loading the logging configuration (it will
@@ -29,8 +30,12 @@ var LoggingConfFile = "logging.json"
 
 //load, with a configuration file, the places where the logs are 
 //supposed to be going
-func InitLoggingConfiguration() {
-	loggingContents := string(ioutil.ReadFile(LoggingConfFile))
+func InitLoggingConfiguration() error {
+	_, err := ioutil.ReadFile(LoggingConfFile)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func InitDataReqLogger() error {

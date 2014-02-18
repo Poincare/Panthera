@@ -112,6 +112,7 @@ func runDataNodeMap(dataNodeMap configuration.DataNodeMap, cache *caches.DataCac
 		listener, err := net.Listen("tcp", ":" + string(port))
 		if err != nil || listener == nil {
 			log.Println("Could not listen on relay port:", port, " because: ", err.Error(), listener, location)
+			util.DebugLogger.Println("Could not listen on relay port: ", port, " because: ", err.Error(), listener, location)
 		}
 
 		fmt.Println("Listener: ", listener)
@@ -143,7 +144,7 @@ func main() {
 	cacheSet.GetListingCache = caches.NewGetListingCache(getListingCacheSize)
 	
 	//disable the metadata cache for now
-	cacheSet.Disable()
+	//cacheSet.Disable()
 
 	server, err := net.Listen("tcp", config.serverHost + ":" + config.serverPort)
 	log.SetOutput(ioutil.Discard)

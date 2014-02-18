@@ -65,11 +65,31 @@ type ResponsePacket interface {
 
 	//common fields that need to have a Getter
 	GetPacketNumber() uint32
+
+	//return the bytes that were used to load a field
+	GetBuf() []byte
 }
 
 type ResponseObject struct {
 	NameLength uint16
 	ObjectName []byte
+}
+
+//this method figures out, given a request, what kind of new packet to build
+func BuildResponsePacket(buf []byte, packetNumber uint32, currRequest *RequestPacket) ResponsePacket {
+	if currRequest == nil {
+		return NewGenericResponsePacket(buf, packetNumber)
+	}
+
+	switch string(currRequest.MethodName) {
+	case "getFileInfo":
+		gfir := NewGetFileInfoResponse()
+		gfir.Load(buf)
+		return gfir
+	default:
+		return NewGenericResponsePacket(buf, packetNumber)
+	}
+
 }
 
 //this is used when we aren't exactly sure (or don't care)
@@ -90,6 +110,10 @@ type GenericResponsePacket struct {
 
 	ParameterLength uint16
 	ParameterValue []byte
+}
+
+func (grp *GenericResponsePacket) GetBuf() []byte {
+	return grp.Buf
 }
 
 func NewGenericResponsePacket(buf []byte, packNum uint32) *GenericResponsePacket {
@@ -406,6 +430,10 @@ type GetFileInfoResponse struct {
 
 	//the buf passed to the Load() call
 	LoadedBytes []byte
+}
+
+func (gfir *GetFileInfoResponse) GetBuf() []byte {
+	return gfir.LoadedBytes
 }
 
 func NewGetFileInfoResponse() *GetFileInfoResponse {
