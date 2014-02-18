@@ -81,6 +81,8 @@ func BuildResponsePacket(buf []byte, packetNumber uint32, currRequest *RequestPa
 		return NewGenericResponsePacket(buf, packetNumber)
 	}
 
+	return NewGenericResponsePacket(buf, packetNumber)
+	/*
 	switch string(currRequest.MethodName) {
 	case "getFileInfo":
 		gfir := NewGetFileInfoResponse()
@@ -88,7 +90,7 @@ func BuildResponsePacket(buf []byte, packetNumber uint32, currRequest *RequestPa
 		return gfir
 	default:
 		return NewGenericResponsePacket(buf, packetNumber)
-	}
+	} */
 
 }
 

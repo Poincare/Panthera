@@ -62,6 +62,9 @@ type Processor struct {
 
 	//we need the datanode map to make replacements in block reports
 	dataNodeMap *configuration.DataNodeMap
+
+	//skip the response if it has already been filled by the cache
+	skipResponse bool
 }
 
 //Object constructor. It needs the event_chan to talk with other processors,
@@ -77,6 +80,7 @@ func NewProcessor(event_chan chan ProcessorEvent, cacheSet *caches.CacheSet,
 	p.cacheSet = cacheSet
 	p.HandledFirstPacket = false
 	p.PacketsProcessed = 0
+	p.skipResponse = false
 
 	cacheLogFile, err := os.OpenFile("cache_times", os.O_RDWR | os.O_APPEND | os.O_CREATE, 0666)
 	if err != nil {
@@ -452,6 +456,7 @@ func (p *Processor) HandleRequestPacket(conn net.Conn, hdfs net.Conn) error {
 
 	//hit in the cache
 	if respPacket != nil {
+		p.skipResponse = true
 		util.DebugLogger.Println("Writing resp packet, type: ", reflect.TypeOf(respPacket), " bytes: \n", hex.Dump(respPacket.GetBuf()))
 		conn.Write(respPacket.GetBuf())
 		util.DebugLogger.Println("Done writing resp packet, bytes") 
@@ -739,7 +744,11 @@ func (p *Processor) HandleHDFS(conn net.Conn, hdfs net.Conn) {
 
 			//BREAAAAAAAAAAAAAAAAAAAAKKKKKINNNNNGGGG CHANGE
 			util.DebugLogger.Println("About to write to connection...")
-			conn.Write(genericResp.GetBuf())
+			if !p.skipResponse {
+				conn.Write(genericResp.GetBuf())
+			} else {
+				p.skipResponse = false
+			}
 			util.DebugLogger.Println("Written to connection.")
 		}
 	}
