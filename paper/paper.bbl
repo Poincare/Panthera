@@ -1,0 +1,36 @@
+\begin{thebibliography}{1}
+
+\bibitem{hbase}
+Lars George.
+\newblock {\em HBase: the definitive guide}.
+\newblock O'Reilly Media, Inc., 2011.
+
+\bibitem{pig}
+Christopher Olston, Benjamin Reed, Utkarsh Srivastava, Ravi Kumar, and Andrew
+  Tomkins.
+\newblock Pig latin: a not-so-foreign language for data processing.
+\newblock In {\em Proceedings of the 2008 ACM SIGMOD international conference
+  on Management of data}, pages 1099--1110. ACM, 2008.
+
+\bibitem{ramcloud}
+John Ousterhout, Parag Agrawal, David Erickson, Christos Kozyrakis, Jacob
+  Leverich, David Mazi{\`e}res, Subhasish Mitra, Aravind Narayanan, Guru
+  Parulkar, Mendel Rosenblum, et~al.
+\newblock The case for ramclouds: scalable high-performance storage entirely in
+  dram.
+\newblock {\em ACM SIGOPS Operating Systems Review}, 43(4):92--105, 2010.
+
+\bibitem{hadoop}
+Konstantin Shvachko, Hairong Kuang, Sanjay Radia, and Robert Chansler.
+\newblock The hadoop distributed file system.
+\newblock In {\em Mass Storage Systems and Technologies (MSST), 2010 IEEE 26th
+  Symposium on}, pages 1--10. IEEE, 2010.
+
+\bibitem{cloudbatch}
+Chen Zhang and Hans De~Sterck.
+\newblock Cloudbatch: A batch job queuing system on clouds with hadoop and
+  hbase.
+\newblock In {\em Cloud Computing Technology and Science (CloudCom), 2010 IEEE
+  Second International Conference on}, pages 368--375. IEEE, 2010.
+
+\end{thebibliography}
