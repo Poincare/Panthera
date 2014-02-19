@@ -460,7 +460,7 @@ func (p *Processor) HandleRequestPacket(conn net.Conn, hdfs net.Conn) error {
 
 	//preprocess the request
 	//reqPacket, _ = p.Preprocess(reqPacket)
-
+	p.cacheStartTime = &t
 	reqPacket, modified := p.preprocessRequestPacket(reqPacket)
 
 	//check the cache and write the corresponding request
@@ -533,7 +533,6 @@ func (p *Processor) HandleConnectionReimp(conn net.Conn, hdfs net.Conn) {
 		default:
 			util.DebugLogger.Println("Starting to handle request packet...")
 			t := time.Now()
-			p.cacheStartTime = &t
 			err := p.HandleRequestPacket(conn, hdfs)
 			if err != nil {
 				util.DebugLog("Error handling request packet.")
