@@ -57,7 +57,7 @@ func loop(server net.Listener, caches *caches.CacheSet, dnMap *configuration.Dat
 		util.DebugLog("Connecting to HDFS host: " + string(config.hdfsHostname) + ":" + string(config.hdfsPort))
 		hdfs, hdfs_err := net.Dial("tcp", config.hdfsHostname + ":" + config.hdfsPort)
 		if hdfs_err != nil {
-			util.LogError(err.Error())
+			util.LogError(hdfs_err.Error())
 			continue
 		}
 		util.DebugLog("Dialed HDFS...")
@@ -128,8 +128,8 @@ func main() {
 	util.LoggingEnabled = false
 	util.Log("Starting...")
 
-	config.hdfsHostname = "127.0.0.1"
-	config.hdfsPort = "1102"
+	config.hdfsHostname = "162.243.105.47"
+	config.hdfsPort = "54310"
 
 	config.serverHost = "0.0.0.0"
 	config.serverPort = "1035"
