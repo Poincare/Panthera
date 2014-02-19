@@ -9,19 +9,25 @@ import (
 
 //this logger is handled by the DataReqLogger
 var DataReqLogger *log.Logger
-var DataReqLogFile = "/root/panthera/logs/data_req_log"
+var DataReqLogFile = "../../logs/data_req_log"
 
 var LoggingEnabled bool = true
 var DebugLoggingEnabled bool = true
 
 var NoCacheLatencyLog *log.Logger
-var NoCacheLatencyLogFile = "/root/panthera/logs/no_cache_latency"
+var NoCacheLatencyLogFile = "../../logs/no_cache_latency"
 
 var CachedLatencyLog *log.Logger
-var CachedLatencyLogFile = "/root/panthera/logs/cached_latency"
+var CachedLatencyLogFile = "../../logs/cached_latency"
 
 var DebugLogger *log.Logger
-var DebugLogFile = "/root/panthera/logs/debug.log"
+var DebugLogFile = "../../logs/debug.log"
+
+var MetaCachedLatencyLogger *log.Logger
+var MetaCachedLatencyLogFile = "../../logs/meta_cache_latency"
+
+var NonMetaCachedLatencyLogger *log.Logger
+var NonMetaCachedLatencyLogFile = "../../logs/non_meta_cache_latency"
 
 //NOTE this is a relative path; in deployment, the executable needs to be in the same directory
 //this file otherwise there will be problems in loading the logging configuration (it will
@@ -77,8 +83,28 @@ func InitCachedLatencyLogger() error {
 
 	CachedLatencyLog = log.New(cachedLogFile, "", 0)
 	
-	//write the units for the data
-	CachedLatencyLog.Println("(latency times in nanoseconds)")
+	return nil
+}
+
+func InitNonMetaCachedLatencyLogger() error {
+	file, err := os.OpenFile(NonMetaCachedLatencyLogFile, os.O_RDWR | os.O_CREATE | os.O_APPEND, 0666)
+	if err != nil {
+		return err
+	}
+
+	NonMetaCachedLatencyLogger = log.New(file, "", 0)
+	
+	return nil
+}
+
+func InitMetaCachedLatencyLogger() error {
+	metaCacheLogFile, err := os.OpenFile(MetaCachedLatencyLogFile, os.O_RDWR | os.O_CREATE | os.O_APPEND, 0666)
+	if err != nil {
+		return err
+	}
+
+	MetaCachedLatencyLogger = log.New(metaCacheLogFile, "", 0)
+
 	return nil
 }
 
@@ -104,6 +130,15 @@ func Init() error {
 		return err
 	}
 
+	err = InitMetaCachedLatencyLogger()
+	if err != nil {
+		return err
+	}
+
+	err = InitNonMetaCachedLatencyLogger()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 

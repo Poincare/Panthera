@@ -65,6 +65,10 @@ type Processor struct {
 
 	//skip the response if it has already been filled by the cache
 	skipResponse bool
+
+	//start time for measuring latency
+	cacheStartTime *time.Time
+	nonCacheStartTime *time.Time
 }
 
 //Object constructor. It needs the event_chan to talk with other processors,
@@ -434,6 +438,16 @@ func (p *Processor) preprocessRequestPacket(reqPacket *namenode_rpc.RequestPacke
 	return reqPacket, false
 }
 
+func (p *Processor) recordCachedLatency() {
+	diff := time.Now().Sub(*p.cacheStartTime).Nanoseconds()
+	util.MetaCachedLatencyLogger.Println(diff)
+}
+
+func (p *Processor) recordNonCachedLatency() {
+	diff := time.Now().Sub(*p.nonCacheStartTime).Nanoseconds()
+	util.NonMetaCachedLatencyLogger.Println(diff)
+}
+
 //processes general request packets (e.g. checks against cache, responds,
 //modifies, etc.)
 func (p *Processor) HandleRequestPacket(conn net.Conn, hdfs net.Conn) error {
@@ -459,6 +473,9 @@ func (p *Processor) HandleRequestPacket(conn net.Conn, hdfs net.Conn) error {
 		p.skipResponse = true
 		util.DebugLogger.Println("Writing resp packet, type: ", reflect.TypeOf(respPacket), " bytes: \n", hex.Dump(respPacket.GetBuf()))
 		conn.Write(respPacket.GetBuf())
+		
+		p.recordCachedLatency()
+
 		util.DebugLogger.Println("Done writing resp packet, bytes") 
 	} else {
 		p.CacheRequest(reqPacket)
@@ -468,6 +485,8 @@ func (p *Processor) HandleRequestPacket(conn net.Conn, hdfs net.Conn) error {
 	//whether or not the request was modified)
 	if !modified {
 		hdfs.Write(reqPacket.LoadedBytes())
+		t := time.Now()
+		p.nonCacheStartTime = &t
 	} else {
 		reqBytes := reqPacket.BytesNoPad()
 		loadedBytes := reqPacket.LoadedBytes()
@@ -513,6 +532,8 @@ func (p *Processor) HandleConnectionReimp(conn net.Conn, hdfs net.Conn) {
 		//after that, process them as request packets
 		default:
 			util.DebugLogger.Println("Starting to handle request packet...")
+			t := time.Now()
+			p.cacheStartTime = &t
 			err := p.HandleRequestPacket(conn, hdfs)
 			if err != nil {
 				util.DebugLog("Error handling request packet.")
@@ -689,6 +710,11 @@ func (p *Processor) HandleHDFS(conn net.Conn, hdfs net.Conn) {
 
 		//Read() blocks
 		bytesRead, readErr := hdfs.Read(buf)
+		if p.nonCacheStartTime != nil {
+			p.recordNonCachedLatency()
+			p.nonCacheStartTime = nil
+		}
+
 		if readErr != nil {
 			util.DebugLog("Error occurred while reading from HDFS.")
 			if readErr == io.EOF {
