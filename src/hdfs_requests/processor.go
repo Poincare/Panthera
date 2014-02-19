@@ -12,7 +12,6 @@ import (
 	"time"
 	"os"
 	"strings"
-	"strconv"
 	"io"
 	"encoding/hex"
 	"reflect"
@@ -118,13 +117,15 @@ func NewProcessor(event_chan chan ProcessorEvent, cacheSet *caches.CacheSet,
 func (p *Processor) CacheRequest(req *namenode_rpc.RequestPacket) {
 	//fmt.Println("Method name from CacheRequest(): ", string(req.MethodName))
 
+	/*
 	if(string(req.MethodName) == "getFileInfo") {
 		//follow through with the GetFileInfoCache
 		fmt.Println("Caching request..., cache size: ", len(p.cacheSet.GfiCache.Cache.RequestResponse))
 		p.cacheSet.GfiCache.Cache.AddRequest(req)
 		fmt.Println("Cached request. Cache size: ", len(p.cacheSet.GfiCache.Cache.RequestResponse))
 		log.Println("Cached GFI Request: ")
-	} else if(string(req.MethodName) == "getListing") {
+	} else */
+	if(string(req.MethodName) == "getListing") {
 		p.cacheSet.GetListingCache.Cache.AddRequest(req)
 	}
 }
@@ -391,10 +392,8 @@ func (p *Processor) readRequestPacketLength(conn net.Conn) (uint32, []byte, erro
 	} */
 	//return packetLength, readErr
 	byteBuffer := bytes.NewBuffer(buf)
-	fmt.Println("read request packet buf: ", buf, byteBuffer.Bytes(), string(byteBuffer.Bytes()))
 	binary.Read(byteBuffer, binary.BigEndian, &packetLength)
 
-	util.DebugLog("Read request packet length: " + strconv.FormatInt(int64(packetLength), 10))
 	return packetLength, buf, readErr	
 }
  
@@ -418,6 +417,7 @@ func (p *Processor) readRequestPacket(conn net.Conn) (*namenode_rpc.RequestPacke
 
 	reqPacket := namenode_rpc.NewRequestPacket()
 	reqPacket.Load(finalBuf)
+	fmt.Println("Read request with method name: ", string(reqPacket.MethodName))
 
 	p.currentRequest = reqPacket
 
@@ -460,8 +460,10 @@ func (p *Processor) HandleRequestPacket(conn net.Conn, hdfs net.Conn) error {
 
 	//preprocess the request
 	//reqPacket, _ = p.Preprocess(reqPacket)
-	p.cacheStartTime = &t
 	reqPacket, modified := p.preprocessRequestPacket(reqPacket)
+
+	t := time.Now()
+	p.cacheStartTime = &t
 
 	//check the cache and write the corresponding request
 	util.DebugLogger.Println("Calling process method...")
@@ -475,6 +477,7 @@ func (p *Processor) HandleRequestPacket(conn net.Conn, hdfs net.Conn) error {
 		conn.Write(respPacket.GetBuf())
 		
 		p.recordCachedLatency()
+		fmt.Println("Diff in cached time: ", time.Now().Sub(*p.cacheStartTime).Nanoseconds())
 
 		util.DebugLogger.Println("Done writing resp packet, bytes") 
 	} else {
@@ -532,7 +535,6 @@ func (p *Processor) HandleConnectionReimp(conn net.Conn, hdfs net.Conn) {
 		//after that, process them as request packets
 		default:
 			util.DebugLogger.Println("Starting to handle request packet...")
-			t := time.Now()
 			err := p.HandleRequestPacket(conn, hdfs)
 			if err != nil {
 				util.DebugLog("Error handling request packet.")
