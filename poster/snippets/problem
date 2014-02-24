@@ -1,0 +1,3 @@
+\item Develop a caching layer for Hadoop that can cache both data and metadata.
+   \item The solution must not depend on a modified Hadoop version; it should be a "drop-in" addition.
+   \item The layer should reduce file access latency/waiting time significantly in comparison to a vanilla Hadoop installation.
