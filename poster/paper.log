@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012/Debian) (format=pdflatex 2013.4.20)  23 FEB 2014 15:11
+This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012/Debian) (format=pdflatex 2013.4.20)  24 FEB 2014 09:36
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1498,56 +1498,79 @@ tionary/translator-theorem-dictionary-English.dict
 Dictionary: translator-theorem-dictionary, Language: English 
 ) (./paper.nav)
 
+pdfTeX warning: pdflatex (file ./assets/hadoop_architecture.pdf): PDF inclusion
+: found PDF version <1.7>, but at most version <1.5> allowed
+<assets/hadoop_architecture.pdf, id=12, 515.9275pt x 376.40625pt>
+File: assets/hadoop_architecture.pdf Graphic file (type pdf)
+
+<use assets/hadoop_architecture.pdf>
+Package pdftex.def Info: assets/hadoop_architecture.pdf used on input line 203.
+
+(pdftex.def)             Requested size: 515.92624pt x 376.40532pt.
+
+
+pdfTeX warning: pdflatex (file ./assets/panthera_architecture_complete.pdf): PD
+F inclusion: found PDF version <1.7>, but at most version <1.5> allowed
+<assets/panthera_architecture_complete.pdf, id=13, 551.05875pt x 411.5375pt>
+File: assets/panthera_architecture_complete.pdf Graphic file (type pdf)
+
+<use assets/panthera_architecture_complete.pdf>
+Package pdftex.def Info: assets/panthera_architecture_complete.pdf used on inpu
+t line 203.
+(pdftex.def)             Requested size: 551.05739pt x 411.5365pt.
+
+
 pdfTeX warning: pdflatex (file ./assets/panthera_metadata.pdf): PDF inclusion: 
 found PDF version <1.7>, but at most version <1.5> allowed
-<assets/panthera_metadata.pdf, id=12, 567.11874pt x 304.13625pt>
+<assets/panthera_metadata.pdf, id=14, 567.11874pt x 304.13625pt>
 File: assets/panthera_metadata.pdf Graphic file (type pdf)
 
 <use assets/panthera_metadata.pdf>
-Package pdftex.def Info: assets/panthera_metadata.pdf used on input line 195.
-(pdftex.def)             Requested size: 680.5391pt x 364.96165pt.
+Package pdftex.def Info: assets/panthera_metadata.pdf used on input line 203.
+(pdftex.def)             Requested size: 567.11736pt x 304.1355pt.
 
 
 pdfTeX warning: pdflatex (file ./assets/panthera_architecture.pdf): PDF inclusi
 on: found PDF version <1.7>, but at most version <1.5> allowed
-<assets/panthera_architecture.pdf, id=13, 667.49374pt x 334.24875pt>
+<assets/panthera_architecture.pdf, id=15, 667.49374pt x 334.24875pt>
 File: assets/panthera_architecture.pdf Graphic file (type pdf)
 
 <use assets/panthera_architecture.pdf>
-Package pdftex.def Info: assets/panthera_architecture.pdf used on input line 19
-5.
-(pdftex.def)             Requested size: 800.98851pt x 401.09648pt.
+Package pdftex.def Info: assets/panthera_architecture.pdf used on input line 20
+3.
+(pdftex.def)             Requested size: 667.49213pt x 334.24792pt.
 
-Overfull \hbox (54.73524pt too wide) in paragraph at lines 195--195
-[][]  
- []
-
-<assets/box-plot-data.pdf, id=14, 505.89pt x 505.89pt>
+<assets/box-plot-data.pdf, id=16, 505.89pt x 505.89pt>
 File: assets/box-plot-data.pdf Graphic file (type pdf)
 
 <use assets/box-plot-data.pdf>
-Package pdftex.def Info: assets/box-plot-data.pdf used on input line 195.
+Package pdftex.def Info: assets/box-plot-data.pdf used on input line 203.
 (pdftex.def)             Requested size: 607.06494pt x 607.06494pt.
 
-<assets/box-plot-metadata.pdf, id=15, 505.89pt x 505.89pt>
+<assets/box-plot-metadata.pdf, id=17, 505.89pt x 505.89pt>
 File: assets/box-plot-metadata.pdf Graphic file (type pdf)
 
 <use assets/box-plot-metadata.pdf>
-Package pdftex.def Info: assets/box-plot-metadata.pdf used on input line 195.
+Package pdftex.def Info: assets/box-plot-metadata.pdf used on input line 203.
 (pdftex.def)             Requested size: 607.06494pt x 607.06494pt.
 
-<assets/box-plot-meta-multinode.pdf, id=16, 505.89pt x 505.89pt>
+<assets/box-plot-meta-multinode.pdf, id=18, 505.89pt x 505.89pt>
 File: assets/box-plot-meta-multinode.pdf Graphic file (type pdf)
 
 <use assets/box-plot-meta-multinode.pdf>
 Package pdftex.def Info: assets/box-plot-meta-multinode.pdf used on input line 
-195.
+203.
 (pdftex.def)             Requested size: 607.06494pt x 607.06494pt.
- [1
 
-{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map} <./assets/panthera_metadata
-.pdf> <./assets/panthera_architecture.pdf> <./assets/box-plot-data.pdf> <./asse
-ts/box-plot-metadata.pdf> <./assets/box-plot-meta-multinode.pdf>]
+Overfull \vbox (11.30179pt too high) detected at line 203
+ []
+
+[1
+
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map} <./assets/hadoop_architectu
+re.pdf> <./assets/panthera_architecture_complete.pdf> <./assets/panthera_metada
+ta.pdf> <./assets/panthera_architecture.pdf> <./assets/box-plot-data.pdf> <./as
+sets/box-plot-metadata.pdf> <./assets/box-plot-meta-multinode.pdf>]
 \tf@nav=\write6
 \openout6 = `paper.nav'.
 
@@ -1557,29 +1580,30 @@ ts/box-plot-metadata.pdf> <./assets/box-plot-meta-multinode.pdf>]
 \tf@snm=\write8
 \openout8 = `paper.snm'.
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 197.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 197.
- (./paper.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 197.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 197.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 205.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 205.
+
+(./paper.aux)
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 205.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 205.
 Package rerunfilecheck Info: File `paper.out' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 197.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 205.
  ) 
 Here is how much of TeX's memory you used:
- 25315 strings out of 495059
- 552255 string characters out of 3182030
- 759418 words of memory out of 3000000
- 27881 multiletter control sequences out of 15000+200000
+ 25325 strings out of 495059
+ 552634 string characters out of 3182030
+ 766641 words of memory out of 3000000
+ 27889 multiletter control sequences out of 15000+200000
  6358 words of font info for 23 fonts, out of 3000000 for 9000
  14 hyphenation exceptions out of 8191
  50i,15n,74p,744b,954s stack positions out of 5000i,500n,10000p,200000b,50000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmss17.pfb></us
 r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb>
-Output written on paper.pdf (1 page, 59475 bytes).
+Output written on paper.pdf (1 page, 68207 bytes).
 PDF statistics:
- 122 PDF objects out of 1000 (max. 8388607)
- 102 compressed objects within 2 object streams
+ 126 PDF objects out of 1000 (max. 8388607)
+ 104 compressed objects within 2 object streams
  3 named destinations out of 1000 (max. 500000)
- 58 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 68 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -39,15 +39,12 @@
       \begin{block}{Introduction}
       Distributed computing has seen tremendous growth in the past few years.
 In particular, Hadoop, an open source project that allows developers to
-write distributed applications, has found use in academia and industry.
-But, Hadoop does not effectively utilize RAM memory and local storage to
-better performance. \textbf{This project develops and tests caching mechanisms
-to reduce waiting time in Hadoop.}
+write distributed applications, has found extensive use in academia and industry. For example, Yahoo, Facebook, Stanford Computer Science, etc. are all heavily involved with Hadoop development. But, Hadoop does not effectively utilize RAM memory and local storage to better performance. \textbf{This project develops and tests caching mechanisms, called \textbf{Panthera}, to reduce waiting time or latency in Hadoop, } thereby greatly increasing its efficiency and applicability in fields ranging from medical diagnosis to artificial intelligence. 
       \end{block}
       
     \begin{block}{Problem}
 	\begin{itemize}
-	 \item Develop a caching layer for Hadoop that can cache both data and metadata.
+	 \item Develop a caching layer for the Hadoop File System that can cache both data and metadata.
 	 \item The solution must not depend on a modified Hadoop version; it should be a "drop-in" addition.
 	 \item The layer should reduce file access latency/waiting time significantly in comparison to a vanilla Hadoop installation.
 	\end{itemize}
@@ -60,18 +57,6 @@ to reduce waiting time in Hadoop.}
        will be possible to design \textbf{Panthera} such that the Hadoop source code
        remains unaffected.
       \end{block}
-
-	  \begin{block}{Latency Types}
-		%discuss the types of latency and make the comparison
-		%between hard disk latency and regular lateny
-		In the Hadoop File System Architecture, there are several types of latency involved:
-		\begin{itemize}
-		\item \textbf{Network latency: } Information shared between client and server (e.g. between a DataNode and a client) has an attached waiting time. With \textbf{Panthera}, this latency is eliminated since the data is cached on the client.
-		\item \textbf{Hard drive latency: } Reading from the hard drive also has significant latency. Hadoop generally reads from the hard drive when accessing files.
-		\item \textbf{Memory latency: } Reading from RAM memory has an extremely small
-		waiting time associated with it. \textbf{Memory waiting time is less than 1/1000th hard drive waiting time. Panthera converts hard drive latency to memory latency, greatly reducing file access time.}
-		\end{itemize}
-	  \end{block}
 	  
 		\begin{block}{Data vs Metadata}
 			Data within the Hadoop file system consists of the actual contents of a file.
@@ -79,12 +64,21 @@ to reduce waiting time in Hadoop.}
 			and data caching; both have significantly different technical implications
 			and challenges.}
 		\end{block}
+	
+		\begin{block}{Current Hadoop File System Architecture}
+			\includegraphics[scale=1]{assets/hadoop_architecture.pdf}
+		\end{block}
+		
+	  \begin{block}{Panthera Architecture}
+		\includegraphics[scale=1]{assets/panthera_architecture_complete.pdf}	  
+	  \end{block}
+	  
 	  \begin{block}{Panthera Metadata Architecture}
-	  \includegraphics[scale=1.2]{assets/panthera_metadata.pdf}
+	  \includegraphics[scale=1]{assets/panthera_metadata.pdf}
       \end{block}
       
       \begin{block}{Panthera Data Architecture}
-      \includegraphics[scale=1.2]{assets/panthera_architecture.pdf}
+      \includegraphics[scale=1]{assets/panthera_architecture.pdf}
       \end{block}
 
      \end{column}
@@ -96,13 +90,13 @@ to reduce waiting time in Hadoop.}
 	\begin{block}{Panthera - Implementation}
 	\begin{itemize}
 		\item \textbf{Panthera is implemented on Google's Go programming language}. The language has excellent concurrency primitives and memory management, which are perfect for
-		\textbf{Panthera} which must run reliably with hundreds of clients.
+		for software ,such as \textbf{Panthera}, that must run reliably with hundreds of clients.
 		\item \textbf{Panthera} implements a large portion of the Hadoop File System protocol, enabling it to "speak" with the DataNode and NameNode.
 	\end{itemize}
 	\end{block}
 
 	\begin{block}{Testing Methodology - Single Node vs Multinode}
-	All testing procedures were conducted on both \textbf{single node} and \textbf{multi-node} setups.\textbf{Single node} testing shows Panthera's performance without regard to network latency, whereas \textbf{multi node} testing incorporates network factors.
+	Testing procedures were conducted on both \textbf{single node} and \textbf{multi-node} setups.\textbf{Single node} testing shows Panthera's performance without regard to network latency, whereas \textbf{multinode} testing incorporates network factors.
 	\end{block}
 	
 	\begin{block}{Testing Methodology - Procedure}
@@ -126,6 +120,19 @@ to reduce waiting time in Hadoop.}
       
       
       \begin{column}{0.32\textwidth}
+      
+	  \begin{block}{Latency Types}
+		%discuss the types of latency and make the comparison
+		%between hard disk latency and regular lateny
+		In the Hadoop File System Architecture, there are several types of latency involved:
+		\begin{itemize}
+		\item \textbf{Network latency: } Information shared between client and server (e.g. between a DataNode and a client) has an attached waiting time. With \textbf{Panthera}, this latency is eliminated since the data is cached on the client.
+		\item \textbf{Hard drive latency: } Reading from the hard drive has very significant latency. Hadoop generally reads from the hard drive when accessing files.
+		\item \textbf{Memory latency: } Reading from RAM memory has an extremely small
+		waiting time associated with it. \textbf{Memory waiting time is less than 1/1000th hard drive waiting time. Panthera converts hard drive latency to memory latency, thereby greatly reducing file access time.}
+		\end{itemize}
+	  \end{block}
+	  
     \begin{block}{Statistics}
     \begin{itemize}
     		\item \textbf{Data (single node, noncached)}
