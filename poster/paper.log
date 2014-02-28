@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012/Debian) (format=pdflatex 2013.4.20)  24 FEB 2014 09:36
+This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012/Debian) (format=pdflatex 2013.4.20)  27 FEB 2014 19:30
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -928,7 +928,7 @@ beamerposter: finished orientation check.
 beamerposter: checking size input, please wait.
 beamerposter: the input a0\ 1\ was correct, we proceed.
 beamerposter: finished size input check.
-beamerposter: myfontscale=1.2
+beamerposter: myfontscale=1.15
 beamerposter: enabled debug mode
 (/usr/share/texlive/texmf-dist/tex/latex/fp/fp.sty
 Package: fp 1995/04/02
@@ -985,393 +985,393 @@ beamerposter: textwidth=2360.44081pt, textwidth=3352.3039pt
 ( FP-UPN
 FP debug: upn: +++ computing upn-expression "myfontscale fontSizeX * 2 round"
 FP debug: upn: calculating "myfontscale"
-FP debug: upn: result      "1.2"
+FP debug: upn: result      "1.15"
 FP debug: upn: calculating "fontSizeX"
 FP debug: upn: result      "12"
-FP debug: upn: calculating "12 mul 1.2"
+FP debug: upn: calculating "12 mul 1.15"
 ( FP-MUL )
-FP debug: upn: result      "14.400000000000000000"
+FP debug: upn: result      "13.800000000000000000"
 FP debug: upn: calculating "2"
 FP debug: upn: result      "2"
-FP debug: upn: calculating "round(14.400000000000000000:2)"
+FP debug: upn: calculating "round(13.800000000000000000:2)"
 ( FP-ROUND )
-FP debug: upn: result      "14.40"
-FP debug: upn: +++ result of upn-expression is "(14.40)"
+FP debug: upn: result      "13.80"
+FP debug: upn: +++ result of upn-expression is "(13.80)"
 ) ( FP-UPN
 FP debug: upn: +++ computing upn-expression "myfontscale fontSizeY * 2 round"
 FP debug: upn: calculating "myfontscale"
-FP debug: upn: result      "1.2"
+FP debug: upn: result      "1.15"
 FP debug: upn: calculating "fontSizeY"
 FP debug: upn: result      "14"
-FP debug: upn: calculating "14 mul 1.2"
+FP debug: upn: calculating "14 mul 1.15"
 ( FP-MUL )
-FP debug: upn: result      "16.800000000000000000"
+FP debug: upn: result      "16.100000000000000000"
 FP debug: upn: calculating "2"
 FP debug: upn: result      "2"
-FP debug: upn: calculating "round(16.800000000000000000:2)"
+FP debug: upn: calculating "round(16.100000000000000000:2)"
 ( FP-ROUND )
-FP debug: upn: result      "16.80"
-FP debug: upn: +++ result of upn-expression is "(16.80)"
+FP debug: upn: result      "16.10"
+FP debug: upn: +++ result of upn-expression is "(16.10)"
 ) ( FP-UPN
 FP debug: upn: +++ computing upn-expression "myfontscale fontSizeX * 2 round"
 FP debug: upn: calculating "myfontscale"
-FP debug: upn: result      "1.2"
+FP debug: upn: result      "1.15"
 FP debug: upn: calculating "fontSizeX"
 FP debug: upn: result      "14.4"
-FP debug: upn: calculating "14.4 mul 1.2"
+FP debug: upn: calculating "14.4 mul 1.15"
 ( FP-MUL )
-FP debug: upn: result      "17.280000000000000000"
+FP debug: upn: result      "16.560000000000000000"
 FP debug: upn: calculating "2"
 FP debug: upn: result      "2"
-FP debug: upn: calculating "round(17.280000000000000000:2)"
+FP debug: upn: calculating "round(16.560000000000000000:2)"
 ( FP-ROUND )
-FP debug: upn: result      "17.28"
-FP debug: upn: +++ result of upn-expression is "(17.28)"
+FP debug: upn: result      "16.56"
+FP debug: upn: +++ result of upn-expression is "(16.56)"
 ) ( FP-UPN
 FP debug: upn: +++ computing upn-expression "myfontscale fontSizeY * 2 round"
 FP debug: upn: calculating "myfontscale"
-FP debug: upn: result      "1.2"
+FP debug: upn: result      "1.15"
 FP debug: upn: calculating "fontSizeY"
 FP debug: upn: result      "18"
-FP debug: upn: calculating "18 mul 1.2"
+FP debug: upn: calculating "18 mul 1.15"
 ( FP-MUL )
-FP debug: upn: result      "21.600000000000000000"
+FP debug: upn: result      "20.700000000000000000"
 FP debug: upn: calculating "2"
 FP debug: upn: result      "2"
-FP debug: upn: calculating "round(21.600000000000000000:2)"
+FP debug: upn: calculating "round(20.700000000000000000:2)"
 ( FP-ROUND )
-FP debug: upn: result      "21.60"
-FP debug: upn: +++ result of upn-expression is "(21.60)"
+FP debug: upn: result      "20.70"
+FP debug: upn: +++ result of upn-expression is "(20.70)"
 ) ( FP-UPN
 FP debug: upn: +++ computing upn-expression "myfontscale fontSizeX * 2 round"
 FP debug: upn: calculating "myfontscale"
-FP debug: upn: result      "1.2"
+FP debug: upn: result      "1.15"
 FP debug: upn: calculating "fontSizeX"
 FP debug: upn: result      "17.28"
-FP debug: upn: calculating "17.28 mul 1.2"
+FP debug: upn: calculating "17.28 mul 1.15"
 ( FP-MUL )
-FP debug: upn: result      "20.736000000000000000"
+FP debug: upn: result      "19.872000000000000000"
 FP debug: upn: calculating "2"
 FP debug: upn: result      "2"
-FP debug: upn: calculating "round(20.736000000000000000:2)"
+FP debug: upn: calculating "round(19.872000000000000000:2)"
 ( FP-ROUND )
-FP debug: upn: result      "20.74"
-FP debug: upn: +++ result of upn-expression is "(20.74)"
+FP debug: upn: result      "19.87"
+FP debug: upn: +++ result of upn-expression is "(19.87)"
 ) ( FP-UPN
 FP debug: upn: +++ computing upn-expression "myfontscale fontSizeY * 2 round"
 FP debug: upn: calculating "myfontscale"
-FP debug: upn: result      "1.2"
+FP debug: upn: result      "1.15"
 FP debug: upn: calculating "fontSizeY"
 FP debug: upn: result      "22"
-FP debug: upn: calculating "22 mul 1.2"
+FP debug: upn: calculating "22 mul 1.15"
 ( FP-MUL )
-FP debug: upn: result      "26.400000000000000000"
+FP debug: upn: result      "25.300000000000000000"
 FP debug: upn: calculating "2"
 FP debug: upn: result      "2"
-FP debug: upn: calculating "round(26.400000000000000000:2)"
+FP debug: upn: calculating "round(25.300000000000000000:2)"
 ( FP-ROUND )
-FP debug: upn: result      "26.40"
-FP debug: upn: +++ result of upn-expression is "(26.40)"
+FP debug: upn: result      "25.30"
+FP debug: upn: +++ result of upn-expression is "(25.30)"
 ) ( FP-UPN
 FP debug: upn: +++ computing upn-expression "myfontscale fontSizeX * 2 round"
 FP debug: upn: calculating "myfontscale"
-FP debug: upn: result      "1.2"
+FP debug: upn: result      "1.15"
 FP debug: upn: calculating "fontSizeX"
 FP debug: upn: result      "20.74"
-FP debug: upn: calculating "20.74 mul 1.2"
+FP debug: upn: calculating "20.74 mul 1.15"
 ( FP-MUL )
-FP debug: upn: result      "24.888000000000000000"
+FP debug: upn: result      "23.851000000000000000"
 FP debug: upn: calculating "2"
 FP debug: upn: result      "2"
-FP debug: upn: calculating "round(24.888000000000000000:2)"
+FP debug: upn: calculating "round(23.851000000000000000:2)"
 ( FP-ROUND )
-FP debug: upn: result      "24.89"
-FP debug: upn: +++ result of upn-expression is "(24.89)"
+FP debug: upn: result      "23.85"
+FP debug: upn: +++ result of upn-expression is "(23.85)"
 ) ( FP-UPN
 FP debug: upn: +++ computing upn-expression "myfontscale fontSizeY * 2 round"
 FP debug: upn: calculating "myfontscale"
-FP debug: upn: result      "1.2"
+FP debug: upn: result      "1.15"
 FP debug: upn: calculating "fontSizeY"
 FP debug: upn: result      "25"
-FP debug: upn: calculating "25 mul 1.2"
+FP debug: upn: calculating "25 mul 1.15"
 ( FP-MUL )
-FP debug: upn: result      "30.000000000000000000"
+FP debug: upn: result      "28.750000000000000000"
 FP debug: upn: calculating "2"
 FP debug: upn: result      "2"
-FP debug: upn: calculating "round(30.000000000000000000:2)"
+FP debug: upn: calculating "round(28.750000000000000000:2)"
 ( FP-ROUND )
-FP debug: upn: result      "30.00"
-FP debug: upn: +++ result of upn-expression is "(30.00)"
+FP debug: upn: result      "28.75"
+FP debug: upn: +++ result of upn-expression is "(28.75)"
 ) ( FP-UPN
 FP debug: upn: +++ computing upn-expression "myfontscale fontSizeX * 2 round"
 FP debug: upn: calculating "myfontscale"
-FP debug: upn: result      "1.2"
+FP debug: upn: result      "1.15"
 FP debug: upn: calculating "fontSizeX"
 FP debug: upn: result      "24.88"
-FP debug: upn: calculating "24.88 mul 1.2"
+FP debug: upn: calculating "24.88 mul 1.15"
 ( FP-MUL )
-FP debug: upn: result      "29.856000000000000000"
+FP debug: upn: result      "28.612000000000000000"
 FP debug: upn: calculating "2"
 FP debug: upn: result      "2"
-FP debug: upn: calculating "round(29.856000000000000000:2)"
+FP debug: upn: calculating "round(28.612000000000000000:2)"
 ( FP-ROUND )
-FP debug: upn: result      "29.86"
-FP debug: upn: +++ result of upn-expression is "(29.86)"
+FP debug: upn: result      "28.61"
+FP debug: upn: +++ result of upn-expression is "(28.61)"
 ) ( FP-UPN
 FP debug: upn: +++ computing upn-expression "myfontscale fontSizeY * 2 round"
 FP debug: upn: calculating "myfontscale"
-FP debug: upn: result      "1.2"
+FP debug: upn: result      "1.15"
 FP debug: upn: calculating "fontSizeY"
 FP debug: upn: result      "30"
-FP debug: upn: calculating "30 mul 1.2"
+FP debug: upn: calculating "30 mul 1.15"
 ( FP-MUL )
-FP debug: upn: result      "36.000000000000000000"
+FP debug: upn: result      "34.500000000000000000"
 FP debug: upn: calculating "2"
 FP debug: upn: result      "2"
-FP debug: upn: calculating "round(36.000000000000000000:2)"
+FP debug: upn: calculating "round(34.500000000000000000:2)"
 ( FP-ROUND )
-FP debug: upn: result      "36.00"
-FP debug: upn: +++ result of upn-expression is "(36.00)"
+FP debug: upn: result      "34.50"
+FP debug: upn: +++ result of upn-expression is "(34.50)"
 ) ( FP-UPN
 FP debug: upn: +++ computing upn-expression "myfontscale fontSizeX * 2 round"
 FP debug: upn: calculating "myfontscale"
-FP debug: upn: result      "1.2"
+FP debug: upn: result      "1.15"
 FP debug: upn: calculating "fontSizeX"
 FP debug: upn: result      "29.86"
-FP debug: upn: calculating "29.86 mul 1.2"
+FP debug: upn: calculating "29.86 mul 1.15"
 ( FP-MUL )
-FP debug: upn: result      "35.832000000000000000"
+FP debug: upn: result      "34.339000000000000000"
 FP debug: upn: calculating "2"
 FP debug: upn: result      "2"
-FP debug: upn: calculating "round(35.832000000000000000:2)"
+FP debug: upn: calculating "round(34.339000000000000000:2)"
 ( FP-ROUND )
-FP debug: upn: result      "35.83"
-FP debug: upn: +++ result of upn-expression is "(35.83)"
+FP debug: upn: result      "34.34"
+FP debug: upn: +++ result of upn-expression is "(34.34)"
 ) ( FP-UPN
 FP debug: upn: +++ computing upn-expression "myfontscale fontSizeY * 2 round"
 FP debug: upn: calculating "myfontscale"
-FP debug: upn: result      "1.2"
+FP debug: upn: result      "1.15"
 FP debug: upn: calculating "fontSizeY"
 FP debug: upn: result      "37"
-FP debug: upn: calculating "37 mul 1.2"
+FP debug: upn: calculating "37 mul 1.15"
 ( FP-MUL )
-FP debug: upn: result      "44.400000000000000000"
+FP debug: upn: result      "42.550000000000000000"
 FP debug: upn: calculating "2"
 FP debug: upn: result      "2"
-FP debug: upn: calculating "round(44.400000000000000000:2)"
+FP debug: upn: calculating "round(42.550000000000000000:2)"
 ( FP-ROUND )
-FP debug: upn: result      "44.40"
-FP debug: upn: +++ result of upn-expression is "(44.40)"
+FP debug: upn: result      "42.55"
+FP debug: upn: +++ result of upn-expression is "(42.55)"
 ) ( FP-UPN
 FP debug: upn: +++ computing upn-expression "myfontscale fontSizeX * 2 round"
 FP debug: upn: calculating "myfontscale"
-FP debug: upn: result      "1.2"
+FP debug: upn: result      "1.15"
 FP debug: upn: calculating "fontSizeX"
 FP debug: upn: result      "35.83"
-FP debug: upn: calculating "35.83 mul 1.2"
+FP debug: upn: calculating "35.83 mul 1.15"
 ( FP-MUL )
-FP debug: upn: result      "42.996000000000000000"
+FP debug: upn: result      "41.204500000000000000"
 FP debug: upn: calculating "2"
 FP debug: upn: result      "2"
-FP debug: upn: calculating "round(42.996000000000000000:2)"
+FP debug: upn: calculating "round(41.204500000000000000:2)"
 ( FP-ROUND )
-FP debug: upn: result      "43.00"
-FP debug: upn: +++ result of upn-expression is "(43.00)"
+FP debug: upn: result      "41.20"
+FP debug: upn: +++ result of upn-expression is "(41.20)"
 ) ( FP-UPN
 FP debug: upn: +++ computing upn-expression "myfontscale fontSizeY * 2 round"
 FP debug: upn: calculating "myfontscale"
-FP debug: upn: result      "1.2"
+FP debug: upn: result      "1.15"
 FP debug: upn: calculating "fontSizeY"
 FP debug: upn: result      "45"
-FP debug: upn: calculating "45 mul 1.2"
+FP debug: upn: calculating "45 mul 1.15"
 ( FP-MUL )
-FP debug: upn: result      "54.000000000000000000"
+FP debug: upn: result      "51.750000000000000000"
 FP debug: upn: calculating "2"
 FP debug: upn: result      "2"
-FP debug: upn: calculating "round(54.000000000000000000:2)"
+FP debug: upn: calculating "round(51.750000000000000000:2)"
 ( FP-ROUND )
-FP debug: upn: result      "54.00"
-FP debug: upn: +++ result of upn-expression is "(54.00)"
+FP debug: upn: result      "51.75"
+FP debug: upn: +++ result of upn-expression is "(51.75)"
 ) ( FP-UPN
 FP debug: upn: +++ computing upn-expression "myfontscale fontSizeX * 2 round"
 FP debug: upn: calculating "myfontscale"
-FP debug: upn: result      "1.2"
+FP debug: upn: result      "1.15"
 FP debug: upn: calculating "fontSizeX"
 FP debug: upn: result      "43"
-FP debug: upn: calculating "43 mul 1.2"
+FP debug: upn: calculating "43 mul 1.15"
 ( FP-MUL )
-FP debug: upn: result      "51.600000000000000000"
+FP debug: upn: result      "49.450000000000000000"
 FP debug: upn: calculating "2"
 FP debug: upn: result      "2"
-FP debug: upn: calculating "round(51.600000000000000000:2)"
+FP debug: upn: calculating "round(49.450000000000000000:2)"
 ( FP-ROUND )
-FP debug: upn: result      "51.60"
-FP debug: upn: +++ result of upn-expression is "(51.60)"
+FP debug: upn: result      "49.45"
+FP debug: upn: +++ result of upn-expression is "(49.45)"
 ) ( FP-UPN
 FP debug: upn: +++ computing upn-expression "myfontscale fontSizeY * 2 round"
 FP debug: upn: calculating "myfontscale"
-FP debug: upn: result      "1.2"
+FP debug: upn: result      "1.15"
 FP debug: upn: calculating "fontSizeY"
 FP debug: upn: result      "54"
-FP debug: upn: calculating "54 mul 1.2"
+FP debug: upn: calculating "54 mul 1.15"
 ( FP-MUL )
-FP debug: upn: result      "64.800000000000000000"
+FP debug: upn: result      "62.100000000000000000"
 FP debug: upn: calculating "2"
 FP debug: upn: result      "2"
-FP debug: upn: calculating "round(64.800000000000000000:2)"
+FP debug: upn: calculating "round(62.100000000000000000:2)"
 ( FP-ROUND )
-FP debug: upn: result      "64.80"
-FP debug: upn: +++ result of upn-expression is "(64.80)"
+FP debug: upn: result      "62.10"
+FP debug: upn: +++ result of upn-expression is "(62.10)"
 ) ( FP-UPN
 FP debug: upn: +++ computing upn-expression "myfontscale fontSizeX * 2 round"
 FP debug: upn: calculating "myfontscale"
-FP debug: upn: result      "1.2"
+FP debug: upn: result      "1.15"
 FP debug: upn: calculating "fontSizeX"
 FP debug: upn: result      "51.6"
-FP debug: upn: calculating "51.6 mul 1.2"
+FP debug: upn: calculating "51.6 mul 1.15"
 ( FP-MUL )
-FP debug: upn: result      "61.920000000000000000"
+FP debug: upn: result      "59.340000000000000000"
 FP debug: upn: calculating "2"
 FP debug: upn: result      "2"
-FP debug: upn: calculating "round(61.920000000000000000:2)"
+FP debug: upn: calculating "round(59.340000000000000000:2)"
 ( FP-ROUND )
-FP debug: upn: result      "61.92"
-FP debug: upn: +++ result of upn-expression is "(61.92)"
+FP debug: upn: result      "59.34"
+FP debug: upn: +++ result of upn-expression is "(59.34)"
 ) ( FP-UPN
 FP debug: upn: +++ computing upn-expression "myfontscale fontSizeY * 2 round"
 FP debug: upn: calculating "myfontscale"
-FP debug: upn: result      "1.2"
+FP debug: upn: result      "1.15"
 FP debug: upn: calculating "fontSizeY"
 FP debug: upn: result      "64"
-FP debug: upn: calculating "64 mul 1.2"
+FP debug: upn: calculating "64 mul 1.15"
 ( FP-MUL )
-FP debug: upn: result      "76.800000000000000000"
+FP debug: upn: result      "73.600000000000000000"
 FP debug: upn: calculating "2"
 FP debug: upn: result      "2"
-FP debug: upn: calculating "round(76.800000000000000000:2)"
+FP debug: upn: calculating "round(73.600000000000000000:2)"
 ( FP-ROUND )
-FP debug: upn: result      "76.80"
-FP debug: upn: +++ result of upn-expression is "(76.80)"
+FP debug: upn: result      "73.60"
+FP debug: upn: +++ result of upn-expression is "(73.60)"
 ) ( FP-UPN
 FP debug: upn: +++ computing upn-expression "myfontscale fontSizeX * 2 round"
 FP debug: upn: calculating "myfontscale"
-FP debug: upn: result      "1.2"
+FP debug: upn: result      "1.15"
 FP debug: upn: calculating "fontSizeX"
 FP debug: upn: result      "61.92"
-FP debug: upn: calculating "61.92 mul 1.2"
+FP debug: upn: calculating "61.92 mul 1.15"
 ( FP-MUL )
-FP debug: upn: result      "74.304000000000000000"
+FP debug: upn: result      "71.208000000000000000"
 FP debug: upn: calculating "2"
 FP debug: upn: result      "2"
-FP debug: upn: calculating "round(74.304000000000000000:2)"
+FP debug: upn: calculating "round(71.208000000000000000:2)"
 ( FP-ROUND )
-FP debug: upn: result      "74.30"
-FP debug: upn: +++ result of upn-expression is "(74.30)"
+FP debug: upn: result      "71.21"
+FP debug: upn: +++ result of upn-expression is "(71.21)"
 ) ( FP-UPN
 FP debug: upn: +++ computing upn-expression "myfontscale fontSizeY * 2 round"
 FP debug: upn: calculating "myfontscale"
-FP debug: upn: result      "1.2"
+FP debug: upn: result      "1.15"
 FP debug: upn: calculating "fontSizeY"
 FP debug: upn: result      "77"
-FP debug: upn: calculating "77 mul 1.2"
+FP debug: upn: calculating "77 mul 1.15"
 ( FP-MUL )
-FP debug: upn: result      "92.400000000000000000"
+FP debug: upn: result      "88.550000000000000000"
 FP debug: upn: calculating "2"
 FP debug: upn: result      "2"
-FP debug: upn: calculating "round(92.400000000000000000:2)"
+FP debug: upn: calculating "round(88.550000000000000000:2)"
 ( FP-ROUND )
-FP debug: upn: result      "92.40"
-FP debug: upn: +++ result of upn-expression is "(92.40)"
+FP debug: upn: result      "88.55"
+FP debug: upn: +++ result of upn-expression is "(88.55)"
 ) ( FP-UPN
 FP debug: upn: +++ computing upn-expression "myfontscale fontSizeX * 2 round"
 FP debug: upn: calculating "myfontscale"
-FP debug: upn: result      "1.2"
+FP debug: upn: result      "1.15"
 FP debug: upn: calculating "fontSizeX"
 FP debug: upn: result      "74.3"
-FP debug: upn: calculating "74.3 mul 1.2"
+FP debug: upn: calculating "74.3 mul 1.15"
 ( FP-MUL )
-FP debug: upn: result      "89.160000000000000000"
+FP debug: upn: result      "85.445000000000000000"
 FP debug: upn: calculating "2"
 FP debug: upn: result      "2"
-FP debug: upn: calculating "round(89.160000000000000000:2)"
+FP debug: upn: calculating "round(85.445000000000000000:2)"
 ( FP-ROUND )
-FP debug: upn: result      "89.16"
-FP debug: upn: +++ result of upn-expression is "(89.16)"
+FP debug: upn: result      "85.45"
+FP debug: upn: +++ result of upn-expression is "(85.45)"
 ) ( FP-UPN
 FP debug: upn: +++ computing upn-expression "myfontscale fontSizeY * 2 round"
 FP debug: upn: calculating "myfontscale"
-FP debug: upn: result      "1.2"
+FP debug: upn: result      "1.15"
 FP debug: upn: calculating "fontSizeY"
 FP debug: upn: result      "93"
-FP debug: upn: calculating "93 mul 1.2"
+FP debug: upn: calculating "93 mul 1.15"
 ( FP-MUL )
-FP debug: upn: result      "111.600000000000000000"
+FP debug: upn: result      "106.950000000000000000"
 FP debug: upn: calculating "2"
 FP debug: upn: result      "2"
-FP debug: upn: calculating "round(111.600000000000000000:2)"
+FP debug: upn: calculating "round(106.950000000000000000:2)"
 ( FP-ROUND )
-FP debug: upn: result      "111.60"
-FP debug: upn: +++ result of upn-expression is "(111.60)"
+FP debug: upn: result      "106.95"
+FP debug: upn: +++ result of upn-expression is "(106.95)"
 ) ( FP-UPN
 FP debug: upn: +++ computing upn-expression "myfontscale fontSizeX * 2 round"
 FP debug: upn: calculating "myfontscale"
-FP debug: upn: result      "1.2"
+FP debug: upn: result      "1.15"
 FP debug: upn: calculating "fontSizeX"
 FP debug: upn: result      "89.16"
-FP debug: upn: calculating "89.16 mul 1.2"
+FP debug: upn: calculating "89.16 mul 1.15"
 ( FP-MUL )
-FP debug: upn: result      "106.992000000000000000"
+FP debug: upn: result      "102.534000000000000000"
 FP debug: upn: calculating "2"
 FP debug: upn: result      "2"
-FP debug: upn: calculating "round(106.992000000000000000:2)"
+FP debug: upn: calculating "round(102.534000000000000000:2)"
 ( FP-ROUND )
-FP debug: upn: result      "106.99"
-FP debug: upn: +++ result of upn-expression is "(106.99)"
+FP debug: upn: result      "102.53"
+FP debug: upn: +++ result of upn-expression is "(102.53)"
 ) ( FP-UPN
 FP debug: upn: +++ computing upn-expression "myfontscale fontSizeY * 2 round"
 FP debug: upn: calculating "myfontscale"
-FP debug: upn: result      "1.2"
+FP debug: upn: result      "1.15"
 FP debug: upn: calculating "fontSizeY"
 FP debug: upn: result      "112"
-FP debug: upn: calculating "112 mul 1.2"
+FP debug: upn: calculating "112 mul 1.15"
 ( FP-MUL )
-FP debug: upn: result      "134.400000000000000000"
+FP debug: upn: result      "128.800000000000000000"
 FP debug: upn: calculating "2"
 FP debug: upn: result      "2"
-FP debug: upn: calculating "round(134.400000000000000000:2)"
+FP debug: upn: calculating "round(128.800000000000000000:2)"
 ( FP-ROUND )
-FP debug: upn: result      "134.40"
-FP debug: upn: +++ result of upn-expression is "(134.40)"
+FP debug: upn: result      "128.80"
+FP debug: upn: +++ result of upn-expression is "(128.80)"
 ) ( FP-UPN
 FP debug: upn: +++ computing upn-expression "myfontscale fontSizeX * 2 round"
 FP debug: upn: calculating "myfontscale"
-FP debug: upn: result      "1.2"
+FP debug: upn: result      "1.15"
 FP debug: upn: calculating "fontSizeX"
 FP debug: upn: result      "107"
-FP debug: upn: calculating "107 mul 1.2"
+FP debug: upn: calculating "107 mul 1.15"
 ( FP-MUL )
-FP debug: upn: result      "128.400000000000000000"
+FP debug: upn: result      "123.050000000000000000"
 FP debug: upn: calculating "2"
 FP debug: upn: result      "2"
-FP debug: upn: calculating "round(128.400000000000000000:2)"
+FP debug: upn: calculating "round(123.050000000000000000:2)"
 ( FP-ROUND )
-FP debug: upn: result      "128.40"
-FP debug: upn: +++ result of upn-expression is "(128.40)"
+FP debug: upn: result      "123.05"
+FP debug: upn: +++ result of upn-expression is "(123.05)"
 ) ( FP-UPN
 FP debug: upn: +++ computing upn-expression "myfontscale fontSizeY * 2 round"
 FP debug: upn: calculating "myfontscale"
-FP debug: upn: result      "1.2"
+FP debug: upn: result      "1.15"
 FP debug: upn: calculating "fontSizeY"
 FP debug: upn: result      "134"
-FP debug: upn: calculating "134 mul 1.2"
+FP debug: upn: calculating "134 mul 1.15"
 ( FP-MUL )
-FP debug: upn: result      "160.800000000000000000"
+FP debug: upn: result      "154.100000000000000000"
 FP debug: upn: calculating "2"
 FP debug: upn: result      "2"
-FP debug: upn: calculating "round(160.800000000000000000:2)"
+FP debug: upn: calculating "round(154.100000000000000000:2)"
 ( FP-ROUND )
-FP debug: upn: result      "160.80"
-FP debug: upn: +++ result of upn-expression is "(160.80)"
+FP debug: upn: result      "154.10"
+FP debug: upn: +++ result of upn-expression is "(154.10)"
 )) (./paper.aux)
 \openout1 = `paper.aux'.
 
@@ -1498,79 +1498,98 @@ tionary/translator-theorem-dictionary-English.dict
 Dictionary: translator-theorem-dictionary, Language: English 
 ) (./paper.nav)
 
-pdfTeX warning: pdflatex (file ./assets/hadoop_architecture.pdf): PDF inclusion
+pdfTeX warning: pdflatex (file ./assets/vanilla_hadoop.pdf): PDF inclusion: fou
+nd PDF version <1.7>, but at most version <1.5> allowed
+<assets/vanilla_hadoop.pdf, id=12, 533.995pt x 393.47pt>
+File: assets/vanilla_hadoop.pdf Graphic file (type pdf)
+
+<use assets/vanilla_hadoop.pdf>
+Package pdftex.def Info: assets/vanilla_hadoop.pdf used on input line 205.
+(pdftex.def)             Requested size: 800.99054pt x 590.20354pt.
+
+
+pdfTeX warning: pdflatex (file ./assets/panthera_architecture_complete_larger.p
+df): PDF inclusion: found PDF version <1.7>, but at most version <1.5> allowed
+
+<assets/panthera_architecture_complete_larger.pdf, id=13, 537.00626pt x 393.47p
+t>
+File: assets/panthera_architecture_complete_larger.pdf Graphic file (type pdf)
+ <use assets/panthera_architecture_complete_larger.pdf>
+Package pdftex.def Info: assets/panthera_architecture_complete_larger.pdf used 
+on input line 205.
+(pdftex.def)             Requested size: 805.50742pt x 590.20354pt.
+
+
+pdfTeX warning: pdflatex (file ./assets/panthera_metadata_large.pdf): PDF inclu
+sion: found PDF version <1.7>, but at most version <1.5> allowed
+<assets/panthera_metadata_large.pdf, id=14, 567.11874pt x 275.0275pt>
+File: assets/panthera_metadata_large.pdf Graphic file (type pdf)
+
+<use assets/panthera_metadata_large.pdf>
+Package pdftex.def Info: assets/panthera_metadata_large.pdf used on input line 
+205.
+(pdftex.def)             Requested size: 850.67603pt x 412.54024pt.
+
+
+pdfTeX warning: pdflatex (file ./assets/panthera_data_large.pdf): PDF inclusion
 : found PDF version <1.7>, but at most version <1.5> allowed
-<assets/hadoop_architecture.pdf, id=12, 515.9275pt x 376.40625pt>
-File: assets/hadoop_architecture.pdf Graphic file (type pdf)
+<assets/panthera_data_large.pdf, id=15, 580.1675pt x 334.24875pt>
+File: assets/panthera_data_large.pdf Graphic file (type pdf)
 
-<use assets/hadoop_architecture.pdf>
-Package pdftex.def Info: assets/hadoop_architecture.pdf used on input line 203.
+<use assets/panthera_data_large.pdf>
+Package pdftex.def Info: assets/panthera_data_large.pdf used on input line 205.
 
-(pdftex.def)             Requested size: 515.92624pt x 376.40532pt.
+(pdftex.def)             Requested size: 696.1975pt x 401.09648pt.
+
+<assets/box-plot-data-larger.pdf, id=16, 686.565pt x 505.89pt>
+File: assets/box-plot-data-larger.pdf Graphic file (type pdf)
+
+<use assets/box-plot-data-larger.pdf>
+Package pdftex.def Info: assets/box-plot-data-larger.pdf used on input line 205
+.
+(pdftex.def)             Requested size: 755.22385pt x 556.4807pt.
+
+<assets/box-plot-metadata-larger.pdf, id=17, 686.565pt x 505.89pt>
+File: assets/box-plot-metadata-larger.pdf Graphic file (type pdf)
+
+<use assets/box-plot-metadata-larger.pdf>
+Package pdftex.def Info: assets/box-plot-metadata-larger.pdf used on input line
+ 205.
+(pdftex.def)             Requested size: 755.22385pt x 556.4807pt.
+
+<assets/box-plot-meta-multinode-larger.pdf, id=18, 686.565pt x 505.89pt>
+File: assets/box-plot-meta-multinode-larger.pdf Graphic file (type pdf)
+
+<use assets/box-plot-meta-multinode-larger.pdf>
+Package pdftex.def Info: assets/box-plot-meta-multinode-larger.pdf used on inpu
+t line 205.
+(pdftex.def)             Requested size: 755.22385pt x 556.4807pt.
+
+Overfull \hbox (8.97058pt too wide) in paragraph at lines 205--205
+[][] 
+ []
 
 
-pdfTeX warning: pdflatex (file ./assets/panthera_architecture_complete.pdf): PD
-F inclusion: found PDF version <1.7>, but at most version <1.5> allowed
-<assets/panthera_architecture_complete.pdf, id=13, 551.05875pt x 411.5375pt>
-File: assets/panthera_architecture_complete.pdf Graphic file (type pdf)
-
-<use assets/panthera_architecture_complete.pdf>
-Package pdftex.def Info: assets/panthera_architecture_complete.pdf used on inpu
-t line 203.
-(pdftex.def)             Requested size: 551.05739pt x 411.5365pt.
+Overfull \hbox (8.97058pt too wide) in paragraph at lines 205--205
+[] 
+ []
 
 
-pdfTeX warning: pdflatex (file ./assets/panthera_metadata.pdf): PDF inclusion: 
-found PDF version <1.7>, but at most version <1.5> allowed
-<assets/panthera_metadata.pdf, id=14, 567.11874pt x 304.13625pt>
-File: assets/panthera_metadata.pdf Graphic file (type pdf)
-
-<use assets/panthera_metadata.pdf>
-Package pdftex.def Info: assets/panthera_metadata.pdf used on input line 203.
-(pdftex.def)             Requested size: 567.11736pt x 304.1355pt.
+Overfull \hbox (8.97058pt too wide) in paragraph at lines 205--205
+[]  
+ []
 
 
-pdfTeX warning: pdflatex (file ./assets/panthera_architecture.pdf): PDF inclusi
-on: found PDF version <1.7>, but at most version <1.5> allowed
-<assets/panthera_architecture.pdf, id=15, 667.49374pt x 334.24875pt>
-File: assets/panthera_architecture.pdf Graphic file (type pdf)
-
-<use assets/panthera_architecture.pdf>
-Package pdftex.def Info: assets/panthera_architecture.pdf used on input line 20
-3.
-(pdftex.def)             Requested size: 667.49213pt x 334.24792pt.
-
-<assets/box-plot-data.pdf, id=16, 505.89pt x 505.89pt>
-File: assets/box-plot-data.pdf Graphic file (type pdf)
-
-<use assets/box-plot-data.pdf>
-Package pdftex.def Info: assets/box-plot-data.pdf used on input line 203.
-(pdftex.def)             Requested size: 607.06494pt x 607.06494pt.
-
-<assets/box-plot-metadata.pdf, id=17, 505.89pt x 505.89pt>
-File: assets/box-plot-metadata.pdf Graphic file (type pdf)
-
-<use assets/box-plot-metadata.pdf>
-Package pdftex.def Info: assets/box-plot-metadata.pdf used on input line 203.
-(pdftex.def)             Requested size: 607.06494pt x 607.06494pt.
-
-<assets/box-plot-meta-multinode.pdf, id=18, 505.89pt x 505.89pt>
-File: assets/box-plot-meta-multinode.pdf Graphic file (type pdf)
-
-<use assets/box-plot-meta-multinode.pdf>
-Package pdftex.def Info: assets/box-plot-meta-multinode.pdf used on input line 
-203.
-(pdftex.def)             Requested size: 607.06494pt x 607.06494pt.
-
-Overfull \vbox (11.30179pt too high) detected at line 203
+Overfull \vbox (33.90353pt too high) detected at line 205
  []
 
 [1
 
-{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map} <./assets/hadoop_architectu
-re.pdf> <./assets/panthera_architecture_complete.pdf> <./assets/panthera_metada
-ta.pdf> <./assets/panthera_architecture.pdf> <./assets/box-plot-data.pdf> <./as
-sets/box-plot-metadata.pdf> <./assets/box-plot-meta-multinode.pdf>]
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map} <./assets/vanilla_hadoop.pd
+f> <./assets/panthera_architecture_complete_larger.pdf> <./assets/panthera_meta
+data_large.pdf> <./assets/panthera_data_large.pdf> <./assets/box-plot-data-larg
+er.pdf> <./assets/box-plot-metadata-larger.pdf> <./assets/box-plot-meta-multino
+de-larger.pdf>]
 \tf@nav=\write6
 \openout6 = `paper.nav'.
 
@@ -1580,27 +1599,26 @@ sets/box-plot-metadata.pdf> <./assets/box-plot-meta-multinode.pdf>]
 \tf@snm=\write8
 \openout8 = `paper.snm'.
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 205.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 205.
-
-(./paper.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 205.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 205.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 207.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 207.
+ (./paper.aux)
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 207.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 207.
 Package rerunfilecheck Info: File `paper.out' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 205.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 207.
  ) 
 Here is how much of TeX's memory you used:
  25325 strings out of 495059
- 552634 string characters out of 3182030
- 766641 words of memory out of 3000000
+ 552771 string characters out of 3182030
+ 767015 words of memory out of 3000000
  27889 multiletter control sequences out of 15000+200000
  6358 words of font info for 23 fonts, out of 3000000 for 9000
  14 hyphenation exceptions out of 8191
  50i,15n,74p,744b,954s stack positions out of 5000i,500n,10000p,200000b,50000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmss17.pfb></us
 r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb>
-Output written on paper.pdf (1 page, 68207 bytes).
+Output written on paper.pdf (1 page, 68059 bytes).
 PDF statistics:
  126 PDF objects out of 1000 (max. 8388607)
  104 compressed objects within 2 object streams
