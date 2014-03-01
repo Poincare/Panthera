@@ -1,0 +1,746 @@
+commit b9b5d411edc8d591944421c687446bae84e56a6a
+Author: Poincare <dhaivatpandya@gmail.com>
+
+    paper font change
+
+commit 591b216bb31e0e2ac1bb4e273be9076bc545fe4b
+Author: Poincare <dhaivatpandya@gmail.com>
+
+    paper added
+
+commit 04a6c57aea77fb8edcc1cda472f733f6021aec42
+Author: Poincare <dhaivatpandya@gmail.com>
+
+    added distribution for cached latency
+
+commit 37afa805123ef91a1b6010195223e7ea9d7259f7
+Author: Poincare <dhaivatpandya@gmail.com>
+
+    poster fixes
+
+commit 841fd6efefa6518d2251095b3e53bd18ed4ef26f
+Author: Poincare <dhaivatpandya@gmail.com>
+
+    first version of poster
+
+commit faa55ba151e9fd3f1307870218d5da2d47b51988
+Author: Poincare <dhaivatpandya@gmail.com>
+
+    removed builds
+
+commit 46a96011f58523e60d30a32459e3e95f715ae057
+Author: Poincare <dhaivatpandya@gmail.com>
+
+    added poster
+
+commit 33fe4024acd5f601a938d847713759cc1972f03a
+Author: Poincare <dhaivatpandya@gmail.com>
+
+    working on latency issues
+
+commit c7abaffdba973a422c115b417d2c09710deb690d
+Author: Poincare <dhaivatpandya@gmail.com>
+
+    latency calculation
+
+commit 6e476bdda4934d245aa6af1dee424000191a3128
+Merge: ed8095f ac22bb3
+Date:   Wed Feb 19 00:27:24 2014 -0500
+
+    meta multinode latency data
+
+commit ed8095f06b234cd92cf5da5b9d8466fcfd1501b1
+Author: root <root@hadoop-datanode.(none)>
+Date:   Tue Feb 18 23:20:14 2014 -0500
+
+    piling commit
+
+commit ac22bb3d9fdf555e078b256e5f9cb21320d568c4
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Tue Feb 18 22:16:33 2014 -0600
+
+    logging meta cache latency times
+
+commit 020fcee55a79f8803d724dd4a0fa065db7fe6185
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Mon Feb 17 23:09:42 2014 -0600
+
+      gfi cache responding correctly
+
+commit 62669dddd16473bbd878eab2c5e62ff4d8bff8bc
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Mon Feb 17 22:59:03 2014 -0600
+
+    fixed part of the issue
+
+commit 4996d63a4901d7a4ae95760096ac7c89b657f391
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Mon Feb 17 19:04:11 2014 -0600
+
+    will now work to resolve multi-node issue
+
+commit 6aff503ec43c680a58b5d318f0cd1a296e28e0af
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Sun Feb 16 20:23:51 2014 -0600
+
+    removing rogue matplotlib installation
+
+commit c0c4792c0db0e174e3de0cda84334d58761aaf12
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Sun Feb 16 20:23:27 2014 -0600
+
+    bunch of analysis and plot files added
+
+commit 1e8c5784cd2116b1b5f6eec416f8a84209f09b8e
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Sat Feb 15 15:42:34 2014 -0600
+
+    massive change of directory structure
+
+commit 719712f863da10d5fb2096d2bd8157d8b70e2b86
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Sat Feb 15 15:22:26 2014 -0600
+
+    moved more files
+
+commit bc263b5652d84791c023eb79e7d1a2872bfcaa13
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Sat Feb 15 15:20:39 2014 -0600
+
+    moved files
+
+commit 08778bf4c381015a32ee4589794ee4fc1c37f649
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Tue Feb 11 22:14:47 2014 -0600
+
+    level commit - partially working put protocol implementation
+
+commit b7ee8f23433b93c8ebae0326965c24c17d61fcb9
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Mon Feb 10 19:31:37 2014 -0600
+
+    got dfs cat's working with the new request loading architecture
+
+commit 532b890e60da921049c79eaa0c4a0c32e6a80dfc
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Sun Feb 9 19:42:52 2014 -0600
+
+    hdfs times
+
+commit a145b79ab7156ad3d8803215f92bbd38182c57ec
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Tue Feb 4 20:53:43 2014 -0600
+
+    level commit - currently, there is some issue with the way data requests are handled
+
+commit 02b89a2754121e7909ec11a31c0a83a5f1eab36c
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Tue Feb 4 19:12:55 2014 -0600
+
+    new response loading architecture - build completes
+
+commit 3add56942b77c9711503d6eccd88865067a5f73c
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Tue Feb 4 18:51:55 2014 -0600
+
+    building with PutDataResponse structure
+
+commit 914fe76ff075a426db4d0d50ea00fe645a7597f8
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Tue Feb 4 17:42:02 2014 -0600
+
+    added a liveload for put data requests
+
+commit bd256c33ab6bbbb6e3a09278676eee6669d54fa2
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Tue Feb 4 17:00:27 2014 -0600
+
+    new packet handling strategy building correctly
+
+commit 348ed31c485d9adc5d11714aa9cf0d70febede97
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Mon Feb 3 18:22:14 2014 -0600
+
+    build working for a type split in the data request processor
+
+commit 4dafc169b7a1d412789dd5c7bb4222747cc3a35f
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Sun Feb 2 08:41:51 2014 -0600
+
+    level commit
+
+commit c0abf1fe7022377edda3fb96248e1130d830ae6b
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Tue Jan 28 08:55:16 2014 -0600
+
+    working build with livereadinitial
+
+commit fb89b0aa4727a8eb82613abf508701997e508218
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Mon Jan 27 23:26:51 2014 -0600
+
+    build broken, but added error catching the DataRequest Bytes()
+
+commit b353c39167824c6fb7a48c09a6d6704ca33746e4
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Mon Jan 27 23:07:16 2014 -0600
+
+    LiveReadInitial added
+
+commit 1173d963f7bb62eebcea4f0ae7d0449494531d75
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Mon Jan 27 22:39:58 2014 -0600
+
+    added chunksize and checksum to certain command packets
+
+commit 6ba16ae7b5bd4d932fbbcbad68623033d48d7f3f
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Mon Jan 27 22:08:32 2014 -0600
+
+    another level commit
+
+commit 834e4f895b1993fa40ed1c092a7959504e318656
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Mon Jan 27 22:07:47 2014 -0600
+
+    level commit; next commit is merge into master
+
+commit 0f0ca6c99c88082931d32e099022268c09be9fef
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Mon Jan 27 18:17:45 2014 -0600
+
+    working?
+
+commit b4e8701f4eaa41cce85754f9bc6de614f78950af
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Sun Jan 26 11:51:55 2014 -0600
+
+    data cache seems to be working
+
+commit 78b7c103ba99ddba73cfdb0abc372bc340084eb9
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Sun Jan 26 10:54:42 2014 -0600
+
+    working on getting data cache working
+
+commit 2275957d41f3ffd6767131c9b5fb07e377ad4d1c
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Sat Jan 25 20:39:10 2014 -0600
+
+    requests passing through the datanode
+
+commit 6fa8a2612e2adcbdcbb253bcede0c9138e501975
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Sat Jan 25 15:42:03 2014 -0600
+
+    added byte loading to the generic response packet structure
+
+commit d47dc350199feb2b1b44f61e02bf40026ea00dc7
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Thu Jan 23 19:14:10 2014 -0600
+
+    in the middle of implementing auth packet preprocessing
+
+commit be1f8e5e6ba9b22fce2297dd48422c37e07ed98b
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Wed Jan 22 18:45:40 2014 -0600
+
+    fixed freeze issue
+
+commit 65da7b5280d1c5b45141cdd46a7b27c51bccf889
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Tue Jan 21 23:00:23 2014 -0600
+
+    got requests reading, currently failing on 2nd listing request - cache issue
+
+commit c6f07cb2cbd910b3cf9587f901dc4e60ca0bba60
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Sat Jan 18 11:52:46 2014 -0600
+
+    added the request processor
+
+commit ca1b7ec0e47d9a4d61866f19df065c8514c992b5
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Thu Jan 16 20:11:41 2014 -0600
+
+    added another connection handling implementation
+
+commit f7917e2eb7603ec7e1b3b76f510277e17687533c
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Thu Jan 16 12:55:09 2014 -0600
+
+    level commit
+
+commit 08bee31e9dc68d64a38f7b0b8c7a5af7e47f1724
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Sun Jan 5 22:00:19 2014 -0600
+
+    whole new set of issues have come out w/ the request processing
+
+commit 79b49b19f2bf0368783aeb419ed34089f99bab74
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Sun Jan 5 20:22:05 2014 -0600
+
+    tested authpacket load method
+
+commit d12356d3dac1c80853e1d26e144e4138ab50a8cf
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Sun Jan 5 19:30:36 2014 -0600
+
+    implementing authpacket
+
+commit fbda1d666ca68219188b67a1815c7b7ae59a5df7
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Sat Dec 28 16:24:39 2013 -0600
+
+    new way to modify the blockWrittenReport requests
+
+commit de4a51fb644c64de25f0f5c88ff95fd33498a2a2
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Sat Dec 28 11:58:26 2013 -0600
+
+    level commit - the bytes function is still broken
+
+commit 92706016d119605d227d56933477dc9605dbcfd5
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Thu Dec 26 18:14:43 2013 -0600
+
+    tests passing with some magic number hacking
+
+commit 9c677274f333607781c0fae93ed0d43332c2aa9c
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Thu Dec 26 17:42:50 2013 -0600
+
+    level commit
+
+commit 1b723b13a9b48f0fad9e88e3ab602191343beb22
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Tue Dec 24 14:26:41 2013 -0600
+
+    tests passing on ModifyBlockReport
+
+commit b120b18dcbd95215cc509f105a54537b21b45944
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Tue Dec 24 12:43:36 2013 -0600
+
+    added some to modify block report
+
+commit 4149e02eab0915c736b379cd381951ac0e910187
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Tue Dec 24 12:03:48 2013 -0600
+
+    added processor.ModifyBlockReport
+
+commit 03748a89988482d5b44801251c2ef12556adc3af
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Fri Nov 29 12:41:39 2013 -0600
+
+    caching system implemented, but not yet tested with actual HDFS DataNode
+
+commit ae809729658895e2a695015099c6e628907922cf
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Fri Nov 29 10:58:05 2013 -0600
+
+    kinda retrofitted solution to the LiveLoad issue
+
+commit 7549e286d0ef9af91a3c9e285ca9c159ac65e963
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Thu Nov 28 10:17:29 2013 -0600
+
+    almost fixed liveload issue
+
+commit 25519759d540ae09cd6bc4e75d7dd388863805b6
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Thu Nov 28 10:07:25 2013 -0600
+
+    somewhat broken LiveLoad methods
+
+commit 5e7a4e68a29761a81ecec74ddb4cb8b41e5af356
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Wed Nov 27 16:54:51 2013 -0600
+
+    data cache working
+
+commit 23670ab892f8027e6edb8c1fac8d399deb1ddeb0
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Wed Nov 27 15:49:42 2013 -0600
+
+    data relaying working
+
+commit 441d083a75dd2e3de94bd95a02ecb7d1fd45f1b3
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Fri Nov 22 19:05:08 2013 -0600
+
+    basic sketch of data request processor working
+
+commit 728a7f10b775b21619aa230cff0a6ff4151d5912
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Fri Nov 22 18:38:23 2013 -0600
+
+    added datanodelocations configuration, tests passing
+
+commit 4488562c6783a28838fa0fa221947c4f20acad5a
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Thu Nov 21 19:55:05 2013 -0600
+
+    broken implementation of the testing client
+
+commit d4f31cd330cf81d53e439134bd37d4520b948057
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Wed Nov 20 19:35:32 2013 -0600
+
+    metadata testing data obtained
+
+commit fdd8ce4cd5b1ef7916dd683de34f9a687e4dea72
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Wed Nov 20 17:35:41 2013 -0600
+
+    fixed the packet resolution issue
+
+commit f97e58f08fd78fb6523455239349364909793353
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Sat Nov 16 11:43:17 2013 -0600
+
+    Added RequestState to hdfs_requests.Processor
+
+commit 7d81af39795a2736fe02d7e02bbbf23a3ccd40b9
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Fri Nov 15 19:22:29 2013 -0600
+
+    narrowing cause of problem
+
+commit fb4d83f959d73893f332e98ad1855733a6e61e9b
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Fri Nov 15 18:12:18 2013 -0600
+
+    server currently dropping client on checking getListing cache
+
+commit 9707c140227778dcd69698da982c609a0886ee45
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Fri Nov 15 16:30:31 2013 -0600
+
+    fixed matching packet number issue in gfiCache
+
+commit 78207b6b31a844848db6ca0f9817ab1d1e4d5af8
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Fri Nov 15 13:21:19 2013 -0600
+
+    fixed response_cache.Query, tests passing
+
+commit 0d47547a26e4435a145f3abc0b39ee82a8d1abb8
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Thu Nov 14 22:33:46 2013 -0600
+
+    added QueryCustom, tests passing
+
+commit 19f939f4d673698f068d56f9914bd1c554a67d44
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Thu Nov 14 22:22:58 2013 -0600
+
+    added QueryCustom to request cache
+
+commit 728e2d33eeb79d9f294d4efd52c7bf14246deb6e
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Thu Nov 14 21:57:02 2013 -0600
+
+    added namenode_rpc.GetListingResponse
+
+commit 22a2a88e01849af09f58a6f9a4ccf7df8239cc79
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Thu Nov 14 21:35:14 2013 -0600
+
+    caching for getFileInfo is working
+
+commit f5edd49e6cb1f88a4bf723c2ef9f3fceaf0c10e4
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Thu Nov 14 21:32:11 2013 -0600
+
+    getting a ccache hit, but freezing on it...
+
+commit 7bce26bd87789e3c8cbd2f75cf36e5e15c06889e
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Thu Nov 14 20:43:55 2013 -0600
+
+    added mutex to request cache, tests passing
+
+commit 3e2dfab969b017742c91e671e5af727d03178d5b
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Thu Nov 14 20:34:41 2013 -0600
+
+    working on a a mutex based solution to a concurrent request cache
+
+commit c0a1795cac41eef1b4e1e25e7c385ceda4b49fa5
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Thu Nov 14 12:43:31 2013 -0600
+
+    seem to have identified the problem w/ the caching mechanism
+
+commit 904307dcb1f3008670fdd788b46b8d3308d6d6b1
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Tue Nov 12 20:19:59 2013 -0600
+
+    working on fixing cache leak
+
+commit 5bc303701531e9b34e414b4cf881b3dbfec887e8
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Mon Nov 11 20:02:45 2013 -0600
+
+    added cache disabling, tests passing
+
+commit 7a6725e233e5c459647ec71cd52a4e581ec95d1d
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Fri Nov 8 20:35:22 2013 -0600
+
+    processor signaling implemented
+
+commit 79a63720998fe3d615b3ace1ab5de53dc14a5b3d
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Fri Nov 8 20:29:27 2013 -0600
+
+    fixed event passing issue
+
+commit d16bbb047fa35be6d62c1a8f7d9d2783f5432209
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Fri Nov 8 20:10:32 2013 -0600
+
+    set up the requisite architecture for event passing
+
+commit acfdda8fe12e5b1f973f921edef62e2ee72f7716
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Fri Nov 8 20:05:57 2013 -0600
+
+    added create packet name method
+
+commit 88c1e12b0c046f2f3b8dd0ca1b21fa87f07266dd
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Fri Nov 8 19:17:34 2013 -0600
+
+    another datanode rpc test passing
+
+commit 00e3042023b98fd1d1f7161c39da6dd81a658bbb
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Fri Nov 8 18:11:15 2013 -0600
+
+    namenode rpc seems to be working
+
+commit 228c423ad56265508e50533e1d68966fbc4c4016
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Thu Nov 7 17:23:24 2013 -0600
+
+    fixed datanode_rpc
+
+commit 6bcc166e5312caac6f6a49996431a5976c74840e
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Thu Nov 7 17:18:43 2013 -0600
+
+    attempt to track down datanode rpc protocol specification not yet successful
+
+commit e2184bd0998f1506ef01f5d7e92a0ea090421265
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Thu Nov 7 13:52:50 2013 -0600
+
+    evening commit
+
+commit 51721dfc1896032a3b1a07e078b73a8414dd5212
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Wed Nov 6 22:29:48 2013 -0600
+
+    modified the ppacket converter utility
+
+commit 7599c49cee957a2f52f73ded6d69d35a32140526
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Wed Nov 6 22:29:35 2013 -0600
+
+    added data response tests
+
+commit 200a775c873abaf72683890c0f6edca015dddf80
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Wed Nov 6 22:00:43 2013 -0600
+
+    added basic DataResponse structure
+
+commit 64647156277ffa564dce82176d0fae8df227cf29
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Wed Nov 6 20:08:42 2013 -0600
+
+    bytes method passing on datanode_rpc
+
+commit aab06d3f0ffcbd07dee1c112a93d4c7115eb0edd
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Wed Nov 6 20:01:21 2013 -0600
+
+    datanode packets are loading
+
+commit 171980fd0432d258f0b4eccaa465bc082efe1a75
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Wed Nov 6 19:28:51 2013 -0600
+
+    added datanode structure
+
+commit 010bb025d9ca22dc3198984cc3a69378b0c3b5a9
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Wed Nov 6 18:54:43 2013 -0600
+
+    major milestone: GFI caching working
+
+commit fa4629cf76d2f311a0384ab8cc4becc2c262462b
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Wed Nov 6 18:45:41 2013 -0600
+
+    main.go builds after some changes to the hdfs_requests.processor
+
+commit 90931d30d2ee8750e6172d7a17662df6f7827ace
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Mon Nov 4 23:34:57 2013 -0600
+
+    end of day commit - need to get a cached packet soon
+
+commit 0ebd938f7f76f0e0e631eb23c4b880b818290e0b
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Mon Nov 4 22:59:20 2013 -0600
+
+    building up the cache adding mechanism
+
+commit 865b30dd89f3d71c5b252296839c3becca05fb8f
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Mon Nov 4 22:50:44 2013 -0600
+
+    additional request cache methods passing tests
+
+commit 8c4e5a68543f9c70ce953f90b50129f7d7699807
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Mon Nov 4 22:33:36 2013 -0600
+
+    ported the last request cache test
+
+commit fece35b8a1f0dff93a3bc938778e515af61fcf37
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Mon Nov 4 22:31:40 2013 -0600
+
+    yet another test moved
+
+commit ccae8f06a1b29de0a8cc614754f2d9df79f1ebbb
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Mon Nov 4 22:30:34 2013 -0600
+
+    moved another test...
+
+commit 904efa79eae304a946ffd2b48abe826f25aabeba
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Mon Nov 4 22:28:01 2013 -0600
+
+    moved request cache to a reasonable architecture
+
+commit ecfff7c03e5c30a31562c5313badca57b6cc5d28
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Mon Nov 4 21:53:36 2013 -0600
+
+    checking commit before a major revision to request cache
+
+commit 6365df1e53d8a2476b95e9e0c834530dce91cf44
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Sun Nov 3 13:24:20 2013 -0600
+
+    added Bytes() to ResponsePacket
+
+commit bf8833fe2ca36b4dbf608bcb5db6cc6e55b0d812
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Sun Nov 3 13:08:45 2013 -0600
+
+    Fixed the processor EOF issue
+
+commit c57568e1b6f5c3d6e8e91829b23313bf4dd6fea1
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Sun Nov 3 10:14:53 2013 -0600
+
+    cleared useless stuff
+
+commit 61066f8e17b2d84d3651d298d327aa4cb92375d3
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Sun Nov 3 10:12:57 2013 -0600
+
+    moved handling to processor
+
+commit 27f809406e20971cd1a31e6577e9b0634185fc17
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Sun Nov 3 09:43:52 2013 -0600
+
+    GFI cache tested
+
+commit 4014fbd91be14724094a968db3c808e2d6f90894
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Sun Nov 3 01:02:59 2013 -0500
+
+    added request cache implementation, got rid of broken ResponsePacket structure
+
+commit ffb164aef04a46b0ff2e9fec96e3c98e5574e682
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Sat Nov 2 23:05:47 2013 -0500
+
+    all network tests passing
+
+commit 45eea4db6aa5d4d2459af11c30f2fe29029dd519
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Fri Nov 1 23:27:43 2013 -0500
+
+    added one test
+
+commit 683629801cf345dbb9b5b712bc7b1bb0470e1891
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Fri Nov 1 19:41:42 2013 -0500
+
+    in the process of implementing and testing GetFileInfoResponse
+
+commit 8d37e41012e4dbff00d19fcaa6235a6445d9b12c
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Thu Oct 31 23:35:33 2013 -0500
+
+    tests passing on namenode_rpc
+
+commit 0093c72e3e59c4dc7f839b3a7b6f9e52a74dfa79
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Thu Oct 31 19:32:16 2013 -0500
+
+    rpc not handling parameters correctly, something wrong with reading the parameters off the buffer
+
+commit 30616d02379ef9c93514d86c6fe6ba77029a4a5b
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Thu Oct 31 19:14:39 2013 -0500
+
+    basic rpc tested with some packets and working
+
+commit 26ec266afda59276dde057add50fed1c7a369a62
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Thu Oct 31 18:48:45 2013 -0500
+
+    changed main to log new packet formaty
+
+commit 820305d235586ac6a87119fde5f9a1f750024353
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Thu Oct 31 18:46:36 2013 -0500
+
+    adding the RPC protocol with the RequestPacket type in namenode
+
+commit ad2e21482563e55fd9763defad413f4b7ee47654
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Thu Oct 24 23:44:21 2013 -0500
+
+    getting namenode rpc together; added basic structures and constructors
+
+commit f4cc630d74965c4e2626357044a678a6cbd8640e
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Thu Oct 24 17:58:50 2013 -0500
+
+    added datanode directory
+
+commit 7ed6003b008c63980a279bbae015ffd575a29f76
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Thu Oct 24 12:14:20 2013 -0500
+
+    removed binaries
+
+commit 2335f8e65b9f0115c1fdaf3c8e2ef745eb9acb1b
+Author: Poincare <dhaivatpandya@gmail.com>
+Date:   Thu Oct 24 12:13:56 2013 -0500
+
+    initial, proxy working, namenode rpc in progress
