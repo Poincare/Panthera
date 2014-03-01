@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012/Debian) (format=pdflatex 2013.4.20)  27 FEB 2014 19:30
+This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012/Debian) (format=pdflatex 2013.4.20)  28 FEB 2014 13:53
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1498,98 +1498,88 @@ tionary/translator-theorem-dictionary-English.dict
 Dictionary: translator-theorem-dictionary, Language: English 
 ) (./paper.nav)
 
+LaTeX Font Warning: Font shape `OT1/cmss/bx/it' undefined
+(Font)              using `OT1/cmss/bx/n' instead on input line 211.
+
+
+
 pdfTeX warning: pdflatex (file ./assets/vanilla_hadoop.pdf): PDF inclusion: fou
 nd PDF version <1.7>, but at most version <1.5> allowed
 <assets/vanilla_hadoop.pdf, id=12, 533.995pt x 393.47pt>
 File: assets/vanilla_hadoop.pdf Graphic file (type pdf)
 
 <use assets/vanilla_hadoop.pdf>
-Package pdftex.def Info: assets/vanilla_hadoop.pdf used on input line 205.
+Package pdftex.def Info: assets/vanilla_hadoop.pdf used on input line 211.
 (pdftex.def)             Requested size: 800.99054pt x 590.20354pt.
 
 
 pdfTeX warning: pdflatex (file ./assets/panthera_architecture_complete_larger.p
 df): PDF inclusion: found PDF version <1.7>, but at most version <1.5> allowed
 
-<assets/panthera_architecture_complete_larger.pdf, id=13, 537.00626pt x 393.47p
-t>
+<assets/panthera_architecture_complete_larger.pdf, id=13, 484.81125pt x 407.522
+5pt>
 File: assets/panthera_architecture_complete_larger.pdf Graphic file (type pdf)
  <use assets/panthera_architecture_complete_larger.pdf>
 Package pdftex.def Info: assets/panthera_architecture_complete_larger.pdf used 
-on input line 205.
-(pdftex.def)             Requested size: 805.50742pt x 590.20354pt.
+on input line 211.
+(pdftex.def)             Requested size: 727.21509pt x 611.28224pt.
 
 
 pdfTeX warning: pdflatex (file ./assets/panthera_metadata_large.pdf): PDF inclu
 sion: found PDF version <1.7>, but at most version <1.5> allowed
-<assets/panthera_metadata_large.pdf, id=14, 567.11874pt x 275.0275pt>
+<assets/panthera_metadata_large.pdf, id=14, 248.93pt x 280.04625pt>
 File: assets/panthera_metadata_large.pdf Graphic file (type pdf)
 
 <use assets/panthera_metadata_large.pdf>
 Package pdftex.def Info: assets/panthera_metadata_large.pdf used on input line 
-205.
-(pdftex.def)             Requested size: 850.67603pt x 412.54024pt.
+211.
+(pdftex.def)             Requested size: 298.7145pt x 336.05379pt.
 
 
-pdfTeX warning: pdflatex (file ./assets/panthera_data_large.pdf): PDF inclusion
-: found PDF version <1.7>, but at most version <1.5> allowed
-<assets/panthera_data_large.pdf, id=15, 580.1675pt x 334.24875pt>
-File: assets/panthera_data_large.pdf Graphic file (type pdf)
+pdfTeX warning: pdflatex (file ./assets/panthera_data_architecture.pdf): PDF in
+clusion: found PDF version <1.7>, but at most version <1.5> allowed
+<assets/panthera_data_architecture.pdf, id=15, 512.91624pt x 305.14pt>
+File: assets/panthera_data_architecture.pdf Graphic file (type pdf)
 
-<use assets/panthera_data_large.pdf>
-Package pdftex.def Info: assets/panthera_data_large.pdf used on input line 205.
-
-(pdftex.def)             Requested size: 696.1975pt x 401.09648pt.
+<use assets/panthera_data_architecture.pdf>
+Package pdftex.def Info: assets/panthera_data_architecture.pdf used on input li
+ne 211.
+(pdftex.def)             Requested size: 615.49641pt x 366.16614pt.
 
 <assets/box-plot-data-larger.pdf, id=16, 686.565pt x 505.89pt>
 File: assets/box-plot-data-larger.pdf Graphic file (type pdf)
 
 <use assets/box-plot-data-larger.pdf>
-Package pdftex.def Info: assets/box-plot-data-larger.pdf used on input line 205
+Package pdftex.def Info: assets/box-plot-data-larger.pdf used on input line 211
 .
-(pdftex.def)             Requested size: 755.22385pt x 556.4807pt.
+(pdftex.def)             Requested size: 741.48964pt x 546.36076pt.
 
 <assets/box-plot-metadata-larger.pdf, id=17, 686.565pt x 505.89pt>
 File: assets/box-plot-metadata-larger.pdf Graphic file (type pdf)
 
 <use assets/box-plot-metadata-larger.pdf>
 Package pdftex.def Info: assets/box-plot-metadata-larger.pdf used on input line
- 205.
-(pdftex.def)             Requested size: 755.22385pt x 556.4807pt.
+ 211.
+(pdftex.def)             Requested size: 741.48964pt x 546.36076pt.
 
 <assets/box-plot-meta-multinode-larger.pdf, id=18, 686.565pt x 505.89pt>
 File: assets/box-plot-meta-multinode-larger.pdf Graphic file (type pdf)
 
 <use assets/box-plot-meta-multinode-larger.pdf>
 Package pdftex.def Info: assets/box-plot-meta-multinode-larger.pdf used on inpu
-t line 205.
-(pdftex.def)             Requested size: 755.22385pt x 556.4807pt.
+t line 211.
+(pdftex.def)             Requested size: 741.48964pt x 546.36076pt.
 
-Overfull \hbox (8.97058pt too wide) in paragraph at lines 205--205
-[][] 
- []
-
-
-Overfull \hbox (8.97058pt too wide) in paragraph at lines 205--205
-[] 
- []
-
-
-Overfull \hbox (8.97058pt too wide) in paragraph at lines 205--205
-[]  
- []
-
-
-Overfull \vbox (33.90353pt too high) detected at line 205
+Overfull \vbox (20.10565pt too high) detected at line 211
  []
 
 [1
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map} <./assets/vanilla_hadoop.pd
 f> <./assets/panthera_architecture_complete_larger.pdf> <./assets/panthera_meta
-data_large.pdf> <./assets/panthera_data_large.pdf> <./assets/box-plot-data-larg
-er.pdf> <./assets/box-plot-metadata-larger.pdf> <./assets/box-plot-meta-multino
-de-larger.pdf>]
+data_large.pdf> <./assets/panthera_data_architecture.pdf> <./assets/box-plot-da
+ta-larger.pdf> <./assets/box-plot-metadata-larger.pdf> <./assets/box-plot-meta-
+multinode-larger.pdf>]
 \tf@nav=\write6
 \openout6 = `paper.nav'.
 
@@ -1599,29 +1589,33 @@ de-larger.pdf>]
 \tf@snm=\write8
 \openout8 = `paper.snm'.
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 207.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 207.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 213.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 213.
  (./paper.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 207.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 207.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 213.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 213.
 Package rerunfilecheck Info: File `paper.out' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 207.
+
+
+LaTeX Font Warning: Some font shapes were not available, defaults substituted.
+
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 213.
  ) 
 Here is how much of TeX's memory you used:
- 25325 strings out of 495059
- 552771 string characters out of 3182030
- 767015 words of memory out of 3000000
- 27889 multiletter control sequences out of 15000+200000
+ 25327 strings out of 495059
+ 552840 string characters out of 3182030
+ 775945 words of memory out of 3000000
+ 27891 multiletter control sequences out of 15000+200000
  6358 words of font info for 23 fonts, out of 3000000 for 9000
  14 hyphenation exceptions out of 8191
  50i,15n,74p,744b,954s stack positions out of 5000i,500n,10000p,200000b,50000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmss17.pfb></us
 r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb>
-Output written on paper.pdf (1 page, 68059 bytes).
+Output written on paper.pdf (1 page, 66751 bytes).
 PDF statistics:
- 126 PDF objects out of 1000 (max. 8388607)
- 104 compressed objects within 2 object streams
+ 83 PDF objects out of 1000 (max. 8388607)
+ 62 compressed objects within 1 object stream
  3 named destinations out of 1000 (max. 500000)
  68 words of extra memory for PDF output out of 10000 (max. 10000000)
 

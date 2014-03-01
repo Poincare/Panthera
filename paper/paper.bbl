@@ -1,9 +1,62 @@
-\begin{thebibliography}{1}
+\begin{thebibliography}{10}
+
+\bibitem{borthakur2011apache}
+Dhruba Borthakur, Jonathan Gray, Joydeep~Sen Sarma, Kannan Muthukkaruppan,
+  Nicolas Spiegelberg, Hairong Kuang, Karthik Ranganathan, Dmytro Molkov,
+  Aravind Menon, Samuel Rash, et~al.
+\newblock Apache hadoop goes realtime at facebook.
+\newblock In {\em Proceedings of the 2011 ACM SIGMOD International Conference
+  on Management of data}, pages 1071--1080. ACM, 2011.
+
+\bibitem{das2010ricardo}
+Sudipto Das, Yannis Sismanis, Kevin~S Beyer, Rainer Gemulla, Peter~J Haas, and
+  John McPherson.
+\newblock Ricardo: integrating r and hadoop.
+\newblock In {\em Proceedings of the 2010 ACM SIGMOD International Conference
+  on Management of data}, pages 987--998. ACM, 2010.
 
 \bibitem{hbase}
 Lars George.
 \newblock {\em HBase: the definitive guide}.
 \newblock O'Reilly Media, Inc., 2011.
+
+\bibitem{kambatla2009towards}
+Karthik Kambatla, Abhinav Pathak, and Himabindu Pucha.
+\newblock Towards optimizing hadoop provisioning in the cloud.
+\newblock In {\em Proc. of the First Workshop on Hot Topics in Cloud
+  Computing}, page 118, 2009.
+
+\bibitem{karger1997consistent}
+David Karger, Eric Lehman, Tom Leighton, Rina Panigrahy, Matthew Levine, and
+  Daniel Lewin.
+\newblock Consistent hashing and random trees: Distributed caching protocols
+  for relieving hot spots on the world wide web.
+\newblock In {\em Proceedings of the twenty-ninth annual ACM symposium on
+  Theory of computing}, pages 654--663. ACM, 1997.
+
+\bibitem{kc2010scheduling}
+Kamal Kc and Kemafor Anyanwu.
+\newblock Scheduling hadoop jobs to meet deadlines.
+\newblock In {\em Cloud Computing Technology and Science (CloudCom), 2010 IEEE
+  Second International Conference on}, pages 388--392. IEEE, 2010.
+
+\bibitem{leverich2010energy}
+Jacob Leverich and Christos Kozyrakis.
+\newblock On the energy (in) efficiency of hadoop clusters.
+\newblock {\em ACM SIGOPS Operating Systems Review}, 44(1):61--65, 2010.
+
+\bibitem{liu2009implementing}
+Xuhui Liu, Jizhong Han, Yunqin Zhong, Chengde Han, and Xubin He.
+\newblock Implementing webgis on hadoop: A case study of improving small file
+  i/o performance on hdfs.
+\newblock In {\em Cluster Computing and Workshops, 2009. CLUSTER'09. IEEE
+  International Conference on}, pages 1--8. IEEE, 2009.
+
+\bibitem{nelson1988caching}
+Michael~N Nelson, Brent~B Welch, and John~K Ousterhout.
+\newblock Caching in the sprite network file system.
+\newblock {\em ACM Transactions on Computer Systems (TOCS)}, 6(1):134--154,
+  1988.
 
 \bibitem{pig}
 Christopher Olston, Benjamin Reed, Utkarsh Srivastava, Ravi Kumar, and Andrew
@@ -20,11 +73,37 @@ John Ousterhout, Parag Agrawal, David Erickson, Christos Kozyrakis, Jacob
   dram.
 \newblock {\em ACM SIGOPS Operating Systems Review}, 43(4):92--105, 2010.
 
+\bibitem{rowstron2001storage}
+Antony Rowstron and Peter Druschel.
+\newblock Storage management and caching in past, a large-scale, persistent
+  peer-to-peer storage utility.
+\newblock In {\em ACM SIGOPS Operating Systems Review}, volume~35, pages
+  188--201. ACM, 2001.
+
 \bibitem{hadoop}
 Konstantin Shvachko, Hairong Kuang, Sanjay Radia, and Robert Chansler.
 \newblock The hadoop distributed file system.
 \newblock In {\em Mass Storage Systems and Technologies (MSST), 2010 IEEE 26th
   Symposium on}, pages 1--10. IEEE, 2010.
+
+\bibitem{wang2002conquest}
+An-I Wang, Peter~L Reiher, Gerald~J Popek, and Geoffrey~H Kuenning.
+\newblock Conquest: Better performance through a disk/persistent-ram hybrid
+  file system.
+\newblock In {\em USENIX Annual Technical Conference, General Track}, pages
+  15--28, 2002.
+
+\bibitem{wang1999survey}
+Jia Wang.
+\newblock A survey of web caching schemes for the internet.
+\newblock {\em ACM SIGCOMM Computer Communication Review}, 29(5):36--46, 1999.
+
+\bibitem{wang2009kepler+}
+Jianwu Wang, Daniel Crawl, and Ilkay Altintas.
+\newblock Kepler+ hadoop: a general architecture facilitating data-intensive
+  applications in scientific workflow systems.
+\newblock In {\em Proceedings of the 4th Workshop on Workflows in Support of
+  Large-Scale Science}, page~12. ACM, 2009.
 
 \bibitem{cloudbatch}
 Chen Zhang and Hans De~Sterck.

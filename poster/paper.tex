@@ -30,23 +30,30 @@
     \begin{center}
 
       \textcolor{black}{
-      \textbf{\fontsize{110}{40}{\selectfont Panthera: A Study of Caching in 
-      Distributed Computing}}}
+      \textbf{\fontsize{110}{200}{\selectfont Panthera: A Study of Caching in }}
+      \vspace{0.5em}
+      \textbf{\fontsize{110}{200}{\selectfont Distributed Computing}}}
     \end{center}
     
     \begin{columns}[t]
      \begin{column}{0.32\textwidth}
-      \begin{block}{Introduction}
-      Distributed computing has seen tremendous growth in the past few years.
-In particular, Hadoop, an open source project that allows developers to
-write distributed applications, has found extensive use in academia and industry. For example, Yahoo, Facebook, Stanford Computer Science, etc. are all heavily involved with Hadoop development. But, Hadoop does not effectively utilize RAM memory and local storage to better performance. \textbf{This project develops and tests caching mechanisms, called \textbf{Panthera}, to reduce waiting time or latency in Hadoop, } thereby greatly increasing its efficiency and applicability in fields ranging from medical diagnosis to artificial intelligence. 
+      \begin{block}{Background}
+      \textbf{Distributed computing} has seen tremendous growth in the past few years. 
+      Essentially, \textbf{it allows computational algorithms to run across multiple
+      computers (i.e. nodes)}. Most distributed systems must make files accessible over 	networks of computers. \textbf{This 
+      project aims to reduce the waiting time (known as \textit{latency}) associated
+      with obtaining files within distributed computing systems}.
       \end{block}
-      
+      \begin{block}{Introduction}
+      Hadoop, an open source project that allows developers to
+write distributed applications, has found extensive use in academia and industry. For example, Yahoo, Facebook, Stanford Computer Science, etc. are all heavily involved with Hadoop development. But, Hadoop does not effectively utilize Random Access Memory (RAM) and local storage to better performance. \textbf{This project develops and tests caching mechanisms, called \textbf{Panthera}, to reduce waiting time (i.e. latency) in Hadoop, thereby greatly increasing its efficiency and applicability in fields ranging from medical diagnosis to artificial intelligence.}
+      \end{block}
+
     \begin{block}{Problem}
 	\begin{itemize}
-	 \item Develop a caching layer for the Hadoop File System that can cache both data and metadata.
-	 \item The solution must not depend on a modified Hadoop version; it should be a "drop-in" addition.
-	 \item The layer should reduce file access latency/waiting time significantly in comparison to a vanilla Hadoop installation.
+	 \item \textbf{Develop a caching layer} for the Hadoop File System that can cache both data and metadata.
+	 \item The solution must not depend on a modified Hadoop version; it should be a \textbf{"drop-in" addition}. This will allow for easy adoption and integration into existing integration.
+	 \item The layer \textbf{should reduce file access latency}/waiting time significantly in comparison to \textbf{the control group: a standard Hadoop installation}.
 	\end{itemize}
 
       \end{block}
@@ -59,8 +66,8 @@ write distributed applications, has found extensive use in academia and industry
       \end{block}
 	  
 		\begin{block}{Data vs Metadata}
-			Data within the Hadoop file system consists of the actual contents of a file.
-			Metadata is the information about files and directories, e.g. time a file was created, the list of files in a directory, etc. \textbf{Panthera performs both metadata
+			\textbf{Data} within the Hadoop file system \textbf{consists of the actual contents of a file.}
+			\textbf{Metadata is the information about files and directories}, e.g. time a file was created, the list of files in a directory, etc. \textbf{Panthera performs both metadata
 			and data caching; both have significantly different technical implications
 			and challenges.}
 		\end{block}
@@ -73,32 +80,24 @@ write distributed applications, has found extensive use in academia and industry
 		\centerline{\includegraphics[scale=1.5]{assets/panthera_architecture_complete_larger.pdf}}	  
 	  \end{block}
 
-
-	    	  
-		\begin{block}{Panthera Metadata Architecture}
-	 		\centerline{\includegraphics[scale=1.5]{assets/panthera_metadata_large.pdf}}
-      	\end{block}
-
      \end{column}
      %##########################################################################################################
 
     \begin{column}{0.32\textwidth}
+	    	  
+		\begin{block}{Panthera Metadata Architecture}
+	 		\centerline{\includegraphics[scale=1.2]{assets/panthera_metadata_large.pdf}}
+      	\end{block}
+
       
       \begin{block}{Panthera Data Architecture}
-      \includegraphics[scale=1.2]{assets/panthera_data_large.pdf}
+      \centerline{\includegraphics[scale=1.2]{assets/panthera_data_architecture.pdf}}
      \end{block}
-      
-	\begin{block}{Panthera - Implementation}
-	\begin{itemize}
-		\item \textbf{Panthera is implemented on Google's Go programming language}. The language has excellent concurrency primitives and memory management, which are perfect for
-		for software ,such as \textbf{Panthera}, that must run reliably with hundreds of clients.
-		\item \textbf{Panthera} implements a large portion of the Hadoop File System protocol, enabling it to "speak" with the DataNode and NameNode.
-	\end{itemize}
-	\end{block}
+
 
       
 	\begin{block}{Testing Methodology - Single Node vs Multinode}
-	Testing procedures were conducted on both \textbf{single node} and \textbf{multi-node} setups.\textbf{Single node} testing shows Panthera's performance without regard to network latency, whereas \textbf{multinode} testing incorporates network factors.
+	Testing procedures were conducted on both \textbf{single node} and \textbf{multinode} setups.\textbf{ Single node} testing shows Panthera's performance without regard to network latency, whereas \textbf{multinode} testing incorporates network factors.
 	\end{block}
 	
 	\begin{block}{Testing Methodology - Procedure}
@@ -109,11 +108,11 @@ write distributed applications, has found extensive use in academia and industry
 	\end{block}
 
 	\begin{block}{Results}
-		\includegraphics[scale=1.10]{assets/box-plot-data-larger.pdf}
+		\includegraphics[scale=1.08]{assets/box-plot-data-larger.pdf}
 		\vspace{1em}
-		\includegraphics[scale=1.1]{assets/box-plot-metadata-larger.pdf}
+		\includegraphics[scale=1.08]{assets/box-plot-metadata-larger.pdf}
 		\vspace{1em}
-		\includegraphics[scale=1.1]{assets/box-plot-meta-multinode-larger.pdf}
+		\includegraphics[scale=1.08]{assets/box-plot-meta-multinode-larger.pdf}
 	\end{block}
 
 	  
@@ -122,7 +121,7 @@ write distributed applications, has found extensive use in academia and industry
       
       
       \begin{column}{0.32\textwidth}
-      
+            
 	  \begin{block}{Latency Types}
 		%discuss the types of latency and make the comparison
 		%between hard disk latency and regular lateny
@@ -134,7 +133,14 @@ write distributed applications, has found extensive use in academia and industry
 		waiting time associated with it. \textbf{Memory waiting time is less than 1/1000th hard drive waiting time. Panthera converts hard drive latency to memory latency, thereby greatly reducing file access time.}
 		\end{itemize}
 	  \end{block}
-	  
+	\begin{block}{Panthera - Implementation}
+	\begin{itemize}
+		\item \textbf{Panthera is implemented on Google's Go programming language}. The language has excellent concurrency primitives and memory management, which are perfect for
+		for software, such as \textbf{Panthera}, that must run reliably with hundreds of clients.
+		\item \textbf{Panthera} implements a large portion of the Hadoop File System protocol, enabling it to "speak" with the DataNode and NameNode.
+	\end{itemize}
+	\end{block}
+	
     \begin{block}{Statistics}
     \begin{itemize}
     		\item \textbf{Data (single node, noncached)}
@@ -147,7 +153,7 @@ write distributed applications, has found extensive use in academia and industry
     			\item Mean: 511185.3 nanoseconds
     			%\item Median: 149004 nanoseconds
     		\end{itemize}
-    		\item \textbf{Noncached/Panthera}: \textbf{95.9\% improvement in latency with Panthera}, waiting time of noncached is 24.5 times higher than that of Panthera.
+    		\item \textbf{Noncached/Panthera}: \textbf{95.9\% improvement in latency with Panthera}, waiting time of noncached is 24.5 times higher than that of Panthera. There is also a \textbf{16 fold decrease in standard deviation with Panthera}.
     		
     		\item \textbf{Metadata (single node, noncached)}
     		\begin{itemize}
@@ -171,7 +177,7 @@ write distributed applications, has found extensive use in academia and industry
 			\item Mean: 176868.7 nanoseconds    		
     		\end{itemize}
     		
-    		\item \textbf{Metadata - noncached/Panthera: } \textbf{90.3\% improvement with the Panthera metadata cache}. Panthera (developed during this project) decreases waiting time by a factor of 8.
+    		\item \textbf{Metadata - noncached/Panthera: } \textbf{90.3\% improvement with the Panthera metadata cache}. Panthera (developed during this project) decreases waiting time by a factor of 8. \textbf{Panthera reduces standard deviation by factor of 27 (!)}.
     		
 	\end{itemize}    	    
     \end{block}
