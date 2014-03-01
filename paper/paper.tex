@@ -1,4 +1,4 @@
-\documentclass{article}
+\documentclass[12pt]{article}
 
 % The geometry package allows for easy page formatting.
 \usepackage{geometry}
@@ -38,18 +38,18 @@ node setups. The results showed an 90.8\% decrease in waiting time with the Pant
 }
 
 \section{Introduction}
-Distributed computing systems are currently employed across academia and industry. Applications vary from market research for department stores to bioinformatics. In particular, the Hadoop distributed system \cite{hadoop} has seen tremendous growth. Hadoop is an open source version of the revolutionary MapReduce system developed at Google. With it, developers can take easily take advantage of large, multi-node clusters to solve computational problems.
+Distributed computing systems are currently employed across academia and industry, with applications varying from market research for department stores to bioinformatics. In particular, the Hadoop distributed system \cite{hadoop} has seen tremendous growth. Hadoop is an open source version of the revolutionary MapReduce system developed at Google. With it, developers can easily take advantage of large, multi-node clusters to solve computational problems.
 
-Current Hadoop deployments exist in the thousands of nodes at companies such as Cloudera, Facebook, Yahoo, etc. However, especially in larger networks, file access latency can be a significant. The Hadoop File System currently does not use local (i.e. on the client) random access memory (RAM) to improve latency.
+Current Hadoop deployments exist in the thousands of nodes at companies such as Cloudera, Facebook, Yahoo, etc. However, especially in larger networks, file access latency can be a significant issue. The Hadoop File System currently does not use local (i.e. on the client) random access memory (RAM) to improve latency.
 
 Latency in distributed systems can have significant effects, and a reduction of the same comes with tremendous benefits. As the RAMCloud project has outlined \cite{ramcloud}, low latency can greatly extend the applications of distributed computing systems. For example, tree traversal algorithms are largely impractical in Hadoop, however, with lower latency, such algorithms may become useful and applicable.
 
-In this paper, we discuss \textit{Panthera}, a cache layer for Hadoop. In Section 2, we discuss the specific challenges associated with such a project. Section 3 details the architecture differences between a standard Hadoop installation and one with \textit{Panthera}. 
+In this paper, we discuss \textit{Panthera}, a cache layer for Hadoop. In Section 2, we discuss the specific challenges associated with such a project. Section 3 details the architecture differences between a standard Hadoop installation and one with \textit{Panthera}.  Sections 4 and 5 detail the differences between metadata and data caching within \textit{Panthera}. Results and conclusions are covered in Sections 6, 7, 8, 9, concluding with a roadmap for future development in Section 10.
 
 \section{Constraints}
 
 There are several systems built on Hadoop that are in widespread use \cite{hbase, cloudbatch, pig}. The Hadoop project is also supported by large corporations with a 
-consistent release cycle. Thus, for \textit{Panthera} to be practical, it must operate independently of the existing Hadoop codebase, i.e. as a layer, rather than a modification. This implies that \textit{Panthera} is implemented completely independently of the Hadoop codebase.
+consistent release cycle. Thus, for \textit{Panthera} to be practical, it must operate independently of the existing Hadoop codebase, i.e. as a layer, rather than a modification. This implies that \textit{Panthera} must implemented without a single change in the existing Hadoop codebase, i.e. as a "drop-in" solution.
 
 Additionally, for non-cache related requests, \textit{Panthera} must add insignificant latency. Finally, data and metadata request latency should be significantly with \textit{Panthera} in comparison to a standard Hadoop installation.
 
