@@ -1,0 +1,85 @@
+\documentclass[12pt]{article}
+\usepackage[margin=1in]{geometry}
+\begin{document}	
+	\title{Statistics}
+	\date{}
+	\maketitle
+	\begin{itemize}
+    		\item \textbf{Data (single node, noncached)}
+    		\begin{itemize}
+    			\item Mean: 12548998 nanoseconds
+    			\item Standard deviation: 42408768 nanoseconds
+    			%\item Median: 1292182 nanoseconds
+    		\end{itemize}
+    		\item \textbf{Data (single node, cached/Panthera)}
+    		\begin{itemize}
+    			\item Mean: 511185.3 nanoseconds
+			\item Standard deviation: 2572151 nanoseconds
+    		\end{itemize}
+    		\item \textbf{Noncached/Panthera}: \textbf{95.9\% improvement in latency with Panthera}, waiting time of noncached is 24.5 times higher than that of Panthera. There is also a \textbf{16 fold decrease in standard deviation with Panthera}.
+    		
+    		\item \textbf{Metadata (single node, noncached)}
+    		\begin{itemize}
+    			\item Mean: 8445265 nanoseconds
+    			\item Standard deviation: 14690532 nanoseconds
+    			%\item Median: 1563000 nanoseconds
+    		\end{itemize}
+    		
+    		\item \textbf{Metadata (single node, cached)}
+    		\begin{itemize}
+    			\item Mean: 1055012 nanoseconds
+    			\item Standard deviation: 1737020 nanoseconds
+    			%\item Median: 179500 nanoseconds
+    		\end{itemize}
+    		
+    		\item \textbf{Metadata (multinode, noncached)}
+		\begin{itemize}
+			\item Mean: 1638184 nanoseconds 
+			\item Standard deviation: 43708.26 nanoseconds   		
+    		\end{itemize}
+    		
+    		\item \textbf{Metadata (multinode, Panthera cached)}
+    		\begin{itemize}
+			\item Mean: 176868.7 nanoseconds
+			\item Standard deviation: 1196944 nanoseconds 	 		
+    		\end{itemize}
+    		
+    		\item \textbf{Metadata - noncached/Panthera: } \textbf{90.3\% improvement with the Panthera metadata cache}. Panthera (developed during this project) decreases waiting time by a factor of 8. \textbf{Panthera reduces standard deviation by factor of 27 (!)}.
+    \end{itemize}
+\end{document}\begin{itemize}
+    		\item \textbf{Data (single node, noncached)}
+    		\begin{itemize}
+    			\item Mean: 12548998 nanoseconds
+    			%\item Median: 1292182 nanoseconds
+    		\end{itemize}
+    		\item \textbf{Data (single node, cached/Panthera)}
+    		\begin{itemize}
+    			\item Mean: 511185.3 nanoseconds
+    			%\item Median: 149004 nanoseconds
+    		\end{itemize}
+    		\item \textbf{Noncached/Panthera}: \textbf{95.9\% improvement in latency with Panthera}, waiting time of noncached is 24.5 times higher than that of Panthera. There is also a \textbf{16 fold decrease in standard deviation with Panthera}.
+    		
+    		\item \textbf{Metadata (single node, noncached)}
+    		\begin{itemize}
+    			\item Mean: 8445265 nanoseconds
+    			%\item Median: 1563000 nanoseconds
+    		\end{itemize}
+    		
+    		\item \textbf{Metadata (single node, cached)}
+    		\begin{itemize}
+    			\item Mean: 1055012 nanoseconds
+    			%\item Median: 179500 nanoseconds
+    		\end{itemize}
+    		
+    		\item \textbf{Metadata (multinode, noncached)}
+		\begin{itemize}
+			\item Mean: 1638184 nanoseconds    		
+    		\end{itemize}
+    		
+    		\item \textbf{Metadata (multinode, Panthera cached)}
+    		\begin{itemize}
+			\item Mean: 176868.7 nanoseconds    		
+    		\end{itemize}
+    		
+    		\item \textbf{Metadata - noncached/Panthera: } \textbf{90.3\% improvement with the Panthera metadata cache}. Panthera (developed during this project) decreases waiting time by a factor of 8. \textbf{Panthera reduces standard deviation by factor of 27 (!)}.
+    		
