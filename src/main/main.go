@@ -7,10 +7,10 @@ import (
 	"io/ioutil"
 	"log"
 	"caches"
-	"configuration"
 	"fmt"
 	"data_requests"
 	"time"
+	"configuration"
 )
 
 /* 
@@ -19,23 +19,7 @@ import (
 * getting the address correctly
 */
 
-//used to configure the proxy
-type Configuration struct {
-	//where the hdfs namenode is located
-	hdfsHostname string
-	hdfsPort string
-
-	//where the cache layer is supposed to be run
-	serverPort string
-	serverHost string
-
-	//sets whether to retry connection to HDFS if it fails
-	//necessary because sometimes HDFS doesn't respond immediately
-	//TODO not implemented yet
-	retryHdfs bool
-}
-
-var config Configuration;
+var config *configuration.Configuration;
 
 //main reactor function called by main
 func loop(server net.Listener, caches *caches.CacheSet, dnMap *configuration.DataNodeMap) {
@@ -54,8 +38,8 @@ func loop(server net.Listener, caches *caches.CacheSet, dnMap *configuration.Dat
 		util.DebugLog("Client Accepted; no errors received...");
 
 		//set up connection to HDFS
-		util.DebugLog("Connecting to HDFS host: " + string(config.hdfsHostname) + ":" + string(config.hdfsPort))
-		hdfs, hdfs_err := net.Dial("tcp", config.hdfsHostname + ":" + config.hdfsPort)
+		util.DebugLog("Connecting to HDFS host: " + string(config.HdfsHostname) + ":" + string(config.HdfsPort))
+		hdfs, hdfs_err := net.Dial("tcp", config.HdfsHostname + ":" + config.HdfsPort)
 		if hdfs_err != nil {
 			util.LogError(hdfs_err.Error())
 			continue
@@ -128,12 +112,22 @@ func main() {
 	util.LoggingEnabled = false
 	util.Log("Starting...")
 
-	config.hdfsHostname = "162.243.105.47"
-	config.hdfsPort = "54310"
+	/*
+	config.HdfsHostname = "162.243.105.47"
+	config.HdfsPort = "54310"
 
-	config.serverHost = "0.0.0.0"
-	config.serverPort = "1035"
-	config.retryHdfs = false
+	config.ServerHost = "0.0.0.0"
+	config.ServerPort = "1035"
+	config.RetryHdfs = false
+	*/
+
+	var err error
+	config, err = configuration.LoadFile("configuration.json")
+	if err != nil {
+		fmt.Println("Could not read configuration file: ", err)
+		fmt.Println("Exiting...")
+		return
+	}
 
 	//initialize the cacheset and the caches
 	//within it
@@ -146,7 +140,7 @@ func main() {
 	//disable the metadata cache for now
 	//cacheSet.Disable()
 
-	server, err := net.Listen("tcp", config.serverHost + ":" + config.serverPort)
+	server, err := net.Listen("tcp", config.ServerHost + ":" + config.ServerPort)
 	log.SetOutput(ioutil.Discard)
 	
 	err = util.Init()
