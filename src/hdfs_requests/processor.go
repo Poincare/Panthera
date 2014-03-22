@@ -15,10 +15,11 @@ import (
 	"io"
 	"encoding/hex"
 	"reflect"
+	"errors"
 
 	//used for the the DataNodeMap
 	"configuration"
-	
+
 	//"reflect"
 )
 
@@ -385,6 +386,8 @@ func (p *Processor) readRequestPacketLength(conn net.Conn) (uint32, []byte, erro
 	if readErr != nil {
 		return 0, []byte{}, readErr
 	}
+	util.DebugLogger.Println("Read error value in readRequestPacketLength: ", readErr)
+
 	//readErr := binary.Read(conn, binary.BigEndian, &packetLength)
 	/*
 	if readErr != nil {
@@ -399,10 +402,12 @@ func (p *Processor) readRequestPacketLength(conn net.Conn) (uint32, []byte, erro
  
 //read the request packet from the connection
 func (p *Processor) readRequestPacket(conn net.Conn) (*namenode_rpc.RequestPacket, error) {
+	util.DebugLogger.Println("Now calling readRequestPacketLength.")
 	packetLength, lengthBuf, lengthError := p.readRequestPacketLength(conn)
 	if lengthError != nil {
 		return nil, lengthError
 	}
+	util.DebugLogger.Println("Done with readRequestPacketLength. Packet length: ", packetLength)
 
 	restBuf := make([]byte, int(packetLength))
 	bytesRead, readError := conn.Read(restBuf)
@@ -453,7 +458,9 @@ func (p *Processor) recordNonCachedLatency() {
 func (p *Processor) HandleRequestPacket(conn net.Conn, hdfs net.Conn) error {
 
 	//read the whole request packet (length first)
+	util.DebugLogger.Println("Now calling readRequstPacket()")
 	reqPacket, reqPacketError := p.readRequestPacket(conn)
+	util.DebugLogger.Println("Done with readRequestPacket()")
 	if reqPacketError != nil {
 		return reqPacketError
 	}
@@ -517,7 +524,7 @@ func (p *Processor) HandleConnectionReimp(conn net.Conn, hdfs net.Conn) {
 			err := p.HandleConnZeroPacket(conn, hdfs)
 			if err != nil {
 				util.DebugLog("Error reading first packet of connection.")
-				//if we have an EOF error we can close the connection.
+				//if we have an EOF error we can close the lconnection.
 				if err == io.EOF {
 					util.DebugLog("Client connection closed. Closing local socket...")
 					conn.Close()
@@ -530,6 +537,7 @@ func (p *Processor) HandleConnectionReimp(conn net.Conn, hdfs net.Conn) {
 			p.HandleConnAuthPacket(conn, hdfs)
 			p.PacketsProcessed++
 			util.DebugLog("Handled auth packet")
+			util.DebugLogger.Println("Handled Authentication Packet!")
 			
 		//if it is the second packet, it is the authentication packet
 		//after that, process them as request packets
@@ -537,9 +545,9 @@ func (p *Processor) HandleConnectionReimp(conn net.Conn, hdfs net.Conn) {
 			util.DebugLogger.Println("Starting to handle request packet...")
 			err := p.HandleRequestPacket(conn, hdfs)
 			if err != nil {
-				util.DebugLog("Error handling request packet.")
+				util.DebugLogger.Println("Error handling request packet.")
 				if err == io.EOF {
-					util.DebugLog("Client connection closed. Closing local socket...")
+					util.DebugLogger.Println("Client connection closed. Closing local socket...")
 					return
 				}
 			}

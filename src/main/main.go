@@ -13,11 +13,6 @@ import (
 	"configuration"
 )
 
-/* 
-* TASK
-* The server seems to be reading the bytes, but the loading is not 
-* getting the address correctly
-*/
 
 var config *configuration.Configuration;
 
@@ -84,7 +79,10 @@ func loopData(listener net.Listener, location *configuration.DataNodeLocation, c
 		//create a new processor this set
 		dataProcessor := data_requests.NewProcessor(cache, location)
 		go dataProcessor.HandleConnection(conn, dataNode)
-		go dataProcessor.HandleDataNode(conn, dataNode)
+		
+		//go dataProcessor.HandleDataNode(conn, dataNode)
+		go dataProcessor.BruteForceHandleDataNode(conn, dataNode)
+
 		util.DebugLogger.Println("-----------")
 	}
 }
@@ -144,7 +142,7 @@ func main() {
 	log.SetOutput(ioutil.Discard)
 	
 	err = util.Init()
-	if err != nil {
+	if err != nil {no
 		fmt.Println("Error ocurred in initializing the utilities: ", err)
 		return
 	}

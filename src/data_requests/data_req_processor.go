@@ -46,6 +46,7 @@ type Processor struct {
 	//method in the protocol, so the response *must* be
 	//paired with the currentRequest in the cache
 	currentRequest datanode_rpc.ReqPacket
+	prevRequest datanode_rpc.ReqPacket
 
 	//pointer to a global DataCache shared across all the
 	//processors
@@ -180,6 +181,26 @@ func (p *Processor) handleDataRequest(conn net.Conn, dataNode net.Conn, dataRequ
 	return nil
 }
 
+func (p *Processor) handlePutFileDataRequest(conn net.Conn, dataNode net.Conn,
+	putFileDataRequest *datanode_rpc.PutFileDataRequest) error {
+	if putFileDataRequest == nil {
+		return errors.New("PutFileDataRequest is nil; cannot proceeed with handlePutFileDataRequest.")
+	}
+
+	p.setCurrentRequest(putFileDataRequest)
+	
+	dataBytes, err := putFileDataRequest.Bytes()
+	if err != nil {
+		util.DataReqLogger.Println(p.id, "Could not putFileDataRequest bytes, err: ", err)
+		p.closeConnSocket(conn)
+		return err
+	}
+
+	dataNode.Write(dataBytes)
+	p.startTime = time.Now()
+	return nil
+}
+
 //handle requests that are instances of datanode_rpc.PutDataRequest
 //this should initially work as a proxy since we are not interested in caching
 //or modifying put data requests
@@ -267,17 +288,27 @@ func (p *Processor) sendCurrentRequestAvailable() {
 //called as a goroutine - handles the connection with a client; forwards
 //requests to the datanode and responds from memory cache when possible
 func (p *Processor) HandleConnection(conn net.Conn, dataNode net.Conn) {
+	//this variables denotes whether or not the last request 
+	//was a PutDataRequest. If it was, then the next request
+	//should be a PutFileDataRequest. This is information is
+	//passed to datanode_rpc.LoadRequestPacket in order
+	//to help it make a decision.
+	prevPDR := false
+
 	for {
 		go p.checkComm(conn)
 		util.DebugLogger.Println("Waiting for request packet...")
 		util.DataReqLogger.Println("Connected to client.")
 
 		//read in the request object (should block)
-		dataRequest, err := datanode_rpc.LoadRequestPacket(conn)
+		dataRequest, err := datanode_rpc.LoadRequestPacket(conn, prevPDR)
+		p.prevRequest = p.currentRequest
+
 		go p.sendCurrentRequestAvailable()
 		util.DebugLogger.Println("Loaded packet.")
 
 		if err != nil {
+			util.DebugLogger.Println("Error occurred in loading packet: ", err)
 			util.DataReqLogger.Println("Failed LiveReadInitial(): ", err)
 			p.closeConnSocket(conn)
 			return
@@ -294,6 +325,11 @@ func (p *Processor) HandleConnection(conn net.Conn, dataNode net.Conn) {
 		case *datanode_rpc.PutDataRequest:
 			putDataRequest := dataRequest.(*datanode_rpc.PutDataRequest)
 			p.handlePutDataRequest(conn, dataNode, putDataRequest)
+			prevPDR = true
+		case *datanode_rpc.PutFileDataRequest:
+			putFileDataRequest := dataRequest.(*datanode_rpc.PutFileDataRequest)
+			p.handlePutFileDataRequest(conn, dataNode, putFileDataRequest)
+			prevPDR = false
 		}
 		
 	}
@@ -390,6 +426,8 @@ func (p *Processor) handlePutDataResponse(conn net.Conn, dataNode net.Conn) {
 		util.DebugLogger.Println("Starting liveLoad() of pdr...")
 		//read the pdr from the dataNode connection
 		pdr.LiveLoad(dataNode)
+		pdr.LiveLoad(dataNode)
+		pdr.LiveLoad(dataNode)
 		util.DebugLogger.Println("Finished liveLoad() of pdr...")
 
 		//write the pdr to the client
@@ -402,6 +440,20 @@ func (p *Processor) handlePutDataResponse(conn net.Conn, dataNode net.Conn) {
 			util.DataReqLogger.Println("Error ocurred in writing to DataNode. Possible closed socket (no action taken)")
 		}
 	}
+}
+
+func (p *Processor) handlePutFileDataResponse(conn net.Conn, dataNode net.Conn) {
+	//first we have to read and proxy the "null packet" response
+	//the Hadoop documentation doesn't make clear what this packet is
+	//used for but it is clear that it is necessary for correct operation
+	nul := datanode_rpc.NewNullPacket()
+	nul.LiveLoad(dataNode)
+	nulBytes, _ := nul.Bytes()
+	conn.Write(nulBytes)
+
+	pdr := datanode_rpc.NewPutDataResponse()
+	pdr.LiveLoad(dataNode)
+
 }
 
 func (p *Processor) loadResponse(conn net.Conn, dataNode net.Conn) error {
@@ -421,8 +473,34 @@ func (p *Processor) loadResponse(conn net.Conn, dataNode net.Conn) error {
 	case *datanode_rpc.PutDataRequest:
 		util.DataReqLogger.Println(p.id, " CurrRequest is PutDataRequest, now handling putDataResponse")
 		p.handlePutDataResponse(conn, dataNode)
+	case *datanode_rpc.PutFileDataRequest:
+		util.DataReqLogger.Println(p.id, " CurrRequest is PutFileDataRequest, now hadnling putFileDataResponse")
+		p.handlePutFileDataResponse(conn, dataNode)
 	}
 	return nil
+}
+
+//this is a testing function for HandleDataNode() - instead of carefully
+//taking apart response packets, it takes the hammerfisted approach of 
+//simply shovelling a bunch of data across the network
+func (p *Processor) BruteForceHandleDataNode(conn net.Conn, dataNode net.Conn) {
+	for {
+		buf := make([]byte, 1)
+		bytesRead, err := dataNode.Read(buf)
+		if err != nil {
+			util.DebugLogger.Println("Could not brute force handle the datanode: ", err)
+			util.DebugLogger.Println("Assuming the socket has been closed.")
+			go p.sendCloseSocket()
+			return
+		}
+
+		buf = buf[0:bytesRead]
+		_, err = conn.Write(buf)
+		if err != nil {
+			util.DebugLogger.Println("Unable to write to the datanode: ", err)
+			continue
+		}
+	}
 }
 
 func (p *Processor) HandleDataNode(conn net.Conn, dataNode net.Conn) {

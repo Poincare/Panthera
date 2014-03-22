@@ -47,6 +47,56 @@ type DataRequest struct {
 	AccessService []byte
 }
 
+//the type of packet that is used to the tell
+//the datanode the contents of the files we
+//want to put on the DataNode
+type PutFileDataRequest struct {
+	//note: we are only going to use a byte buffer 
+	//for this packet type because there is no
+	//point in trying to break down the packet
+	//because the fields don't mean anything to
+	//Panthera
+	Buffer *bytes.Buffer
+}
+
+func NewPutFileDataRequest() *PutFileDataRequest {
+	pfdr := PutFileDataRequest{}
+	return &pfdr
+}
+
+func (p *PutFileDataRequest) Bytes() ([]byte, error) {
+	return p.Buffer.Bytes(), nil
+}
+
+func (p *PutFileDataRequest) Equals(r ReqPacket) bool {
+	switch r.(type) {
+	case *PutFileDataRequest:
+		r := r.(*PutFileDataRequest)
+		rBytes, _ := r.Bytes()
+		pBytes, _ := p.Bytes()
+		if !reflect.DeepEqual(rBytes, pBytes) {
+			return true
+		}
+	default:
+		return false
+	}
+
+	return false
+}
+
+func (p *PutFileDataRequest) LiveLoad(reader io.Reader) error {
+	buf := make([]byte, 65536)
+	bytesRead, err := reader.Read(buf)
+	if err != nil {
+		return err
+	}
+
+	buf = buf[0:bytesRead]
+	p.Buffer = bytes.NewBuffer(buf)
+
+	return nil
+}
+
 //special type of data request (command # = 80)
 //has a different structure than DataRequeest
 type PutDataRequest struct {
@@ -343,7 +393,7 @@ func LiveReadInitial(byte_buffer io.Reader) (*InitialRead, error) {
 
 	util.DebugLogger.Println("Starting read of ProtocolVersion...")
 	err := binary.Read(byte_buffer, binary.BigEndian, &(ir.ProtocolVersion))
-	util.DebugLogger.Println("Finished read of ProtocolVersion.")
+	util.DebugLogger.Println("Finished read of ProtocolVersion. err: ", err)
 
 	if err != nil {
 		return nil, err
@@ -358,14 +408,30 @@ func LiveReadInitial(byte_buffer io.Reader) (*InitialRead, error) {
 }
 
 //called to decide what kind of packet to load
-func LoadRequestPacket(byteBuffer io.Reader) (ReqPacket, error) {
+//Note: prevPDR is a boolean value which tells us whether or not the 
+//the previous request was a PutDataRequest.
+func LoadRequestPacket(byteBuffer io.Reader, prevPDR bool) (ReqPacket, error) {
+	if prevPDR {
+		putFileDataRequest := NewPutFileDataRequest()
+		putFileDataRequest.LiveLoad(byteBuffer)
+		return putFileDataRequest, nil
+	}
+
 	util.DebugLogger.Println("Starting LiveReadInitial()...")
 	initialRead, err := LiveReadInitial(byteBuffer)
-	util.DebugLogger.Println("LiveReadInitial() completed.")
+	util.DebugLogger.Println("InitialRead structure: ", initialRead)
+	util.DebugLogger.Println("LiveReadInitial() completed. Error value: ", err)
+
+	/*
+	if initialRead.Command == 0 && initialRead.ProtocolVersion == 0 {
+		err := errors.New("Invalid initialRead, assuming socket closed.")
+		return nil, err
+	} */
 
 	if err != nil {
 		return nil, err
 	}
+
 
 	//the command determines what kind of loading we want to be doing
 	switch(initialRead.Command) {
@@ -690,6 +756,30 @@ func (p *PutDataResponse) Bytes() ([]byte, error) {
 func NewPutDataResponse() *PutDataResponse {
 	pdr := PutDataResponse{}
 	return &pdr
+}
+
+//response that is delivered just after a PutFileDataRequest is the
+//current request
+type NullPacket struct {
+	NullBytes []byte
+}
+
+func NewNullPacket() *NullPacket {
+	np := NullPacket{
+		NullBytes: []byte{0, 0, 0, 0, 0, 0, 0, 1}}
+
+	return &np
+}
+
+func (np *NullPacket) LiveLoad(reader io.Reader) error {
+	buf := make([]byte, 8)
+	binary.Read(reader, binary.BigEndian, buf)
+	np.NullBytes = buf
+	return nil
+}
+
+func (n *NullPacket) Bytes() ([]byte, error) {
+	return n.NullBytes, nil
 }
 
 //a pair of request, response
