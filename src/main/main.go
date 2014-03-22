@@ -142,7 +142,7 @@ func main() {
 	log.SetOutput(ioutil.Discard)
 	
 	err = util.Init()
-	if err != nil {no
+	if err != nil {
 		fmt.Println("Error ocurred in initializing the utilities: ", err)
 		return
 	}

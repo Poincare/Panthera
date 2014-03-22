@@ -15,7 +15,6 @@ import (
 	"io"
 	"encoding/hex"
 	"reflect"
-	"errors"
 
 	//used for the the DataNodeMap
 	"configuration"
