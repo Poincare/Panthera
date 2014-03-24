@@ -30,7 +30,7 @@ func NewBlockKey() *BlockKey {
 	return &bk
 }
 
-func (b *BlockKey) ReadBlockKey(reader io.Reader) {
+func (b *BlockKey) Read(reader io.Reader) {
 	b.KeyId, _ := binary.ReadVarint(reader)
 	b.ExpiryDate, _ := binary.ReadVarint(reader)
 	b.Len, _ := binary.ReadVarint(reader)
@@ -41,6 +41,41 @@ func (b *BlockKey) ReadBlockKey(reader io.Reader) {
 	}
 }
 
+type ExportedBlockKeys struct {
+	IsBlockTokenEnabled bool
+
+	KeyUpdateInterval uint64
+	
+	TokenLifetime uint64
+	
+	CurrentKey *BlockKey
+
+	KeyLength uint32
+	AllKeys []*BlockKey
+}
+
+func NewExportedBlockKeys() *ExportedBlockKeys {
+	ebk := ExportedBlockKeys{}
+	ebk.CurrentKey := NewBlockKey()
+
+	return &ebk
+}
+
+func (e *ExportedBlockKeys) Read(reader io.Reader) {
+	e.IsBlockTokenEnabled, _ := ReadBoolean()
+	e.KeyUpdateInterval, _ := ReadLongInt()
+	e.TokenLifetime, _ := ReadLongInt()
+	
+	e.CurrentKey.Read(reader)
+
+	e.KeyLength := ReadInt()
+	for i := 0; i<e.KeyLength; i++ {
+		e.AllKeys[i] = NewBlockKey()
+		e.AllKeys[i].Read(reader)
+	}
+
+	e.KindaDoneHereButNeedASyntaxError
+}
 
 type DataNodeRegistration struct {
 	/* 
@@ -75,6 +110,7 @@ type DataNodeRegistration struct {
 	IsBlockTokenEnabled bool
 
 	KeyUpdateInterval uint64
+
 }
 
 
