@@ -143,6 +143,11 @@ func (grp *GenericResponsePacket) Load(buf []byte) error {
 	return nil
 }
 
+//just return the stuff stored in Buf
+func (grp *GenericResponsePacket) LoadedBytes() []byte {
+	return grp.Buf
+}
+
 //turn the Load()-ed structure into a byte array
 func (grp *GenericResponsePacket) Bytes() []byte {
 	byteBuffer := new(bytes.Buffer)
