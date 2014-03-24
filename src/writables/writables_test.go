@@ -312,3 +312,17 @@ func TestWriteString(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func TestWriteVarint(t *testing.T) {
+	var val int64 = 15
+	var buf bytes.Buffer
+	WriteVarint(val, &buf)
+
+	bytes := buf.Bytes()
+	resVal, _ := binary.Varint(bytes)
+
+	if resVal != val {
+		fmt.Println("varint mismatch: ", resVal, val)
+		t.Fail()
+	}
+}

@@ -148,9 +148,30 @@ func WriteString(val string, writer Writer) error {
 
 	//then we write out the contents
 	for i := 0; i<len(val); i++ {
-		WriteByte(byte(val[i]), writer)
+		err = WriteByte(byte(val[i]), writer)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
+}
+
+func WriteVarint(val int64, writer Writer) error {
+	//30 bytes should be plenty
+	buf := make([]byte, 30)
+	bytesWritten := binary.PutVarint(buf, val)
+
+	//the PutVarint function only writes to a portion of the 
+	//buffer, so we are getting rid of the unwritten portions
+	res := buf[0:bytesWritten]
+
+	_, err := writer.Write(res)
+	return err
+}
+
+func WriteBytes(val []byte, writer Writer) error {
+	_, err := writer.Write(val)
+	return err
 }
 
 /*** 
@@ -196,6 +217,16 @@ func (b *BlockKey) Read(reader Reader) error {
 	return nil
 }
 
+func (b *BlockKey) Write(writer Writer) error {
+	err := WriteVarint(b.KeyId, writer)
+	err = WriteVarint(b.ExpiryDate, writer)
+	err = WriteVarint(b.Len, writer)
+	
+	err = WriteBytes(b.KeyBytes, writer)
+
+	return err
+}
+
 type ExportedBlockKeys struct {
 	IsBlockTokenEnabled bool
 
@@ -214,6 +245,20 @@ func NewExportedBlockKeys() *ExportedBlockKeys {
 	ebk.CurrentKey = NewBlockKey()
 
 	return &ebk
+}
+
+func (e *ExportedBlockKeys) Write(writer Writer) error {
+	WriteBoolean(e.IsBlockTokenEnabled, writer)
+	WriteLongInt(e.KeyUpdateInterval, writer)
+	WriteLongInt(e.TokenLifetime, writer)
+	e.CurrentKey.Write(writer)
+
+	WriteInt(e.KeyLength, writer)
+	for i := 0; i< int(e.KeyLength); i++ {
+		e.AllKeys[i].Write(writer)
+	}
+
+	return nil
 }
 
 func (e *ExportedBlockKeys) Read(reader Reader) error {
@@ -270,6 +315,19 @@ type DataNodeRegistration struct {
 func NewDataNodeRegistration() *DataNodeRegistration {
 	dnr := DataNodeRegistration{}
 	return &dnr
+}
+
+func (d *DataNodeRegistration) Write(writer Writer) error {
+	WriteString(d.Name, writer)
+	WriteString(d.StorageID, writer)
+	WriteShortInt(d.InfoPort, writer)
+	WriteShortInt(d.IpcPort, writer)
+	WriteInt(d.LayoutVersion, writer)
+	WriteInt(d.NamespaceID, writer)
+	WriteLongInt(d.CTime, writer)
+	err := d.Keys.Write(writer)
+
+	return err
 }
 
 func (d *DataNodeRegistration) Read(reader Reader) error {
