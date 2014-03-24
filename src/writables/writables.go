@@ -2,7 +2,15 @@ package writables
 
 import (
 	"encoding/binary"
+	"bytes"
 )
+
+/*
+* This package implements the Hadoop Writable serialization protocol
+* to the extent that is required by this project, i.e. it does
+not aim to be a fully replaceable implementation out of the Writable
+algorithm. */
+
 
 //this is a mix of io.ByteReader
 //and io.Reader
@@ -10,6 +18,14 @@ type Reader interface {
 	ReadByte() (byte, error)
 	Read(p []byte) (n int, err error)
 }
+
+type Writer interface {
+	Write(p []byte) (n int, err error)
+}
+
+/***
+*** Writable Reader methods
+***/
 
 //package method - read a Writeable String
 func ReadString(reader Reader) (string, error) {
@@ -78,12 +94,68 @@ func ReadBoolean(reader Reader) (bool, error) {
 	return resBool, nil
 }
 
+/**
+** Writable Writing methods
+**/
+func WriteLongInt(val uint64, writer Writer) error {
+	var buf bytes.Buffer
+	binary.Write(&buf, binary.BigEndian, val)
 
-/*
-* This package implements the Hadoop Writable serialization protocol
-* to the extent that is required by this project, i.e. it does
-not aim to be a fully replaceable implementation out of the Writable
-algorithm. */
+	_, err := writer.Write(buf.Bytes())
+	return err
+}
+
+func WriteBoolean(val bool, writer Writer) error {
+	var res = []byte{0}
+	if val == true {
+		res[0] = 1
+	} else {
+		res[0] = 0
+	}
+
+	_, err := writer.Write(res)
+	return err
+}
+
+func WriteInt(val uint32, writer Writer) error {
+	var buf bytes.Buffer
+	binary.Write(&buf, binary.BigEndian, val)
+	_, err := writer.Write(buf.Bytes())
+
+	return err
+}
+
+func WriteShortInt(val uint16, writer Writer) error {
+	var buf bytes.Buffer
+	binary.Write(&buf, binary.BigEndian, val)
+	_, err := writer.Write(buf.Bytes())
+
+	return err
+}
+
+func WriteByte(val byte, writer Writer) error {
+	buf := []byte{val}
+	_, err := writer.Write(buf)
+	return err
+}
+
+func WriteString(val string, writer Writer) error {
+	//write out the length first
+	err := WriteShortInt(uint16(len(val)), writer)
+	if err != nil {
+		return err
+	}
+
+	//then we write out the contents
+	for i := 0; i<len(val); i++ {
+		WriteByte(byte(val[i]), writer)
+	}
+	return nil
+}
+
+/*** 
+** Specific Writable structures
+****/
 
 type BlockKey struct {
 	//read as varint

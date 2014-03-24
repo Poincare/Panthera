@@ -4,6 +4,8 @@ import (
 	"testing"
 	"bytes"
 	"fmt"
+	"reflect"
+	"encoding/binary"
 )
 
 //test case
@@ -215,6 +217,98 @@ func TestDNRReadIsBlockTokenEnabled(t *testing.T) {
 	}
 } */
 
+/***
+** Testing package Writable Write methods 
+**/
 
+func TestWriteBoolean(t *testing.T) {
+	val := true
+	var buf bytes.Buffer
 
+	WriteBoolean(val, &buf)
 
+	if len(buf.Bytes()) != 1 {
+		t.Fail()
+	}
+
+	if buf.Bytes()[0] != 1 {
+		t.Fail()
+	}
+}
+
+func TestWriteLongInt(t *testing.T) {
+	var val uint64
+	val = 1
+	var buf bytes.Buffer
+
+	WriteLongInt(val, &buf)
+
+	if len(buf.Bytes()) != 8 {
+		t.Fail()
+	}
+
+	if buf.Bytes()[0] != 0 {
+		t.Fail()
+	}
+
+	if buf.Bytes()[7] != 1 {
+		t.Fail()
+	}
+}
+
+func TestWriteInt(t *testing.T) {
+	var val uint32
+	val = 17
+
+	var buf bytes.Buffer
+	WriteInt(val, &buf)
+
+	if len(buf.Bytes()) != 4 {
+		t.Fail()
+	}
+
+	var expected = []byte{0, 0, 0, 17}
+	if !reflect.DeepEqual(expected, buf.Bytes()) {
+		fmt.Println("Expected: ", expected)
+		fmt.Println("Got: ", buf.Bytes())
+		t.Fail()
+	}
+}
+
+func TestWriteByte(t *testing.T) {
+	var val byte
+	val = byte('a')
+
+	var buf bytes.Buffer
+	WriteByte(val, &buf)
+
+	if len(buf.Bytes()) != 1 {
+		t.Fail()
+	}
+
+	if string(buf.Bytes()) != "a" {
+		t.Fail()
+	}
+}
+
+func TestWriteString(t *testing.T) {
+	val := "dhaivat"
+	var buf bytes.Buffer
+	WriteString(val, &buf)
+
+	bytes := buf.Bytes()
+	if len(bytes) != len(val) + 2 {
+		t.Fail()
+	}
+
+	if string(bytes[2:]) != val {
+		t.Fail()
+	}
+
+	var length uint16
+	binary.Read(&buf, binary.BigEndian, &length)
+
+	if int(length) != len(val) {
+		t.Fail()
+	}
+}
