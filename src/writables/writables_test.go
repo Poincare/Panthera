@@ -67,7 +67,7 @@ func TestDNRReadName(t *testing.T) {
 	}
 }
 
-func TestDNRReadStorageID (t *testing.T) {
+func TestDNRReadStorageID(t *testing.T) {
 	dnr := NewDataNodeRegistration()
 	setup()
 
@@ -99,3 +99,113 @@ func TestDNRReadInfoPort(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func TestDNRReadIpcPort(t *testing.T) {
+	dnr := NewDataNodeRegistration()
+	setup()
+
+	dnr.ReadName(dnrBuffer)
+	dnr.ReadStorageID(dnrBuffer)
+	dnr.ReadInfoPort(dnrBuffer)
+	err := dnr.ReadIpcPort(dnrBuffer)
+	if err != nil {
+		t.Fail()
+		fmt.Println("Error occurred in TestDNRReadIpcPort: ", err)
+	}
+
+	if dnr.IpcPort != 50020 {
+		t.Fail()
+	}
+}
+
+func TestDNRReadLayoutVersion(t *testing.T) {
+	dnr := NewDataNodeRegistration()
+	setup()
+
+	dnr.ReadName(dnrBuffer)
+	dnr.ReadStorageID(dnrBuffer)
+	dnr.ReadInfoPort(dnrBuffer)
+	dnr.ReadIpcPort(dnrBuffer)
+
+	err := dnr.ReadLayoutVersion(dnrBuffer)
+	if err != nil {
+		t.Fail()
+		fmt.Println("Error occurred in TestDNRReadLayoutVersion: ", err)
+	}
+
+	if dnr.LayoutVersion != 4294967255 {
+		t.Fail()
+	}
+}
+
+func TestDNRReadNamespaceID(t *testing.T) {
+	dnr := NewDataNodeRegistration()
+	setup()
+
+	dnr.ReadName(dnrBuffer)
+	dnr.ReadStorageID(dnrBuffer)
+	dnr.ReadInfoPort(dnrBuffer)
+	dnr.ReadIpcPort(dnrBuffer)
+	dnr.ReadLayoutVersion(dnrBuffer)
+
+	err := dnr.ReadNamespaceID(dnrBuffer)
+
+	if err != nil {
+		t.Fail()
+		fmt.Println("Error occurred in TestDNRReadNamespaceID: ", err)
+	}
+
+	if dnr.NamespaceID != 1819160159 {
+		t.Fail()
+	}
+}
+
+func TestDNRReadCTime(t *testing.T) {
+	dnr := NewDataNodeRegistration()
+	setup()
+
+	dnr.ReadName(dnrBuffer)
+	dnr.ReadStorageID(dnrBuffer)
+	dnr.ReadInfoPort(dnrBuffer)
+	dnr.ReadIpcPort(dnrBuffer)
+	dnr.ReadLayoutVersion(dnrBuffer)
+	dnr.ReadNamespaceID(dnrBuffer)
+
+	err := dnr.ReadCTime(dnrBuffer)
+	if err != nil {
+		t.Fail()
+		fmt.Println("Error occurred in TestDNRReadCTime: ", err)
+	}
+
+	if dnr.CTime != 0 {
+		t.Fail()
+	}
+}
+
+func TestDNRReadIsBlockTokenEnabled(t *testing.T) {
+	dnr := NewDataNodeRegistration()
+	setup()
+
+	dnr.ReadName(dnrBuffer)
+	dnr.ReadStorageID(dnrBuffer)
+	dnr.ReadInfoPort(dnrBuffer)
+	dnr.ReadIpcPort(dnrBuffer)
+	dnr.ReadLayoutVersion(dnrBuffer)
+	dnr.ReadNamespaceID(dnrBuffer)
+	dnr.ReadCTime(dnrBuffer)
+
+	err := dnr.ReadIsBlockTokenEnabled(dnrBuffer)
+	if err != nil {
+		t.Fail()
+		fmt.Println("Error occurred in TestDNRReadIsBlockTokenEnabled: ", err)
+	}
+
+	//should be false
+	if dnr.IsBlockTokenEnabled {
+		t.Fail()
+	}
+}
+
+
+
+

@@ -11,6 +11,37 @@ import (
 not aim to be a fully replaceable implementation out of the Writable
 algorithm. */
 
+type BlockKey struct {
+	//read as varint
+	KeyId int64
+
+	//read as varlong (but treated as varint in Go)
+	ExpiryDate int64
+
+	//read as varlong
+	Len int64
+
+	//depends on the Len
+	KeyBytes []byte
+}
+
+func NewBlockKey() *BlockKey {
+	bk := BlockKey{}
+	return &bk
+}
+
+func (b *BlockKey) ReadBlockKey(reader io.Reader) {
+	b.KeyId, _ := binary.ReadVarint(reader)
+	b.ExpiryDate, _ := binary.ReadVarint(reader)
+	b.Len, _ := binary.ReadVarint(reader)
+
+	if b.Len > 0 {
+		b.KeyBytes := make([]byte, b.Len)
+		reader.Read(b.KeyBytes)
+	}
+}
+
+
 type DataNodeRegistration struct {
 	/* 
 	* Reading scheme:
@@ -29,16 +60,21 @@ type DataNodeRegistration struct {
 	InfoPort uint16
 
 	//port to conduct IPC on 9written as short int)
-	IpcPort int
+	IpcPort uint16
 
 	//written as int
-	LayoutVersion int
+	LayoutVersion uint32
 
 	//written as int
-	NameSpaceID int
+	NamespaceID uint32
 
 	//written as long
-	CTime int
+	CTime uint64
+
+	//boolean
+	IsBlockTokenEnabled bool
+
+	KeyUpdateInterval uint64
 }
 
 
@@ -75,6 +111,47 @@ func ReadShortInt(reader io.Reader) (uint16, error) {
 	return res, nil
 }
 
+//package method - read a Writeable Int
+func ReadInt(reader io.Reader) (uint32, error) {
+	var res uint32
+	err := binary.Read(reader, binary.BigEndian, &res)
+	if err != nil {
+		return 0, err
+	}
+
+	return res, nil
+}
+
+//package method - read a Writeable Long Int
+func ReadLongInt(reader io.Reader) (uint64, error) {
+	var res uint64
+	err := binary.Read(reader, binary.BigEndian, &res)
+	if err != nil {
+		return 0, err
+	}
+
+	return res, nil
+}
+
+//package method - read a Writeable Boolean (1 byte)
+func ReadBoolean(reader io.Reader) (bool, error) {
+	var res byte
+	err := binary.Read(reader, binary.BigEndian, &res)
+	if err != nil {
+		return false, err
+	}
+
+	var resBool bool
+	if res == 1 {
+		resBool = true
+	} else {
+		resBool = false
+	}
+
+	return resBool, nil
+}
+
+
 //reads the name value from a reader (this can be a connection,
 //byte buffer, etc.)
 func (d *DataNodeRegistration) ReadName(reader io.Reader) error {
@@ -106,3 +183,74 @@ func (d *DataNodeRegistration) ReadInfoPort(reader io.Reader) error {
 	d.InfoPort = infoPortReg & 0x0000ffff
 	return nil
 }
+
+func (d *DataNodeRegistration) ReadIpcPort(reader io.Reader) error {
+	ipcPortReg, err := ReadShortInt(reader)
+	if err != nil {
+		return err
+	}
+
+	d.IpcPort = ipcPortReg & 0x0000ffff
+	return nil
+}
+
+func (d *DataNodeRegistration) ReadLayoutVersion(reader io.Reader) error {
+	layoutVersion, err := ReadInt(reader)
+	if err != nil {
+		return err
+	}
+
+	d.LayoutVersion = layoutVersion
+	return nil
+}
+
+func (d *DataNodeRegistration) ReadNamespaceID(reader io.Reader) error {
+	namespaceID, err := ReadInt(reader)
+	if err != nil {
+		return err
+	}
+
+	d.NamespaceID = namespaceID
+	return nil
+}
+
+func (d *DataNodeRegistration) ReadCTime(reader io.Reader) error {
+	cTime, err := ReadLongInt(reader)
+	if err != nil {
+		return err
+	}
+
+	d.CTime = cTime
+	return nil
+}
+
+func (d *DataNodeRegistration) ReadIsBlockTokenEnabled(reader io.Reader) error {
+	is, err := ReadBoolean(reader)
+	if err != nil {
+		return err
+	}
+
+	d.IsBlockTokenEnabled = is
+	return nil
+}
+
+func (d *DataNodeRegistration) ReadKeyUpdateInterval(reader io.Reader) error {
+	keyUpdateInterval, err := ReadLongInt(reader)
+	if err != nil {
+		return err
+	}
+
+	d.KeyUpdateInterval = keyUpdateInterval
+	return nil
+}
+
+func (d *DataNodeRegistration) ReadTokenLifetime(reader io.Reader) error {
+	tokenLifetime, err := ReadLongInt(reader)
+	if err != nil {
+		return err
+	}
+
+	d.TokenLifeTime = tokenLifetime
+	return nil
+}
+
