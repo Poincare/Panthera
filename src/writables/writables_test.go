@@ -14,6 +14,10 @@ var DataNodeRegistrationTest []byte = []byte{0,24,100,104,97,105,118,97,116,45,7
 
 var dnrBuffer *bytes.Buffer
 
+func setup() {
+	dnrBuffer = bytes.NewBuffer(DataNodeRegistrationTest)
+}
+
 /* Test the DataNodeRegistration constructor */
 func TestNewDNR (t *testing.T) {
 	dnr := NewDataNodeRegistration();
@@ -22,8 +26,12 @@ func TestNewDNR (t *testing.T) {
 	}	
 }
 
-func setup() {
-	dnrBuffer = bytes.NewBuffer(DataNodeRegistrationTest)
+func TestDNRRead(t *testing.T) {
+	dnr := NewDataNodeRegistration()
+	setup()
+
+	dnr.Read(dnrBuffer)
+	fmt.Println("DataNodeRegistration after Read(): ", dnr)
 }
 
 func TestReadString(t *testing.T) {
@@ -160,6 +168,7 @@ func TestDNRReadNamespaceID(t *testing.T) {
 	}
 }
 
+/*
 func TestDNRReadCTime(t *testing.T) {
 	dnr := NewDataNodeRegistration()
 	setup()
@@ -204,7 +213,7 @@ func TestDNRReadIsBlockTokenEnabled(t *testing.T) {
 	if dnr.IsBlockTokenEnabled {
 		t.Fail()
 	}
-}
+} */
 
 
 
