@@ -19,6 +19,9 @@ import (
 	//used for the the DataNodeMap
 	"configuration"
 
+	//used for the DataNodeRegistration writable
+	"writables"
+
 	//"reflect"
 )
 
@@ -311,6 +314,35 @@ func (p *Processor) preprocessAuthRegister(authPacket *namenode_rpc.AuthPacket, 
 	fmt.Println("Diff bytes: ", loadedBytes[len(packetBytes):])
 	fmt.Println("Diff string: ", string(loadedBytes[len(packetBytes):]))
 
+	//we load the "diff bytes" into the Writable DataNodeRegistration
+	diffBuffer := bytes.NewBuffer(loadedBytes[len(packetBytes):])
+	dataNodeRegistration := writables.NewDataNodeRegistration()
+	err := dataNodeRegistration.Read(diffBuffer)
+	if err != nil {
+		util.DebugLogger.Println("Error occurred in preprocessing DataNodeRegistration: ", err)
+		util.DebugLogger.Println("Not submitting registration.")
+		return []byte{}
+	}
+
+	//we make changes to the DataNodeRegistration
+	dataNodeRegistration.Name = "dhaivat-GA-870A-UD3:2010"
+	dataNodeRegistration.StorageID = "DS-2096826136-127.0.1.1-2010-1395205739838"
+
+	resDiffBuffer := new(bytes.Buffer)
+	err = dataNodeRegistration.Write(resDiffBuffer)
+	fmt.Println("ResDiffBuffer: ")
+	fmt.Println(hex.Dump(resDiffBuffer.Bytes()))
+	if err != nil {
+		util.DebugLogger.Println("Error occurred in preprocessing DataNodeRegistration: ", err)
+		util.DebugLogger.Println("Not submitting registration.")
+		return []byte{}
+	}
+
+	resBytes := []byte(loadedBytes)
+	resBytes = append(resBytes, resDiffBuffer.Bytes()...)
+	return resBytes
+
+	/*
 	correctBytes := []byte{0,24,100,104,97,105,118,97,116,45,71,65,45,56,55,48,65,45,85,68,51,58}
 	correctBytes = append(correctBytes, []byte("2010")...)
 	//there might be an error right here
@@ -322,7 +354,7 @@ func (p *Processor) preprocessAuthRegister(authPacket *namenode_rpc.AuthPacket, 
 	fmt.Println(hex.Dump(packetBytes))
 	fmt.Println("Loaded bytes: ")
 	fmt.Println(hex.Dump(loadedBytes))
-	return packetBytes
+	return packetBytes */
 	
 	//TODO make this generic so that we can actually set a port #, id, etc.
 	/*

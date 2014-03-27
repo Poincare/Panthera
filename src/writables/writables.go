@@ -20,8 +20,10 @@ type Reader interface {
 	Read(p []byte) (n int, err error)
 }
 
+//mix of io.ByteWriter and io.Writer
 type Writer interface {
 	Write(p []byte) (n int, err error)
+	WriteByte(p byte) (err error)
 }
 
 /***
@@ -158,6 +160,16 @@ func WriteString(val string, writer Writer) error {
 	return nil
 }
 
+func WriteUvarint(val uint64, writer Writer) error {
+	buf := make([]byte, 30)
+	bytesWritten := binary.PutUvarint(buf, val)
+
+	res := buf[0:bytesWritten]
+
+	_, err := writer.Write(res)
+	return err
+}
+
 func WriteVarint(val int64, writer Writer) error {
 	//30 bytes should be plenty
 	buf := make([]byte, 30)
@@ -169,6 +181,85 @@ func WriteVarint(val int64, writer Writer) error {
 
 	_, err := writer.Write(res)
 	return err
+}
+
+//this seems to be the "Writable" version of Google's protocol
+//buffers (does not seem to be the same algorithm)
+//(code adapted from the Hadoop codebase, which has been
+//adpated from the Protocol Buffers codebase)
+func WriteVInt(val int64, writer Writer) {
+
+  if val >= -112 && val <= 127 {
+		binary.Write(writer, binary.BigEndian, int8(val))
+    return
+  }
+    
+  length := -112
+  if val < 0 {
+    val ^= int64(-1) // take one's complement'
+    length = -120;
+  }
+    
+  tmp := val
+  for tmp != 0 {
+    tmp = tmp >> 8
+    length--
+  }
+    
+  binary.Write(writer, binary.BigEndian, int8(length));
+  
+  if length < -120 {
+  	length = -(length+120)
+  } else {
+  	length = -(length+112)
+  }
+
+  for idx := length; idx != 0; idx-- {
+  	shiftbits := (idx - 1) * 8
+  	mask := 0xFF << uint(shiftbits)
+  	binary.Write(writer, binary.BigEndian, int8((val & int64(mask)) >> uint(shiftbits)))
+  }
+}
+
+//Internal function used ReadVInt
+func decodeVIntSize(value int8) int8 {
+  if value >= -112 {
+    return 1
+  } else if value < -120 {
+    return -119 - value
+  }
+  return -111 - value
+}
+
+//Internal function used by ReadVInt
+func isNegativeVInt(value int8) bool {
+	return value < -120 || (value >= -112 && value < 0);
+}
+
+//see comments on WriteVInt()
+func ReadVInt(reader Reader) int64 {
+	var firstByte int8
+	binary.Read(reader, binary.BigEndian, &firstByte)
+  
+  length := decodeVIntSize(firstByte);
+  if length == 1 {
+    return int64(firstByte)
+  }
+
+  var i int64 = 0;
+  for idx := int8(0); idx < length-1; idx++ {
+    var b int8
+    binary.Read(reader, binary.BigEndian, &b)
+
+    i = i << 8
+    i = i | (int64(b) & 0xFF)
+  }
+
+  if isNegativeVInt(firstByte) {
+  	return (i ^ -1)
+  } else {
+  	return i
+  }
 }
 
 func WriteBytes(val []byte, writer Writer) error {
@@ -200,9 +291,9 @@ func NewBlockKey() *BlockKey {
 }
 
 func (b *BlockKey) Read(reader Reader) error {
-	b.KeyId, _ = binary.ReadVarint(reader)
-	b.ExpiryDate, _ = binary.ReadVarint(reader)
-	b.Len, _ = binary.ReadVarint(reader)
+	b.KeyId = ReadVInt(reader)
+	b.ExpiryDate = ReadVInt(reader)
+	b.Len = ReadVInt(reader)
 
 	var err error
 
@@ -220,11 +311,11 @@ func (b *BlockKey) Read(reader Reader) error {
 }
 
 func (b *BlockKey) Write(writer Writer) error {
-	err := WriteVarint(b.KeyId, writer)
-	err = WriteVarint(b.ExpiryDate, writer)
-	err = WriteVarint(b.Len, writer)
+	WriteVInt(b.KeyId, writer)
+	WriteVInt(b.ExpiryDate, writer)
+	WriteVInt(b.Len, writer)
 	
-	err = WriteBytes(b.KeyBytes, writer)
+	err := WriteBytes(b.KeyBytes, writer)
 
 	return err
 }
@@ -297,7 +388,7 @@ type DataNodeRegistration struct {
 	//(this value is written as a short int by Hadoop)
 	InfoPort uint16
 
-	//port to conduct IPC on 9written as short int)
+	//port to conduct IPC on written as short int)
 	IpcPort uint16
 
 	//written as int

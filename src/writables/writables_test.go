@@ -34,8 +34,22 @@ func TestDNRWrite(t *testing.T) {
 	var dnrWriteBuffer bytes.Buffer
 
 	err := dnr.Read(dnrBuffer)
+	fmt.Println("Dnr.keys.currentkey: ", dnr.Keys.CurrentKey)
+	fmt.Println("keys of dnr: ", dnr.Keys.KeyLength)
+
  	err = dnr.Write(&dnrWriteBuffer)
 	if err != nil {
+		t.Fail()
+	}
+
+	returnedBytes := dnrWriteBuffer.Bytes()
+	expectedBytes := DataNodeRegistrationTest
+	
+	if len(returnedBytes) != len(expectedBytes) {
+		t.Fail()
+	}
+
+	if !reflect.DeepEqual(returnedBytes, expectedBytes) {
 		t.Fail()
 	}
 
