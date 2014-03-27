@@ -338,8 +338,10 @@ func (p *Processor) preprocessAuthRegister(authPacket *namenode_rpc.AuthPacket, 
 		return []byte{}
 	}
 
-	resBytes := []byte(loadedBytes)
+	resBytes := []byte(packetBytes)
 	resBytes = append(resBytes, resDiffBuffer.Bytes()...)
+	fmt.Println("Res bytes: ")
+	fmt.Println(hex.Dump(resBytes))
 	return resBytes
 
 	/*
@@ -862,10 +864,6 @@ func (p *Processor) HandleHDFS(conn net.Conn, hdfs net.Conn) {
 //with the cache, this should look inside the cache
 //and either return a response to send to the client
 //or, return a nil packet
-
-//TODO at the moment, this doesn't actually look inside a 
-//cache at all, it just sends back a nil packet; i.e.
-//it is not doing any processing with results at all
 func (p *Processor) Process(req *namenode_rpc.RequestPacket) namenode_rpc.ResponsePacket {
 	methodName := string(req.MethodName)
 	log.Println("Trying to do something here...")
