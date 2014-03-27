@@ -30,14 +30,16 @@ func TestNewDNR (t *testing.T) {
 
 func TestDNRWrite(t *testing.T) {
 	dnr := NewDataNodeRegistration()
-	var dnrBuffer bytes.Buffer
+	setup()
+	var dnrWriteBuffer bytes.Buffer
 
-	err := dnr.Write(&dnrBuffer)
+	err := dnr.Read(dnrBuffer)
+ 	err = dnr.Write(&dnrWriteBuffer)
 	if err != nil {
 		t.Fail()
 	}
 
-	fmt.Println("DataNodeRegistration Write() bytes: ", dnrBuffer.Bytes())
+	fmt.Println("DataNodeRegistration Write() bytes: ", dnrWriteBuffer.Bytes())
 	fmt.Println("DataNodeRegistration Expected bytes: ", DataNodeRegistrationTest)
 }
 

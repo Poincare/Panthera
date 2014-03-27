@@ -3,6 +3,7 @@ package writables
 import (
 	"encoding/binary"
 	"bytes"
+	"fmt"
 )
 
 /*
@@ -46,6 +47,7 @@ func ReadString(reader Reader) (string, error) {
 //package method - read a Writeable Short Int
 func ReadShortInt(reader Reader) (uint16, error) {
 	var res uint16
+	fmt.Println("reader (from ReadShortInt()): ", reader)
 	err := binary.Read(reader, binary.BigEndian, &res)
 	if err != nil {
 		return 0, err
@@ -314,6 +316,7 @@ type DataNodeRegistration struct {
 /* constructor */
 func NewDataNodeRegistration() *DataNodeRegistration {
 	dnr := DataNodeRegistration{}
+	dnr.Keys = NewExportedBlockKeys()
 	return &dnr
 }
 
