@@ -35,6 +35,20 @@ type CommMessage struct {
 	//i.e. means that handleDataNode should try to 
 	//handle a datanode response
 	CurrentRequestAvailable bool
+
+	//set to true if the receiver is supposed
+	//to return (e.g. if HandleHDFS receives it,
+	//it will not close the socket, but will
+	//simply return)
+	Return bool
+}
+
+func NewCommMessage() *CommMessage {
+	comm := CommMessage{CloseSocket: false, 
+		CurrentRequestAvailable: false, 
+		Return: false}
+
+	return &comm
 }
 
 //processes requests from clients and forwards
@@ -277,11 +291,16 @@ func (p *Processor) HandleConnectionSingular(conn net.Conn, dataNode net.Conn) {
 //tell the datanode that a new current request is available 
 //and it will need to handle a response soon
 func (p *Processor) sendCurrentRequestAvailable() {
-	msg := new(CommMessage)
-	msg.CloseSocket = false
+	msg := NewCommMessage()
 	msg.CurrentRequestAvailable = true
 
 	//push the message into the communication channel between the goroutines
+	p.commChan <- *msg
+}
+
+//tell receiver to return
+func (p *Processor) sendReturn() {
+	msg := NewCommMessage()
 	p.commChan <- *msg
 }
 
@@ -324,8 +343,26 @@ func (p *Processor) HandleConnection(conn net.Conn, dataNode net.Conn) {
 			p.handleDataRequest(conn, dataNode, dataRequest)
 		case *datanode_rpc.PutDataRequest:
 			putDataRequest := dataRequest.(*datanode_rpc.PutDataRequest)
+			util.TempLogger.Println(p.id, "Received a PutDataReqest.")
+		  
+		  //if we have a PutDataRequest, then there is no caching
+		  //involved so we can we use the lower latency
+		  //PutRequestProcessor instead
+		  prp := NewPutRequestProcessor(p.id)
+		 	
+		 	//transfers over control of the connections to the client
+		 	//and the DataNode to the PutRequestProcessor
+		 	util.TempLogger.Println(p.id, "Sending a return message.")
+		 	go p.sendReturn()
+		 	ForwardPutDataRequest(putDataRequest, conn, dataNode)
+		  go prp.HandleConnection(conn, dataNode)
+		  go prp.HandleHDFS(conn, dataNode)
+			
+			return
+			/*
+			putDataRequest := dataRequest.(*datanode_rpc.PutDataRequest)
 			p.handlePutDataRequest(conn, dataNode, putDataRequest)
-			prevPDR = true
+			prevPDR = true */
 		case *datanode_rpc.PutFileDataRequest:
 			putFileDataRequest := dataRequest.(*datanode_rpc.PutFileDataRequest)
 			p.handlePutFileDataRequest(conn, dataNode, putFileDataRequest)

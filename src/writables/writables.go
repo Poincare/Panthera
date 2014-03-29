@@ -3,7 +3,7 @@ package writables
 import (
 	"encoding/binary"
 	"bytes"
-	"fmt"
+	"reflect"
 )
 
 /*
@@ -12,6 +12,11 @@ import (
 not aim to be a fully replaceable implementation out of the Writable
 algorithm. */
 
+//the Writable interface, as specified in the Hadoop source code
+type Writable interface {
+	Read(Reader) error
+	Write(Writer) error
+}
 
 //this is a mix of io.ByteReader
 //and io.Reader
@@ -29,6 +34,84 @@ type Writer interface {
 /***
 *** Writable Reader methods
 ***/
+
+//this is a generic read that can read (most) kind of writables
+//without any configuration because it uses reflection and determines
+//what type of methods to call for certain element types.
+func GenericRead(packet interface{}, reader Reader) error {
+	//number of elements in the packet
+
+	//elementElem := reflect.ValueOf(packet).Elem()
+	/*
+	byteElem := reflect.ValueOf(packet).Elem().Field(0)
+	fmt.Println("ByteElem: ", byteElem)
+	reflect.ValueOf(packet).Elem().Field(0).Set(reflect.ValueOf(int8(17))) */
+
+	elementCount := reflect.ValueOf(packet).Elem().NumField()
+	for i := 0; i < elementCount; i++ {
+		element := reflect.ValueOf(packet).Elem().Field(i)
+		elementKind := element.Kind()
+	
+		//we have to read in the element according to what
+		//type it is in the packet structure
+		switch(elementKind) {
+		//byte
+		case reflect.Int8:
+			val, err := ReadByte(reader)
+			if err != nil {
+				return err
+			}
+
+			element.Set(reflect.ValueOf(val))
+		
+		//short
+		case reflect.Uint16:
+			val, err := ReadShortInt(reader)
+			if err != nil {
+				return err
+			}
+
+			element.Set(reflect.ValueOf(val))
+
+		//int
+		case reflect.Uint32:
+			val, err := ReadInt(reader)
+			if err != nil {
+				return err
+			}
+
+			element.Set(reflect.ValueOf(val))
+
+		//long
+		case reflect.Uint64:
+			val, err := ReadLongInt(reader)
+			if err != nil {
+				return err
+			}
+
+			element.Set(reflect.ValueOf(val))
+
+		//varint
+		case reflect.Int64:
+			val := ReadVInt(reader)
+
+			element.Set(reflect.ValueOf(val))
+
+		//string
+		case reflect.String:
+			val, err := ReadString(reader)
+			if err != nil {
+				return err
+			}
+
+			element.Set(reflect.ValueOf(val))
+		}
+
+
+	}
+
+	return nil
+}
 
 //package method - read a Writeable String
 func ReadString(reader Reader) (string, error) {
@@ -49,7 +132,6 @@ func ReadString(reader Reader) (string, error) {
 //package method - read a Writeable Short Int
 func ReadShortInt(reader Reader) (uint16, error) {
 	var res uint16
-	fmt.Println("reader (from ReadShortInt()): ", reader)
 	err := binary.Read(reader, binary.BigEndian, &res)
 	if err != nil {
 		return 0, err
@@ -98,6 +180,19 @@ func ReadBoolean(reader Reader) (bool, error) {
 	return resBool, nil
 }
 
+//package method - actually reads an int8, but we 
+//are saying that it reads a byte since that is 
+//how it is done in the Hadoop codebase
+func ReadByte(reader Reader) (int8, error) {
+	var res int8
+	err := binary.Read(reader, binary.BigEndian, &res)
+	if err != nil {
+		return 0, err
+	}
+
+	return res, nil
+}
+
 /**
 ** Writable Writing methods
 **/
@@ -137,8 +232,8 @@ func WriteShortInt(val uint16, writer Writer) error {
 	return err
 }
 
-func WriteByte(val byte, writer Writer) error {
-	buf := []byte{val}
+func WriteByte(val int8, writer Writer) error {
+	buf := []byte{byte(val)}
 	_, err := writer.Write(buf)
 	return err
 }
@@ -152,7 +247,7 @@ func WriteString(val string, writer Writer) error {
 
 	//then we write out the contents
 	for i := 0; i<len(val); i++ {
-		err = WriteByte(byte(val[i]), writer)
+		err = WriteByte(int8(val[i]), writer)
 		if err != nil {
 			return err
 		}

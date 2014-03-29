@@ -81,7 +81,7 @@ func loopData(listener net.Listener, location *configuration.DataNodeLocation, c
 		go dataProcessor.HandleConnection(conn, dataNode)
 		
 		//go dataProcessor.HandleDataNode(conn, dataNode)
-		go dataProcessor.BruteForceHandleDataNode(conn, dataNode)
+		go dataProcessor.HandleDataNode(conn, dataNode)
 
 		util.DebugLogger.Println("-----------")
 	}

@@ -752,7 +752,8 @@ func (p *Processor) preprocessRegistrationResponse(genericResp *namenode_rpc.Gen
 	correctBytes := packetBytes
 	correctBytes = append(correctBytes, []byte{0,42,68,83,45,50,48,57,54,56,50,54,49,51,54,45,49,50,55,46,48,46,49,46,49,45}...)
 	correctBytes = append(correctBytes, []byte("1389")...)
-	correctBytes = append(correctBytes, []byte{45,49,51,57,53,50,48,53,55,51,57,56,51,56,195,155,195,100,255,255,255,215,108,110,46,95,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,255,0,0,0,0}...)
+	correctBytes = append(correctBytes, []byte{45,49,51,57,53,50,48,53,55,51,57,56,51,56,195,155,195,100,255,255,255,215,108,110,
+		46,95,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,255,0,0,0,0}...)
 
 	genericResp.Buf = correctBytes
 	fmt.Println("In preprocessor, genericResp.Buf: ")

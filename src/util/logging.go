@@ -29,6 +29,16 @@ var MetaCachedLatencyLogFile = "../../logs/meta_cache_latency"
 var NonMetaCachedLatencyLogger *log.Logger
 var NonMetaCachedLatencyLogFile = "../../logs/non_meta_cache_latency"
 
+
+//this is type of log is supposed to be used ONLY in debugging 
+//(i.e. should not be in th deployed code) because the only 
+//purpose it serves is to aid in debugging Panthera itself
+var TempLogger *log.Logger
+
+//note that this file is *not* an append log - it is 
+//cleared at every run
+var TempLoggerLogFile = "../../logs/temp.log"
+
 //NOTE this is a relative path; in deployment, the executable needs to be in the same directory
 //this file otherwise there will be problems in loading the logging configuration (it will
 //just default to the development values).
@@ -41,6 +51,16 @@ func InitLoggingConfiguration() error {
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+func InitTempLogger() error {
+	tempLogFile, err := os.OpenFile(TempLoggerLogFile, os.O_WRONLY | os.O_CREATE, 0666)
+	if err != nil {
+		return err
+	}
+
+	TempLogger = log.New(tempLogFile, "", 0)
 	return nil
 }
 
@@ -139,6 +159,12 @@ func Init() error {
 	if err != nil {
 		return err
 	}
+
+	err = InitTempLogger()
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 

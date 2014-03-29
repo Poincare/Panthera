@@ -128,6 +128,7 @@ type PutDataRequest struct {
 	ChecksumType uint8
 	ChunkSize uint32
 }
+
 //constructor
 func NewPutDataRequest() *PutDataRequest {
 	dr := PutDataRequest{}

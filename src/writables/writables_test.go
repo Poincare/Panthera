@@ -28,6 +28,47 @@ func TestNewDNR (t *testing.T) {
 	}	
 }
 
+type TestDataStructure struct {
+	Byte int8
+	ShortInt uint16
+	Int uint32
+	Long uint64
+	String string
+}
+
+func TestGenericRead(t *testing.T) {
+	tds := new(TestDataStructure)
+	buf := []byte{2, 0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 2, 104, 101, 108, 108, 111}
+	reader := bytes.NewBuffer(buf)
+
+	err := GenericRead(tds, reader)
+	if err != nil {
+		t.Fail()
+	}
+
+	if tds.Byte != 2 {
+		t.Fail()
+	}
+
+	if tds.ShortInt != 2 {
+		t.Fail()
+	}
+
+	if tds.Int != 2 {
+		t.Fail()
+	}
+
+	if tds.Long != 2 {
+		fmt.Println("Tds long: ", tds.Long)
+		t.Fail()
+	}
+
+	if tds.String != "hello" {
+		fmt.Println("Tds string: ", tds.String)
+		t.Fail()
+	}
+}
+
 func TestDNRWrite(t *testing.T) {
 	dnr := NewDataNodeRegistration()
 	setup()
@@ -305,8 +346,8 @@ func TestWriteInt(t *testing.T) {
 }
 
 func TestWriteByte(t *testing.T) {
-	var val byte
-	val = byte('a')
+	var val int8
+	val = int8(byte('a'))
 
 	var buf bytes.Buffer
 	WriteByte(val, &buf)
