@@ -38,7 +38,7 @@ type TestDataStructure struct {
 
 func TestGenericRead(t *testing.T) {
 	tds := new(TestDataStructure)
-	buf := []byte{2, 0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 2, 104, 101, 108, 108, 111}
+	buf := []byte{2, 0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 2, 0, 5, 104, 101, 108, 108, 111}
 	reader := bytes.NewBuffer(buf)
 
 	err := GenericRead(tds, reader)

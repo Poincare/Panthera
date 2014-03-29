@@ -140,6 +140,11 @@ func NewText() *Text {
 	return &t
 }
 
+func (t *Text) Read(reader Reader) error {
+	err := GenericRead(t)
+	return err
+}
+
 type Token struct {
 	//read in as a VInt
 	IdentifierLength int64

@@ -35,6 +35,7 @@ type Writer interface {
 *** Writable Reader methods
 ***/
 
+
 //this is a generic read that can read (most) kind of writables
 //without any configuration because it uses reflection and determines
 //what type of methods to call for certain element types.
@@ -50,13 +51,13 @@ func GenericRead(packet interface{}, reader Reader) error {
 	elementCount := reflect.ValueOf(packet).Elem().NumField()
 	for i := 0; i < elementCount; i++ {
 		element := reflect.ValueOf(packet).Elem().Field(i)
-		elementKind := element.Kind()
-	
+		elementVal := element.Interface()
+
 		//we have to read in the element according to what
 		//type it is in the packet structure
-		switch(elementKind) {
+		switch elementVal.(type) {
 		//byte
-		case reflect.Int8:
+		case int8:
 			val, err := ReadByte(reader)
 			if err != nil {
 				return err
@@ -65,7 +66,7 @@ func GenericRead(packet interface{}, reader Reader) error {
 			element.Set(reflect.ValueOf(val))
 		
 		//short
-		case reflect.Uint16:
+		case uint16:
 			val, err := ReadShortInt(reader)
 			if err != nil {
 				return err
@@ -74,7 +75,7 @@ func GenericRead(packet interface{}, reader Reader) error {
 			element.Set(reflect.ValueOf(val))
 
 		//int
-		case reflect.Uint32:
+		case uint32:
 			val, err := ReadInt(reader)
 			if err != nil {
 				return err
@@ -83,7 +84,7 @@ func GenericRead(packet interface{}, reader Reader) error {
 			element.Set(reflect.ValueOf(val))
 
 		//long
-		case reflect.Uint64:
+		case uint64:
 			val, err := ReadLongInt(reader)
 			if err != nil {
 				return err
@@ -92,19 +93,23 @@ func GenericRead(packet interface{}, reader Reader) error {
 			element.Set(reflect.ValueOf(val))
 
 		//varint
-		case reflect.Int64:
+		case int64:
 			val := ReadVInt(reader)
 
 			element.Set(reflect.ValueOf(val))
 
 		//string
-		case reflect.String:
+		case string:
 			val, err := ReadString(reader)
 			if err != nil {
 				return err
 			}
 
 			element.Set(reflect.ValueOf(val))
+
+		case Writable:
+			writable := elementVal.(Writable)
+			writable.Read(reader)
 		}
 
 
