@@ -34,11 +34,14 @@ type TestDataStructure struct {
 	Int uint32
 	Long uint64
 	String string
+
+	Length uint16
+	Buf []byte
 }
 
 func TestGenericRead(t *testing.T) {
 	tds := new(TestDataStructure)
-	buf := []byte{2, 0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 2, 0, 5, 104, 101, 108, 108, 111}
+	buf := []byte{2, 0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 2, 0, 5, 104, 101, 108, 108, 111, 0, 2, 2, 2}
 	reader := bytes.NewBuffer(buf)
 
 	err := GenericRead(tds, reader)
@@ -65,6 +68,14 @@ func TestGenericRead(t *testing.T) {
 
 	if tds.String != "hello" {
 		fmt.Println("Tds string: ", tds.String)
+		t.Fail()
+	}
+
+	if tds.Length != 2 {
+		t.Fail()
+	}
+
+	if !reflect.DeepEqual(tds.Buf, []byte{2, 2}) {
 		t.Fail()
 	}
 }
@@ -131,6 +142,21 @@ func TestReadShortInt(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func TestReadBytes(t *testing.T) {
+	buf := []byte{1, 2, 3, 4}
+	reader := bytes.NewBuffer(buf)
+
+	res, err := ReadBytes(int64(len(buf)), reader)
+	if err != nil {
+		t.Fail()
+	}
+
+	if !reflect.DeepEqual(res, buf) {
+		t.Fail()
+	}
+}
+
 
 func TestDNRReadName(t *testing.T) {
 	dnr := NewDataNodeRegistration()

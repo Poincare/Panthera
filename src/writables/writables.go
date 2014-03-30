@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"bytes"
 	"reflect"
+	"errors"
 )
 
 /*
@@ -35,6 +36,71 @@ type Writer interface {
 *** Writable Reader methods
 ***/
 
+func GenericWrite(packet interface{}, writer Writer) error {
+	elementCount := reflect.ValueOf(packet).Elem().NumField()
+		for i := 0; i < elementCount; i++ {
+		element := reflect.ValueOf(packet).Elem().Field(i)
+		elementVal := element.Interface()
+
+		//we have to read in the element according to what
+		//type it is in the packet structure
+		switch elementVal.(type) {
+		//byte
+		case int8:
+			val := elementVal.(int8)
+			err := WriteByte(val, writer)
+			if err != nil {
+				return err
+			}
+		
+		//short
+		case uint16:
+			val := elementVal.(uint16)
+			err := WriteShortInt(val, writer)
+			if err != nil {
+				return err
+			}
+
+		//int
+		case uint32:
+			val := elementVal.(uint32)
+			err := WriteInt(val, writer)
+			if err != nil {
+				return err
+			}
+
+		//long
+		case uint64:
+			val := elementVal.(uint64)
+			err := WriteLongInt(val, writer)
+			if err != nil {
+				return err
+			}
+
+		//varint
+		case int64:
+			val := elementVal.(int64)
+			WriteVInt(val, writer)
+
+		//string
+		case string:
+			val := elementVal.(string)
+			err := WriteString(val, writer)
+			if err != nil {
+				return err
+			}
+
+		case Writable:
+			writable := elementVal.(Writable)
+			err := writable.Write(writer)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
 
 //this is a generic read that can read (most) kind of writables
 //without any configuration because it uses reflection and determines
@@ -110,6 +176,40 @@ func GenericRead(packet interface{}, reader Reader) error {
 		case Writable:
 			writable := elementVal.(Writable)
 			writable.Read(reader)
+
+		//probably the most complex case. Basically, we are
+		//assuming that if there is a byte array, the 
+		//previous field in the struct specifies the length 
+		//of that byte array. This is generally true for
+		//Hadoop's protocol (if it isn't, don't use GenericRead)
+		case []byte:
+			if i <= 0 {
+				return errors.New("There is a []byte as the first element of the packet structure; don't know the length, so cannot proceed.")
+			}
+
+			length := reflect.ValueOf(packet).Elem().Field(i-1).Interface()
+			var finalLength int64
+
+			switch length.(type) {
+			case uint16:
+				length := length.(uint16)
+				finalLength = int64(length)
+			case uint32:
+				length := length.(uint32)
+				finalLength = int64(length)
+			case uint64:
+				length := length.(uint64)
+				finalLength = int64(length)
+			case int64:
+				finalLength = length.(int64)
+			}
+
+			val, err := ReadBytes(finalLength, reader)
+			if err != nil {
+				return err
+			}
+
+			element.Set(reflect.ValueOf(val))
 		}
 
 
@@ -196,6 +296,18 @@ func ReadByte(reader Reader) (int8, error) {
 	}
 
 	return res, nil
+}
+
+//read a sequence of bytes given the length
+//that are supposed to read.
+func ReadBytes(length int64, reader Reader) ([]byte, error) {
+	res := make([]byte, length)
+ 	_, err := reader.Read(res)
+ 	if err != nil {
+ 		return []byte{}, err
+ 	}
+
+ 	return res, nil
 }
 
 /**
@@ -512,6 +624,7 @@ func NewDataNodeRegistration() *DataNodeRegistration {
 }
 
 func (d *DataNodeRegistration) Write(writer Writer) error {
+
 	WriteString(d.Name, writer)
 	WriteString(d.StorageID, writer)
 	WriteShortInt(d.InfoPort, writer)

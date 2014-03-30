@@ -127,6 +127,9 @@ func (d *DataRequestHeader) Write(writer Writer) error {
 	return err
 }
 
+/**
+** Text 
+*/
 type Text struct {
 	//VInt
 	Length int64
@@ -141,10 +144,18 @@ func NewText() *Text {
 }
 
 func (t *Text) Read(reader Reader) error {
-	err := GenericRead(t)
+	err := GenericRead(t, reader)
 	return err
 }
 
+func (t *Text) Write(writer Writer) error {
+	err := GenericWrite(t, writer)
+	return err
+}
+
+/**
+** Token
+*/
 type Token struct {
 	//read in as a VInt
 	IdentifierLength int64
@@ -160,7 +171,18 @@ type Token struct {
 	//has a length of Token.PasswordLength
 	Password []int8
 
-	//INCOMPLETE
+	//GenericRead will take care of reading these
+	Kind *Text
+	Service *Text
+	
+}
+
+func (t *Token) Read(reader Reader) error {
+	return GenericRead(t, reader)
+}
+
+func (t *Token) Write(writer Writer) error {
+	return GenericWrite(t, writer)
 }
 
 func NewToken() *Token {
@@ -168,10 +190,9 @@ func NewToken() *Token {
 	return &t
 }
 
-/*
 //writable
 //header when the DataRequest has Op of OP_READ_BLOCK
-type ReadBlockHeader {
+type ReadBlockHeader struct {
 	//long
 	BlockId uint64
 
@@ -181,5 +202,20 @@ type ReadBlockHeader {
 	//long
 	Length uint64
 
-	INCOMPLETE
-} */
+	//varint (for absolutely no reason whatsoever, 
+	//here, Hadoop's codebase decides to use varints
+	//instead of longs to encode lengths)
+	ClientNameLength int64
+
+	ClientName []byte
+
+	AccessToken *Token
+}
+
+func (r *ReadBlockHeader) Read(reader Reader) error {
+	return GenericRead(r, reader)
+}
+
+func (r *ReadBlockHeader) Write(writer Writer) error {
+	return GenericWrite(r, writer)
+}
