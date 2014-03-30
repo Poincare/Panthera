@@ -21,7 +21,7 @@ type WritableProcessor struct {
 	id int64
 }
 
-func NewWritableProcessor() *WritableProcessor {
+func New() *WritableProcessor {
 	w := WritableProcessor{}
 	
 	//generate a random id number for this processor
@@ -30,27 +30,41 @@ func NewWritableProcessor() *WritableProcessor {
 	return &w
 }
 
-func ReadRequestHeader(reader writables.Reader) *writables.DataRequestHeader {
+func (w *WritableProcessor) ReadRequestHeader(reader writables.Reader) *writables.DataRequestHeader {
 	drh := writables.NewDataRequestHeader()
 	drh.Read(reader)
 	return drh
 }
 
+func (w *WritableProcessor) processRequest(requestHeader *writables.DataRequestHeader) {
+	//what kind of processing we do depends on
+	//the type of command given (stored as field Op 
+	//in DataRequestHeader)
+	switch(requestHeader.Op) {
+	case writables.OP_READ_BLOCK:
+		fmt.Println("Received a OP_READ_BLOCK request.")
+	default:
+		fmt.Println("Received some other kind of request, Op: ", requestHeader.Op)
+	}
+}
+
 //talk with the client; cache and forward requests
 //run as goroutine from main.go
-func HandleClient(conn net.Conn, dataNode net.Conn) {
+func (w *WritableProcessor) HandleClient(conn net.Conn, dataNode net.Conn) {
 	for {
 		//we convert the net.Conn's into Connection objects
 		connObj := NewConnection(conn)
 		//dataNodeObj := NewConnection(dataNode)
 
-		//read in the request header
-		requestHeader := ReadRequestHeader(connObj)
-		fmt.Println("Read request header: ", requestHeader)
+		//read in the request header (blocking call)
+		requestHeader := w.ReadRequestHeader(connObj)
+		
+		//now we can process the request
+		w.processRequest(requestHeader)
 	}
 }
 
-func HandleDataNode(conn net.Conn, dataNode net.Conn) {
+func (w *WritableProcessor) HandleDataNode(conn net.Conn, dataNode net.Conn) {
 	for {
 
 	}

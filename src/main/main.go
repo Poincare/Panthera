@@ -8,7 +8,9 @@ import (
 	"log"
 	"caches"
 	"fmt"
-	"data_requests"
+	//"data_requests"
+	"writable_processor"
+
 	"time"
 	"configuration"
 )
@@ -76,6 +78,11 @@ func loopData(listener net.Listener, location *configuration.DataNodeLocation, c
 			dataNode = nil
 		}
 
+		dataProcessor := writable_processor.New()
+		go dataProcessor.HandleClient(conn, dataNode)
+		go dataProcessor.HandleDataNode(conn, dataNode)
+
+		/*
 		//create a new processor this set
 		dataProcessor := data_requests.NewProcessor(cache, location)
 		go dataProcessor.HandleConnection(conn, dataNode)
@@ -83,7 +90,7 @@ func loopData(listener net.Listener, location *configuration.DataNodeLocation, c
 		//go dataProcessor.HandleDataNode(conn, dataNode)
 		go dataProcessor.HandleDataNode(conn, dataNode)
 
-		util.DebugLogger.Println("-----------")
+		util.DebugLogger.Println("-----------") */
 	}
 }
 
