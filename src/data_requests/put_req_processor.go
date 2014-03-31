@@ -8,6 +8,7 @@ import (
 	"util"
 	"datanode_rpc"
 )
+
 /* 
 This file describes the Put Request file processor.
 Since Put file requests are not cached, it doesn't
@@ -44,6 +45,7 @@ func NewPutRequestProcessor(id int64) *PutRequestProcessor {
 
 //reads from the client, forwards to the server
 func (p *PutRequestProcessor) HandleConnection(conn net.Conn, dataNode net.Conn) {
+	utill.DebugLogger.Println("HANDLING CONNECTION FROM PutRequestProcessor")
 	for {
 		buf := make([]byte, 1024)
 		bytesRead, err := conn.Read(buf)

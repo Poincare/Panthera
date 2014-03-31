@@ -80,7 +80,7 @@ func loopData(listener net.Listener, location *configuration.DataNodeLocation, c
 
 		dataProcessor := writable_processor.New()
 		go dataProcessor.HandleClient(conn, dataNode)
-		go dataProcessor.HandleDataNode(conn, dataNode)
+		//go dataProcessor.HandleDataNode(conn, dataNode)
 
 		/*
 		//create a new processor this set
@@ -88,7 +88,7 @@ func loopData(listener net.Listener, location *configuration.DataNodeLocation, c
 		go dataProcessor.HandleConnection(conn, dataNode)
 		
 		//go dataProcessor.HandleDataNode(conn, dataNode)
-		go dataProcessor.HandleDataNode(conn, dataNode)
+		go dataProcessor.BruteForceHandleDataNode(conn, dataNode)
 
 		util.DebugLogger.Println("-----------") */
 	}
@@ -153,11 +153,7 @@ func main() {
 		fmt.Println("Error ocurred in initializing the utilities: ", err)
 		return
 	}
-
-	if err != nil {
-		util.LogError(err.Error());
-		return
-	}
+	util.TempLogger.Println("init()ed temporary logging")
 
 	/* setup the data cache */
 	dataCacheSize := 10

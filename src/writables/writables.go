@@ -26,10 +26,19 @@ type Reader interface {
 	Read(p []byte) (n int, err error)
 }
 
+
 //mix of io.ByteWriter and io.Writer
 type Writer interface {
 	Write(p []byte) (n int, err error)
 	WriteByte(p byte) (err error)
+}
+
+//implements both Reader and Writer
+type ReaderWriter interface {
+	Write(p []byte) (n int, err error)
+	WriteByte(p byte) (err error)
+	ReadByte() (byte, error)
+	Read(p []byte) (n int, err error)
 }
 
 /***

@@ -32,6 +32,7 @@ func TestReadRequestHeader(t *testing.T) {
 
 	if d.Op != 81 {
 		t.Fail()
+		fmt.Println("Op values did not match expected.");
 	}
 }
 

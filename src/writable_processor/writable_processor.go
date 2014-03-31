@@ -5,9 +5,10 @@ import (
 	"net"
 	"math/rand"
 	"fmt"
-
+	
 	//local packages
 	"writables"
+	"util"
 )
 
 /*
@@ -31,36 +32,61 @@ func New() *WritableProcessor {
 }
 
 func (w *WritableProcessor) ReadRequestHeader(reader writables.Reader) *writables.DataRequestHeader {
+	util.TempLogger.Println("Reading request header...")
 	drh := writables.NewDataRequestHeader()
 	drh.Read(reader)
+	util.TempLogger.Println("Finished reading request header...")
+
 	return drh
 }
 
-func (w *WritableProcessor) processRequest(requestHeader *writables.DataRequestHeader) {
+func (w *WritableProcessor) readReadBlockRequest(reader writables.Reader) *writables.ReadBlockHeader {
+	util.TempLogger.Println("Reading block request...")
+	r := writables.NewReadBlockHeader()
+
+	//read in the block request
+	r.Read(reader)
+	util.TempLogger.Println("Finished reading block request.")
+	return r
+}
+
+func (w *WritableProcessor) processReadBlock(requestHeader *writables.DataRequestHeader, 
+	conn writables.ReaderWriter, dataNode writables.ReaderWriter) {
+
+	w.readReadBlockRequest(conn)
+}
+
+func (w *WritableProcessor) processRequest(requestHeader *writables.DataRequestHeader, conn writables.ReaderWriter,
+	dataNode writables.ReaderWriter) {
 	//what kind of processing we do depends on
 	//the type of command given (stored as field Op 
 	//in DataRequestHeader)
 	switch(requestHeader.Op) {
 	case writables.OP_READ_BLOCK:
-		fmt.Println("Received a OP_READ_BLOCK request.")
+		util.TempLogger.Println("Received a OP_READ_BLOCK request.")
+		w.processReadBlock(requestHeader, conn, dataNode)
+
 	default:
-		fmt.Println("Received some other kind of request, Op: ", requestHeader.Op)
+		util.TempLogger.Println("Received some other kind of request, Op: ", requestHeader.Op)
 	}
 }
 
 //talk with the client; cache and forward requests
 //run as goroutine from main.go
 func (w *WritableProcessor) HandleClient(conn net.Conn, dataNode net.Conn) {
+	util.TempLogger.Println("HandleClient() called.")
+
 	for {
+
 		//we convert the net.Conn's into Connection objects
 		connObj := NewConnection(conn)
-		//dataNodeObj := NewConnection(dataNode)
+		dataNodeObj := NewConnection(dataNode)
 
 		//read in the request header (blocking call)
 		requestHeader := w.ReadRequestHeader(connObj)
 		
 		//now we can process the request
-		w.processRequest(requestHeader)
+		w.processRequest(requestHeader, connObj, dataNodeObj)
 	}
 }
 

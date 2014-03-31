@@ -55,12 +55,14 @@ func InitLoggingConfiguration() error {
 }
 
 func InitTempLogger() error {
-	tempLogFile, err := os.OpenFile(TempLoggerLogFile, os.O_WRONLY | os.O_CREATE, 0666)
+	//tempLogFile, err := os.OpenFile(TempLoggerLogFile, os.O_WRONLY | os.O_CREATE, 0666)
+	tempLogFile, err := os.Create(TempLoggerLogFile)
+	
 	if err != nil {
 		return err
 	}
 
-	TempLogger = log.New(tempLogFile, "", 0)
+	TempLogger = log.New(tempLogFile, "", log.Ldate | log.Ltime)
 	return nil
 }
 
@@ -74,7 +76,7 @@ func InitDataReqLogger() error {
 }
 
 func InitDebugLogger() error {
-	debugLogFile, err := os.OpenFile(DebugLogFile, os.O_RDWR | os.O_CREATE, 0666)
+	debugLogFile, err := os.Create(DebugLogFile)
 	if err != nil {
 		return err
 	}

@@ -1,6 +1,8 @@
 package writables
 
 import (
+	//local packages
+	"util"
 )
 
 /***
@@ -102,8 +104,11 @@ func NewDataRequestHeader() *DataRequestHeader {
 }
 
 func (d *DataRequestHeader) Read(reader Reader) error {
+	util.TempLogger.Println("Reading DataRequestHeader (in Read())... ")
 	var err error
+
 	d.Version, err = ReadShortInt(reader)
+	util.TempLogger.Println("Finished reading Version.")
 	if err != nil {
 		return err
 	}
@@ -113,6 +118,8 @@ func (d *DataRequestHeader) Read(reader Reader) error {
 		return err
 	}
 
+	util.TempLogger.Println("Fnished reading DataRequestHeader")
+	
 	return nil
 }
 
@@ -210,6 +217,12 @@ type ReadBlockHeader struct {
 	ClientName []byte
 
 	AccessToken *Token
+}
+
+func NewReadBlockHeader() *ReadBlockHeader {
+	r := ReadBlockHeader{}
+	r.AccessToken = NewToken()
+	return &r
 }
 
 func (r *ReadBlockHeader) Read(reader Reader) error {
