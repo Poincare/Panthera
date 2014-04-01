@@ -48,6 +48,12 @@ func (w *WritableProcessor) readReadBlockRequest(reader writables.Reader) (*writ
 	return r, err
 }
 
+//this method is called to handle responses to an OP_READ_BLOCK request.
+//the response contains the contents of the actual block.
+func (w *WritableProcessor) handleReadBlockResponse(conn writables.ReaderWriter, dataNode *writables.ReaderWriter) {
+	//INCOMPLETE
+}
+
 func (w *WritableProcessor) processReadBlock(requestHeader *writables.DataRequestHeader, 
 	conn writables.ReaderWriter, dataNode writables.ReaderWriter) {
 
@@ -68,6 +74,56 @@ func (w *WritableProcessor) processReadBlock(requestHeader *writables.DataReques
 	}
 }
 
+//this method is called from generalProcessing()
+func (w *WritableProcessor) handleGeneralResponse(requestHeader *writables.DataRequestHeader,
+	conn writables.ReaderWriter, dataNode writables.ReaderWriter) {
+	for {
+		buf := make([]byte, 1)
+		_, err := dataNode.Read(buf)
+		if err != nil {
+			util.DebugLogger.Println(w.id, "Error occurred while reading from dataNode in handleGeneralResponse()")
+			util.DebugLogger.Println(w.id, "Assuming socket is closed.")
+			return
+		}
+
+		err = conn.Write(buf)
+		if err != nil {
+			util.DebugLogger.Println(w.id, "Error occurred while writing to client in handleGeneralResponse()s")
+			util.DebugLogger.Println(w.id, "Assuming socket is closed.")
+			return
+		}
+	}
+}
+
+//this method is called if we have a request other than OP_READ_BLOCK
+//since that is the only request that needs to be cached. Here,
+//a simple relay is set up so that data that comes in is sent directly
+//to the DataNode without modification. It also starts (as a goroutine)
+//handleGeneralResponse() that relays packets from the DataNode to the client
+func (w *WritableProcessor) generalProcessing(requestHeader *writables.DataRequestHeader,
+	conn writables.ReaderWriter, dataNode writables.ReaderWriter) {
+
+	//start the response method
+	go handleGeneralResponse(conn, dataNode)
+
+	for {
+		buf := make([]byte, 1)
+		_, err := conn.Read(buf)
+		if err != nil {
+			util.DebugLogger.Println(w.id, "Error occurred while reading from client in generalProcessing(): ", err)
+			util.DebugLogger.Println("Assuming socket is closed.")
+			return
+		}
+
+		err = dataNode.Write(buf)
+		if err != nil {
+			util.DebugLogger.Println(w.id, "Error occurred while writing to DataNode in generalProcessing(): ", err)
+			util.DebugLogger.Println("Assuming socket is closed.")
+			return
+		}
+	}
+}
+
 func (w *WritableProcessor) processRequest(requestHeader *writables.DataRequestHeader, conn writables.ReaderWriter,
 	dataNode writables.ReaderWriter) {
 	//what kind of processing we do depends on
@@ -80,6 +136,7 @@ func (w *WritableProcessor) processRequest(requestHeader *writables.DataRequestH
 
 	default:
 		util.TempLogger.Println("Received some other kind of request, Op: ", requestHeader.Op)
+		w.generalProcessing(requestHeader, conn, dataNode)
 	}
 }
 
@@ -99,11 +156,5 @@ func (w *WritableProcessor) HandleClient(conn net.Conn, dataNode net.Conn) {
 
 		//now we can process the request
 		w.processRequest(requestHeader, connObj, dataNodeObj)
-	}
-}
-
-func (w *WritableProcessor) HandleDataNode(conn net.Conn, dataNode net.Conn) {
-	for {
-
 	}
 }
