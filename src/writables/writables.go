@@ -164,7 +164,7 @@ func GenericRead(packet interface{}, reader Reader) error {
 	fmt.Println("ByteElem: ", byteElem)
 	reflect.ValueOf(packet).Elem().Field(0).Set(reflect.ValueOf(int8(17))) */
 
-	packetValue := reflect.ValueOf(packet)
+	packetValue := reflect.ValueOf(packet).Elem()
 	//if the value of the packet is not (i.e. is a zero value)
 	//then there is no point trying to read or write it
 	if !packetValue.IsValid() {

@@ -194,6 +194,8 @@ func (t *Token) Write(writer Writer) error {
 
 func NewToken() *Token {
 	t := Token{}
+	t.Kind = NewText()
+	t.Service = NewText()
 	return &t
 }
 
@@ -204,29 +206,62 @@ type ReadBlockHeader struct {
 	BlockId uint64
 
 	//long
+	Timestamp uint64
+
+	//long
 	StartOffset uint64
 
 	//long
 	Length uint64
 
-	//varint (for absolutely no reason whatsoever, 
-	//here, Hadoop's codebase decides to use varints
-	//instead of longs to encode lengths)
-	ClientNameLength int64
-
-	ClientName []byte
+	ClientName *Text
 
 	AccessToken *Token
 }
 
 func NewReadBlockHeader() *ReadBlockHeader {
 	r := ReadBlockHeader{}
+	r.ClientName = NewText()
 	r.AccessToken = NewToken()
 	return &r
 }
 
+//we can't use a genericRead() call for this 
+//Read method implementation
 func (r *ReadBlockHeader) Read(reader Reader) error {
-	return GenericRead(r, reader)
+	var err error
+
+	r.BlockId, err = ReadLongInt(reader)
+	if err != nil {
+		return err
+	}
+
+	r.Timestamp, err = ReadLongInt(reader)
+	if err != nil {
+		return err
+	}
+
+	r.StartOffset, err = ReadLongInt(reader)
+	if err != nil {
+		return err
+	}
+
+	r.Length, err = ReadLongInt(reader)
+	if err != nil {
+		return err
+	}
+
+	err = r.ClientName.Read(reader)
+	if err != nil {
+		return err
+	}
+
+	err = r.AccessToken.Read(reader)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (r *ReadBlockHeader) Write(writer Writer) error {

@@ -5,7 +5,6 @@ import (
 	"net"
 	"math/rand"
 	"bytes"
-	"encoding/hex"
 
 	//local packages
 	"writables"
@@ -41,29 +40,32 @@ func (w *WritableProcessor) ReadRequestHeader(reader writables.Reader) *writable
 	return drh
 }
 
-func (w *WritableProcessor) readReadBlockRequest(reader writables.Reader) *writables.ReadBlockHeader {
-	util.TempLogger.Println("Reading block request...")
+func (w *WritableProcessor) readReadBlockRequest(reader writables.Reader) (*writables.ReadBlockHeader, error) {
 	r := writables.NewReadBlockHeader()
 
 	//read in the block request
-	r.Read(reader)
-	util.TempLogger.Println("Finished reading block request: ", r)
-	return r
+	err := r.Read(reader)
+	return r, err
 }
 
 func (w *WritableProcessor) processReadBlock(requestHeader *writables.DataRequestHeader, 
 	conn writables.ReaderWriter, dataNode writables.ReaderWriter) {
 
-	blockRequest := w.readReadBlockRequest(conn)
+	blockRequest, err := w.readReadBlockRequest(conn)
+	if err != nil {
+		util.DebugLogger.Println(w.id, "Error occurred in reading block request from client: ", err)
+		return
+	}
 
 	resBuf := new(bytes.Buffer)
 	requestHeader.Write(resBuf)
 	blockRequest.Write(resBuf)
 
-	util.TempLogger.Println("BlockRequest: ", blockRequest)
-	util.TempLogger.Println("BlockRequest.Length: ", blockRequest.Length)	
-	util.TempLogger.Println("resBuf: ")
-	util.TempLogger.Println(hex.Dump(resBuf.Bytes()))
+	_, err = dataNode.Write(resBuf.Bytes())
+	if err != nil {
+		util.DebugLogger.Println(w.id, "Error occurred in writing block to dataNode: ", err)
+		return
+	}
 }
 
 func (w *WritableProcessor) processRequest(requestHeader *writables.DataRequestHeader, conn writables.ReaderWriter,
