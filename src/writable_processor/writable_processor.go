@@ -4,8 +4,9 @@ import (
 	//go packages
 	"net"
 	"math/rand"
-	"fmt"
-	
+	"bytes"
+	"encoding/hex"
+
 	//local packages
 	"writables"
 	"util"
@@ -46,14 +47,23 @@ func (w *WritableProcessor) readReadBlockRequest(reader writables.Reader) *writa
 
 	//read in the block request
 	r.Read(reader)
-	util.TempLogger.Println("Finished reading block request.")
+	util.TempLogger.Println("Finished reading block request: ", r)
 	return r
 }
 
 func (w *WritableProcessor) processReadBlock(requestHeader *writables.DataRequestHeader, 
 	conn writables.ReaderWriter, dataNode writables.ReaderWriter) {
 
-	w.readReadBlockRequest(conn)
+	blockRequest := w.readReadBlockRequest(conn)
+
+	resBuf := new(bytes.Buffer)
+	requestHeader.Write(resBuf)
+	blockRequest.Write(resBuf)
+
+	util.TempLogger.Println("BlockRequest: ", blockRequest)
+	util.TempLogger.Println("BlockRequest.Length: ", blockRequest.Length)	
+	util.TempLogger.Println("resBuf: ")
+	util.TempLogger.Println(hex.Dump(resBuf.Bytes()))
 }
 
 func (w *WritableProcessor) processRequest(requestHeader *writables.DataRequestHeader, conn writables.ReaderWriter,
@@ -77,14 +87,14 @@ func (w *WritableProcessor) HandleClient(conn net.Conn, dataNode net.Conn) {
 	util.TempLogger.Println("HandleClient() called.")
 
 	for {
-
 		//we convert the net.Conn's into Connection objects
 		connObj := NewConnection(conn)
 		dataNodeObj := NewConnection(dataNode)
 
 		//read in the request header (blocking call)
 		requestHeader := w.ReadRequestHeader(connObj)
-		
+		util.TempLogger.Println("Request header: ", requestHeader)
+
 		//now we can process the request
 		w.processRequest(requestHeader, connObj, dataNodeObj)
 	}

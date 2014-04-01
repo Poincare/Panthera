@@ -5,6 +5,8 @@ import (
 	"bytes"
 	"reflect"
 	"errors"
+
+	"fmt"
 )
 
 /*
@@ -46,8 +48,18 @@ type ReaderWriter interface {
 ***/
 
 func GenericWrite(packet interface{}, writer Writer) error {
+
+	packetValue := reflect.ValueOf(packet).Elem()
+	//if the value of the packet is not (i.e. is a zero value)
+	//then there is no point trying to read or write it
+	if !packetValue.IsValid() {
+		return errors.New("Packet is a zero value.")
+	}
+
+	fmt.Println("Packet value: ", packetValue)
+
 	elementCount := reflect.ValueOf(packet).Elem().NumField()
-		for i := 0; i < elementCount; i++ {
+	for i := 0; i < elementCount; i++ {
 		element := reflect.ValueOf(packet).Elem().Field(i)
 		elementVal := element.Interface()
 
@@ -98,7 +110,36 @@ func GenericWrite(packet interface{}, writer Writer) error {
 			if err != nil {
 				return err
 			}
+		case []byte:
+			val := elementVal.([]byte)
 
+			if i <= 0 {
+				return errors.New("There is a []byte as the first element of the packet structure; don't know the length, so cannot proceed.")
+			}
+
+			length := reflect.ValueOf(packet).Elem().Field(i-1).Interface()
+			var finalLength int64
+
+			switch length.(type) {
+			case uint16:
+				length := length.(uint16)
+				finalLength = int64(length)
+			case uint32:
+				length := length.(uint32)
+				finalLength = int64(length)
+			case uint64:
+				length := length.(uint64)
+				finalLength = int64(length)
+			case int64:
+				finalLength = length.(int64)
+			}
+
+			err := WriteBytes(val, finalLength, writer)
+			if err != nil {
+				return err
+			}
+
+			element.Set(reflect.ValueOf(val))
 		case Writable:
 			writable := elementVal.(Writable)
 			err := writable.Write(writer)
@@ -122,6 +163,13 @@ func GenericRead(packet interface{}, reader Reader) error {
 	byteElem := reflect.ValueOf(packet).Elem().Field(0)
 	fmt.Println("ByteElem: ", byteElem)
 	reflect.ValueOf(packet).Elem().Field(0).Set(reflect.ValueOf(int8(17))) */
+
+	packetValue := reflect.ValueOf(packet)
+	//if the value of the packet is not (i.e. is a zero value)
+	//then there is no point trying to read or write it
+	if !packetValue.IsValid() {
+		return errors.New("Packet is a zero value.")
+	}
 
 	elementCount := reflect.ValueOf(packet).Elem().NumField()
 	for i := 0; i < elementCount; i++ {
@@ -364,6 +412,11 @@ func WriteByte(val int8, writer Writer) error {
 	return err
 }
 
+func WriteBytes(val []byte, length int64, writer Writer) error {
+	_, err := writer.Write(val)
+	return err
+}
+
 func WriteString(val string, writer Writer) error {
 	//write out the length first
 	err := WriteShortInt(uint16(len(val)), writer)
@@ -483,11 +536,6 @@ func ReadVInt(reader Reader) int64 {
   }
 }
 
-func WriteBytes(val []byte, writer Writer) error {
-	_, err := writer.Write(val)
-	return err
-}
-
 /*** 
 ** Specific Writable structures
 ****/
@@ -536,7 +584,7 @@ func (b *BlockKey) Write(writer Writer) error {
 	WriteVInt(b.ExpiryDate, writer)
 	WriteVInt(b.Len, writer)
 	
-	err := WriteBytes(b.KeyBytes, writer)
+	err := WriteBytes(b.KeyBytes, int64(len(b.KeyBytes)), writer)
 
 	return err
 }
