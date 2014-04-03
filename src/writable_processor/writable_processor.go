@@ -76,6 +76,13 @@ func (w *WritableProcessor) readReadBlockRequest(reader writables.Reader) (*writ
 	return r, err
 }
 
+//read a pipelineAck from the client
+//called by handleReadBlockResponse()
+func (w *WritableProcessor) readPipelineAck(conn writables.ReaderWriter,
+	dataNode writables.ReaderWriter) {
+	p := writables.NewPiplineAck()
+}
+
 //this method is called to handle responses to an OP_READ_BLOCK request.
 //the response contains the contents of the actual block.
 func (w *WritableProcessor) handleReadBlockResponse(conn writables.ReaderWriter, 
@@ -145,7 +152,7 @@ func (w *WritableProcessor) processReadBlock(requestHeader *writables.DataReques
 
 	//once we have processed the OP_READ_BLOCK request,
 	//we can just revert to regular request handling
-	go w.generalProcessing(conn, dataNode)
+	go w.generalProcessing(conn, dataNode, false)
 
 	util.TempLogger.Println("Processed readBlock.")
 }
@@ -197,11 +204,13 @@ func (w *WritableProcessor) forwardRequestHeader(requestHeader *writables.DataRe
 //a simple relay is set up so that data that comes in is sent directly
 //to the DataNode without modification. It also starts (as a goroutine)
 //handleGeneralResponse() that relays packets from the DataNode to the client
-func (w *WritableProcessor) generalProcessing(conn writables.ReaderWriter, dataNode writables.ReaderWriter) {
+func (w *WritableProcessor) generalProcessing(conn writables.ReaderWriter, dataNode writables.ReaderWriter, replaceResponse bool) {
 
 
 	//start the response method
-	go w.handleGeneralResponse(conn, dataNode)
+	if replaceResponse {
+		go w.handleGeneralResponse(conn, dataNode)
+	}
 
 	for {
 		//check the channel to make sure that the socket isn't closed
@@ -250,7 +259,7 @@ func (w *WritableProcessor) processRequest(requestHeader *writables.DataRequestH
 			go w.sendSocketClose()
 			return
 		}
-		w.generalProcessing(conn, dataNode)
+		w.generalProcessing(conn, dataNode, true)
 	}
 }
 

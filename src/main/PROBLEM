@@ -1,0 +1,8 @@
+The first OP_READ_BLOCk response is being read but after that,
+we need a PipelineACK from the client before we can proceed.
+
+Solution
+  - do a forever loop on reading the responses (break out of it
+  once we read a packet that is last of a sequence)
+  - after each read of the response, check for a pipelineAck
+   
