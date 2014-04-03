@@ -5,8 +5,9 @@ import (
 	"bytes"
 	"reflect"
 	"errors"
-
+	"io"
 	"fmt"
+
 )
 
 /*
@@ -355,15 +356,53 @@ func ReadByte(reader Reader) (int8, error) {
 	return res, nil
 }
 
+//reads a length number of bytes from reader and blocks
+//until length number of bytes are read
+func ReadBytesBlocking(length int64, reader Reader) ([]byte, error) {
+	//total number of bytes read so far
+	totalRead := int64(0)
+	finalBuf := make([]byte, length)
+
+	for int64(len(finalBuf)) != length {
+		res := make([]byte, length-totalRead)
+		bytesRead, err := reader.Read(res)
+		if err != nil || bytesRead == 0 {
+			return []byte{}, err
+		}
+
+		res = res[0:bytesRead]
+		finalBuf = append(finalBuf, res...)
+		totalRead += int64(bytesRead)
+	}
+
+	return finalBuf, nil
+}
+
+//read a sequence with Io.ReadFull
+func ReadBytesIO(length int64, reader Reader) ([]byte, error) {
+	buf := make([]byte, length)
+	_, err := io.ReadFull(reader, buf)
+	return buf, err
+}
+
 //read a sequence of bytes given the length
 //that are supposed to read.
 func ReadBytes(length int64, reader Reader) ([]byte, error) {
 	res := make([]byte, length)
- 	_, err := reader.Read(res)
+ 	bytesRead, err := reader.Read(res)
+ 	
+ 	//this is an important choice - we are automatically
+ 	//truncating the byte array to the # of bytes that 
+ 	//were actually read
+ 	res = res[0:bytesRead] 
  	if err != nil {
  		return []byte{}, err
  	}
-
+ 	//if the bytesRead doesn't match the length, we 
+ 	//return an error (which can be safely ignored)
+ 	if int64(bytesRead) != int64(length) { 
+ 		return res, errors.New("Could not read the full length of bytes.")
+ 	}
  	return res, nil
 }
 

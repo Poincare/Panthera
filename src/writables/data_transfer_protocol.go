@@ -267,3 +267,130 @@ func (r *ReadBlockHeader) Read(reader Reader) error {
 func (r *ReadBlockHeader) Write(writer Writer) error {
 	return GenericWrite(r, writer)
 }
+
+type ChecksumHeader struct {
+	//byte
+	Type int8
+
+	//int
+	BytesPerChecksum uint32
+}
+
+func NewChecksumHeader() *ChecksumHeader {
+	c := ChecksumHeader{}
+	return &c
+}
+
+func (c *ChecksumHeader) Read(reader Reader) error {
+	return GenericRead(c, reader)
+}
+
+func (c *ChecksumHeader) Write(writer Writer) error {
+	return GenericWrite(c, writer)
+}
+
+/**
+** ReadBlockResponse
+** The response to a OP_READ_BLOCK request.
+*/
+type ReadBlockResponse struct {
+	//int (not clear why - almost all the response
+	//codes are int8's, but for some reason, Hadoop devs
+	//decided that this one should be an int)
+	Status uint16
+
+	Checksum *ChecksumHeader
+
+	//long
+	ChunkOffset uint64
+
+	//int
+	PacketLength uint32
+
+	//long
+	Offset uint64
+
+	//long
+	SeqNo uint64
+
+	//byte. Specifies if this is
+	//the last packet in reading this
+	//particular block - very important
+	//since blocks in HDFS are very large
+	//(usually 64MB)
+	LastPacket int8
+
+	//int
+	Length uint32
+
+	//byte array
+	Data []byte
+}
+
+func NewReadBlockResponse() *ReadBlockResponse {
+	r := ReadBlockResponse{}
+	r.Checksum = NewChecksumHeader()
+	return &r
+}
+
+//this has to be a manual read because GenericRead()
+//is choking on the Checksum
+func (r *ReadBlockResponse) Read(reader Reader) error {
+	var err error
+	r.Status, err = ReadShortInt(reader)
+	if err != nil {
+		return err
+	}
+
+	err = r.Checksum.Read(reader)
+	if err != nil {
+		return err
+	}
+
+	r.ChunkOffset, err = ReadLongInt(reader)
+	if err != nil {
+		return err
+	}
+
+	r.PacketLength, err = ReadInt(reader)
+	if err != nil {
+		return err
+	}
+
+	r.Offset, err = ReadLongInt(reader)
+	if err != nil {
+		return err
+	}
+
+	r.SeqNo, err = ReadLongInt(reader)
+	if err != nil {
+		return err
+	}
+
+	r.LastPacket, err = ReadByte(reader)
+	if err != nil {
+		return err
+	}
+
+	r.Length, err = ReadInt(reader)
+	if err != nil {
+		return err
+	}
+
+	util.TempLogger.Println("DATA LENGTH: ", int64(r.Length))
+	r.Data, err = ReadBytesIO(int64(r.Length), reader)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *ReadBlockResponse) GenericRead(reader Reader) error {
+	return GenericRead(r, reader)
+}
+
+func (r *ReadBlockResponse) Write(writer Writer) error {
+	return GenericWrite(r, writer)
+}
+
