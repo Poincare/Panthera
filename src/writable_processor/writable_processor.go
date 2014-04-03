@@ -89,27 +89,6 @@ func (w *WritableProcessor) handleReadBlockResponse(conn writables.ReaderWriter,
 		}
 	}
 
-	//testing code - trying to see the bytes we are actually getting
-	/* The testing code is working perfectly fine, meaning that it is 
-	possible to read the buffer but there is some issue with *how*
-	the data is being read
-	for {
-		buf := make([]byte, 1)
-		bytesRead, err := dataNode.Read(buf)
-		if err != nil {
-			util.TempLogger.Println("Error occurred in reading from dataNode: ", err)
-			return
-		}
-		buf = buf[0:bytesRead]
-		util.TempLogger.Println("Buffer: ")
-		util.TempLogger.Println(hex.Dump(buf))
-		_, err = conn.Write(buf)
-		if err != nil {
-			util.TempLogger.Println("Error occurred in writing to conn: ", err)
-			return
-		}
-	} */
-
 	//read a response from the datanode
 	response := writables.NewReadBlockResponse()
 	err := response.Read(dataNode)
@@ -128,15 +107,6 @@ func (w *WritableProcessor) handleReadBlockResponse(conn writables.ReaderWriter,
 	util.TempLogger.Println("resbuf from handleReadBlockResponse():")
 	util.TempLogger.Println("\n" + hex.Dump(resBuf.Bytes()))
 
-	/*
-	//testing code -try to read more data out of the stream and see if it is possible
-	buf, err := writables.ReadBytes(int64(100), dataNode)
-	if err != nil {
-		util.TempLogger.Println("Error occurred in reading extra data: ", err)
-	}
-	util.TempLogger.Println("Extra data buf: ", buf) */
-
-	//write the dataNode response the client
 	bytesWritten, err := conn.Write(resBuf.Bytes())
 	if err != nil {
 		util.TempLogger.Println(w.id, "Error occurred in writing to client (in handleReadBlockResponse()):  ", err)
@@ -172,6 +142,10 @@ func (w *WritableProcessor) processReadBlock(requestHeader *writables.DataReques
 		go w.sendSocketClose()
 		return
 	}
+
+	//once we have processed the OP_READ_BLOCK request,
+	//we can just revert to regular request handling
+	go w.generalProcessing(conn, dataNode)
 
 	util.TempLogger.Println("Processed readBlock.")
 }
@@ -223,16 +197,8 @@ func (w *WritableProcessor) forwardRequestHeader(requestHeader *writables.DataRe
 //a simple relay is set up so that data that comes in is sent directly
 //to the DataNode without modification. It also starts (as a goroutine)
 //handleGeneralResponse() that relays packets from the DataNode to the client
-func (w *WritableProcessor) generalProcessing(requestHeader *writables.DataRequestHeader,
-	conn writables.ReaderWriter, dataNode writables.ReaderWriter) {
+func (w *WritableProcessor) generalProcessing(conn writables.ReaderWriter, dataNode writables.ReaderWriter) {
 
-	//forward the existing requestHeader to the dataNode
-	err := w.forwardRequestHeader(requestHeader, dataNode)
-	if err != nil {
-		util.DebugLogger.Println(w.id, "Unable to forward request header to dataNode in generalProcessing(): ", err)
-		util.DebugLogger.Println(w.id, "Assuming socket is closed.")
-		go w.sendSocketClose()
-	}
 
 	//start the response method
 	go w.handleGeneralResponse(conn, dataNode)
@@ -277,7 +243,14 @@ func (w *WritableProcessor) processRequest(requestHeader *writables.DataRequestH
 
 	default:
 		util.TempLogger.Println("Received some other kind of request, Op: ", requestHeader.Op)
-		w.generalProcessing(requestHeader, conn, dataNode)
+		err := w.forwardRequestHeader(requestHeader, dataNode)
+		if err != nil {
+			util.DebugLogger.Println(w.id, "Unable to forward request header to dataNode in generalProcessing(): ", err)
+			util.DebugLogger.Println(w.id, "Assuming socket is closed.")
+			go w.sendSocketClose()
+			return
+		}
+		w.generalProcessing(conn, dataNode)
 	}
 }
 
