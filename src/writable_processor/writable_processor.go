@@ -124,7 +124,7 @@ func (w *WritableProcessor) handleReadBlockResponse(conn writables.ReaderWriter,
 	}
 
 
-	for i := 0; i<2; i++ {
+	for {
 		//read in the BlockPacket (contains part of the block)
 		blockPacket := writables.NewBlockPacket(header)
 		err = blockPacket.Read(dataNode)
@@ -150,10 +150,6 @@ func (w *WritableProcessor) handleReadBlockResponse(conn writables.ReaderWriter,
 			defer w.sendSocketClose()
 		}
 	}
-
-	//read some more bytes to see what is going on
-	w.TempLogExtra(100, dataNode)
-
 }
 
 func (w *WritableProcessor) processReadBlock(requestHeader *writables.DataRequestHeader, 
