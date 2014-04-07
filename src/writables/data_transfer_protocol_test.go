@@ -61,3 +61,41 @@ func TestDataRequestHeaderRead(t *testing.T) {
 		t.Fail()
 	}
 }
+
+/**
+* Cache query related testing
+*/
+func TestReadRequestHeaderEquals(t *testing.T) {
+	r1 := NewReadBlockHeader()
+	r1.BlockId = 1
+	r1.Timestamp = 2
+	r1.StartOffset = 3
+	r1.Length = 4
+	r1.ClientName = NewText()
+	r1.AccessToken = NewToken()
+
+	r2 := NewReadBlockHeader()
+	r2.BlockId = 1
+
+	//note that the timestamp has
+	//no relevance to the equivalence
+	//of two request packets in this
+	//case
+	r2.Timestamp = 500
+
+	r2.StartOffset = 3
+	r2.Length = 4
+	r2.ClientName = NewText()
+	r2.AccessToken = NewToken()
+
+	if !r1.Equals(r2) {
+		fmt.Println("R1 wasn't equal to R2 when it was supposed to.")
+		fmt.Println("Client names equal? : ", r1.ClientName.Equals(r2.ClientName))
+		t.Fail()
+	}
+
+	r2.Length = 45
+	if r1.Equals(r2) {
+		t.Fail()
+	}
+}

@@ -2,6 +2,7 @@ package writables
 
 import (
 	//go packages
+	"reflect"
 
 	//local packages
 
@@ -192,8 +193,21 @@ type Text struct {
 	Bytes []byte
 }
 
+func (t *Text) Equals(e *Text) bool {
+	if t.Length != e.Length {
+		return false
+	}
+
+	if !reflect.DeepEqual(t.Bytes, e.Bytes) {
+		return false
+	}
+
+	return true
+}
+
 func NewText() *Text {
-	t := Text{}
+	t := Text{Length: 0, 
+		Bytes: []byte{}}
 	return &t
 }
 
@@ -229,6 +243,35 @@ type Token struct {
 	Kind *Text
 	Service *Text
 	
+}
+
+//comparator function
+func (t *Token) Equals(e *Token) bool {
+	if t.IdentifierLength != e.IdentifierLength {
+		return false
+	}
+
+	if !reflect.DeepEqual(t.Identifier, e.Identifier) {
+		return false
+	}
+
+	if t.PasswordLength != e.PasswordLength {
+		return false
+	}
+
+	if !reflect.DeepEqual(t.Password, e.Password) {
+		return false
+	}
+
+	if !t.Kind.Equals(e.Kind) {
+		return false
+	}
+
+	if !t.Service.Equals(e.Service) {
+		return false
+	}
+
+	return true
 }
 
 func (t *Token) Read(reader Reader) error {
@@ -271,6 +314,36 @@ func NewReadBlockHeader() *ReadBlockHeader {
 	r.ClientName = NewText()
 	r.AccessToken = NewToken()
 	return &r
+}
+
+//comparing two ReadBlockHeaders (used for caching)
+func (r *ReadBlockHeader) Equals(e *ReadBlockHeader) bool {
+	if r.BlockId != e.BlockId {
+		return false
+	}
+
+	//note: the timestamp does not 
+	//need to be compared because it is not
+	//relevant to the equivalency of two request
+	//packets
+
+	if r.StartOffset != e.StartOffset {
+		return false
+	}
+
+	if r.Length != e.Length {
+		return false
+	}
+
+	if !r.ClientName.Equals(e.ClientName) {
+		return false
+	}
+
+	if !r.AccessToken.Equals(e.AccessToken) {
+		return false
+	}
+
+	return true
 }
 
 //we can't use a genericRead() call for this 
