@@ -80,14 +80,27 @@ func (w *WritableProcessor) readReadBlockRequest(reader writables.Reader) (*writ
 //called by handleReadBlockResponse()
 func (w *WritableProcessor) readPipelineAck(conn writables.ReaderWriter,
 	dataNode writables.ReaderWriter) {
-	p := writables.NewPiplineAck()
+	//INCOMPLETE
+}
+
+//debugging function; reads and logs "length" number of bytes
+//from "conn" 
+func (w *WritableProcessor) TempLogExtra(length int64, conn writables.ReaderWriter) {
+	buf := make([]byte, length)
+	_, err := conn.Read(buf)
+	if err != nil {
+		util.TempLogger.Println("Error occurred in reading 100 extra bytes.")
+	}
+
+	util.TempLogger.Println("Extra 100 bytes read: ")
+	util.TempLogger.Println(hex.Dump(buf))
 }
 
 //this method is called to handle responses to an OP_READ_BLOCK request.
 //the response contains the contents of the actual block.
 func (w *WritableProcessor) handleReadBlockResponse(conn writables.ReaderWriter, 
 	dataNode writables.ReaderWriter) {
-	
+	var err error
 	//check the channel to make sure that the socket isn't closed
 	msg := w.readComm()
 	if msg != nil {
@@ -96,31 +109,51 @@ func (w *WritableProcessor) handleReadBlockResponse(conn writables.ReaderWriter,
 		}
 	}
 
-	//read a response from the datanode
-	response := writables.NewReadBlockResponse()
-	err := response.Read(dataNode)
+	header := writables.NewBlockResponseHeader()
+	err = header.Read(dataNode)
 	if err != nil {
-		util.TempLogger.Println("Error occurred in reading from DataNode: ", err)
-	}
-	util.TempLogger.Println("response from ReadBlockResponse(): ", response)
-	util.TempLogger.Println("respone.Length: ", response.Length)
-	util.TempLogger.Println("len(response.Data)", len(response.Data))
-	resBuf := new(bytes.Buffer)
-	err = response.Write(resBuf)
-	if err != nil {
-		util.TempLogger.Println("Error occurred in writing to buffer: ", err)
+		defer w.sendSocketClose()
+		return
 	}
 
-	util.TempLogger.Println("resbuf from handleReadBlockResponse():")
-	util.TempLogger.Println("\n" + hex.Dump(resBuf.Bytes()))
-
-	bytesWritten, err := conn.Write(resBuf.Bytes())
+	//write the header to the client
+	err = header.Write(conn)
 	if err != nil {
-		util.TempLogger.Println(w.id, "Error occurred in writing to client (in handleReadBlockResponse()):  ", err)
-		util.TempLogger.Println(w.id, "Bytes written: ", bytesWritten)
-		util.TempLogger.Println(w.id, "Assuming socket is closed.")
-		w.sendSocketClose()
+		defer w.sendSocketClose()
+		return
 	}
+
+
+	for i := 0; i<2; i++ {
+		//read in the BlockPacket (contains part of the block)
+		blockPacket := writables.NewBlockPacket(header)
+		err = blockPacket.Read(dataNode)
+		if err != nil {
+			defer w.sendSocketClose()
+			return
+		}
+
+		//log blockpacket data
+		util.TempLogger.Println("blockpacket.Data: ")
+		util.TempLogger.Println(hex.Dump(blockPacket.Data))
+
+		//write the packet to a buffer
+		resBuf := new(bytes.Buffer)
+		err = blockPacket.Write(resBuf)
+		if err != nil {
+			util.TempLogger.Println("Could not write to resBuf: ", err)
+		}
+
+		//write the buffer to the connection
+		_, err = conn.Write(resBuf.Bytes())
+		if err != nil {
+			defer w.sendSocketClose()
+		}
+	}
+
+	//read some more bytes to see what is going on
+	w.TempLogExtra(100, dataNode)
+
 }
 
 func (w *WritableProcessor) processReadBlock(requestHeader *writables.DataRequestHeader, 
@@ -149,10 +182,6 @@ func (w *WritableProcessor) processReadBlock(requestHeader *writables.DataReques
 		go w.sendSocketClose()
 		return
 	}
-
-	//once we have processed the OP_READ_BLOCK request,
-	//we can just revert to regular request handling
-	go w.generalProcessing(conn, dataNode, false)
 
 	util.TempLogger.Println("Processed readBlock.")
 }
@@ -199,13 +228,20 @@ func (w *WritableProcessor) forwardRequestHeader(requestHeader *writables.DataRe
 	return err
 }
 
+func (w *WritableProcessor) GeneralProcessing(conn net.Conn, 
+	dataNode net.Conn, replaceResponse bool) {
+	connObj := NewConnection(conn)
+	dataNodeObj := NewConnection(dataNode)
+
+	w.generalProcessing(connObj, dataNodeObj, replaceResponse)
+}
 //this method is called if we have a request other than OP_READ_BLOCK
 //since that is the only request that needs to be cached. Here,
 //a simple relay is set up so that data that comes in is sent directly
 //to the DataNode without modification. It also starts (as a goroutine)
 //handleGeneralResponse() that relays packets from the DataNode to the client
 func (w *WritableProcessor) generalProcessing(conn writables.ReaderWriter, dataNode writables.ReaderWriter, replaceResponse bool) {
-
+	util.TempLogger.Println(w.id, "General processing called.")
 
 	//start the response method
 	if replaceResponse {
@@ -248,6 +284,7 @@ func (w *WritableProcessor) processRequest(requestHeader *writables.DataRequestH
 	switch(requestHeader.Op) {
 	case writables.OP_READ_BLOCK:
 		util.TempLogger.Println("Received a OP_READ_BLOCK request.")
+		go w.generalProcessing(conn, dataNode, false)
 		w.processReadBlock(requestHeader, conn, dataNode)
 
 	default:
@@ -259,7 +296,7 @@ func (w *WritableProcessor) processRequest(requestHeader *writables.DataRequestH
 			go w.sendSocketClose()
 			return
 		}
-		w.generalProcessing(conn, dataNode, true)
+		go w.generalProcessing(conn, dataNode, true)
 	}
 }
 
@@ -291,5 +328,6 @@ func (w *WritableProcessor) HandleClient(conn net.Conn, dataNode net.Conn) {
 
 		//now we can process the request
 		w.processRequest(requestHeader, connObj, dataNodeObj)
+		return
 	}
 }

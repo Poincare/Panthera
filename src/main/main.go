@@ -79,6 +79,8 @@ func loopData(listener net.Listener, location *configuration.DataNodeLocation, c
 		}
 
 		dataProcessor := writable_processor.New()
+		//go dataProcessor.GeneralProcessing(conn, dataNode, true)
+
 		go dataProcessor.HandleClient(conn, dataNode)
 		//go dataProcessor.HandleDataNode(conn, dataNode)
 

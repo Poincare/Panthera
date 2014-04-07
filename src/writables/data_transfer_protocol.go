@@ -1,8 +1,11 @@
 package writables
 
 import (
+	//go packages
+
 	//local packages
 	"util"
+
 )
 
 /***
@@ -24,6 +27,55 @@ var OP_STATUS_ERROR_INVALID int8 = 3
 var OP_STATUS_ERROR_EXISTS int8 = 4
 var OP_STATUS_ERROR_ACCESS_TOKEN int8 = 5
 var OP_STATUS_CHECKSUM_OK int8 = 6
+
+/***
+** Checksum types
+**/
+var CHECKSUM_NULL int8 = 0;
+var CHECKSUM_CRC32 int8 = 1;
+
+var CHECKSUM_NULL_SIZE int8 = 0
+var CHECKSUM_CRC32_SIZE int8 = 4
+  
+/**
+* PipelineStatus
+**/
+
+//writable
+type PipelineStatus struct {
+	//read/written as a byte
+	Status int8
+}
+
+func NewPipelineStatus() *PipelineStatus {
+	//set to success by default
+	p := PipelineStatus{Status: OP_STATUS_SUCCESS}
+	return &p
+}
+
+func (p *PipelineStatus) Read(reader Reader) error {
+	var err error
+	p.Status, err = ReadByte(reader)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (p *PipelineStatus) Write(writer Writer) error {
+	var err error
+	err = WriteByte(p.Status, writer)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+/*
+* PipelineAck
+*/
 
 //writable
 type PipelineAck struct {
@@ -289,14 +341,223 @@ func (c *ChecksumHeader) Write(writer Writer) error {
 	return GenericWrite(c, writer)
 }
 
+//get the size of the ChecksumHeader (depends on type)
+func (c *ChecksumHeader) Size() int8 {
+	switch c.Type {
+	case CHECKSUM_NULL:
+		return CHECKSUM_NULL_SIZE
+	case CHECKSUM_CRC32:
+		return CHECKSUM_CRC32_SIZE
+	}
+
+	//this should never occur
+	return 0
+}
+
+/**
+* BlockPacket
+* Has the contents of a block
+*/
+type BlockPacket struct {
+	//int
+	PacketLength uint32 //4
+
+	//long
+	Offset uint64 //8
+
+	//long
+	SeqNo uint64 //8
+
+	//byte
+	LastPacket int8 //1
+
+	//Length
+	Length uint32 //4
+
+	//byte array
+	ChecksumData []byte
+
+	//byte array []byte
+	Data []byte
+
+	//have to have read the header before
+	//reading the data
+	header *BlockResponseHeader
+}
+
+func NewBlockPacket(header *BlockResponseHeader) *BlockPacket {
+	b := BlockPacket{
+		header: header}
+	return &b
+}
+
+func (r *BlockPacket) checksumLen() int {
+	return int(r.numChunks() * int(r.header.Checksum.Size()))
+}
+
+func (r *BlockPacket) numChunks() int {
+	return int((r.Length + r.header.Checksum.BytesPerChecksum - 1)/r.header.Checksum.BytesPerChecksum)
+}
+
+func (r *BlockPacket) Read(reader Reader) error {
+	var err error
+
+	r.PacketLength, err = ReadInt(reader)
+	if err != nil {
+		return err
+	}
+
+	r.Offset, err = ReadLongInt(reader)
+	if err != nil {
+		return err
+	}
+
+	r.SeqNo, err = ReadLongInt(reader)
+	if err != nil {
+		return err
+	}
+
+	r.LastPacket, err = ReadByte(reader)
+	if err != nil {
+		return err
+	}
+
+	r.Length, err = ReadInt(reader)
+	if err != nil {
+		return err
+	}
+
+	util.TempLogger.Println("r.PacketLength: ", r.PacketLength)
+	util.TempLogger.Println("r.Offset: ", r.Offset)
+	util.TempLogger.Println("r.SeqNo: ", r.SeqNo)
+	util.TempLogger.Println("r.LastPacket: ", r.LastPacket)
+	util.TempLogger.Println("r.Length: ", r.Length)
+	util.TempLogger.Println("DATA LENGTH (from BlockPacket.Read()): ", int64(r.Length))
+
+	//read in the checksum bytes
+	checksumLen := r.checksumLen()
+	r.Data, _, err = ReadBytesIOInfo(int64(checksumLen), reader)
+	if err != nil {
+		return err
+	}
+
+	//read some more the actual data
+	var interm []byte
+	chunkLen := int64(r.Length)
+	interm, _, err = ReadBytesIOInfo(int64(chunkLen), reader)
+	r.Data = append(r.Data, interm...)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *BlockPacket) Write(writer Writer) error {
+	var err error
+	err = WriteInt(r.PacketLength, writer)
+	if err != nil {
+		return err
+	}
+
+	err = WriteLongInt(r.Offset, writer)
+	if err != nil {
+		return err
+	}
+
+	err = WriteLongInt(r.SeqNo, writer)
+	if err != nil {
+		return err
+	}
+
+	err = WriteByte(r.LastPacket, writer)
+	if err != nil {
+		return err
+	}
+
+	err = WriteInt(r.Length, writer)
+	if err != nil {
+		return err
+	}
+
+	util.TempLogger.Println("Writing bytes (from BlockPacket.Write()): ", int64(r.Length))
+	bytesWritten, err := WriteBytesInfo(r.Data, int64(r.PacketLength), writer)
+	util.TempLogger.Println("Number of bytes actually written (from BlockPacket.Write()): ", bytesWritten)
+	util.TempLogger.Println("Error returned from WriteBytesInfo(): ", bytesWritten)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (b *BlockPacket) GenericWrite(writer Writer) error {
+	return GenericWrite(b, writer)
+}
+
+/**
+* BlockResponseHeader
+*/ 
+type BlockResponseHeader struct {
+	//short int
+	Status uint16
+
+	Checksum *ChecksumHeader
+
+	//long
+	ChunkOffset uint64
+}
+
+
+//figure out packet size
+func (header *BlockResponseHeader) AdjustChecksumSize(dataLen int64) int64 {
+
+	bytesPerChecksum := int64(header.Checksum.BytesPerChecksum)
+	checksumSize := int64(header.Checksum.Size())
+
+	requiredSize := ((dataLen + bytesPerChecksum - 1)/bytesPerChecksum)*checksumSize
+	return requiredSize
+}
+
+func NewBlockResponseHeader() *BlockResponseHeader {
+	b := BlockResponseHeader{}
+	b.Checksum = NewChecksumHeader()
+	return &b
+}
+
+func (r *BlockResponseHeader) Read(reader Reader)  error{
+	var err error
+	r.Status, err = ReadShortInt(reader)
+	if err != nil {
+		return err
+	}
+
+	err = r.Checksum.Read(reader)
+	if err != nil {
+		return err
+	}
+
+	r.ChunkOffset, err = ReadLongInt(reader)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (b *BlockResponseHeader) Write(writer Writer) error {
+	return GenericWrite(b, writer)
+}
+
 /**
 ** ReadBlockResponse
 ** The response to a OP_READ_BLOCK request.
 */
 type ReadBlockResponse struct {
-	//int (not clear why - almost all the response
+	//short int (not clear why - almost all the response
 	//codes are int8's, but for some reason, Hadoop devs
-	//decided that this one should be an int)
+	//decided that this one should be a short int)
 	Status uint16
 
 	Checksum *ChecksumHeader

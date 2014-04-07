@@ -378,6 +378,12 @@ func ReadBytesBlocking(length int64, reader Reader) ([]byte, error) {
 	return finalBuf, nil
 }
 
+func ReadBytesIOInfo(length int64, reader Reader) ([]byte, int, error) {
+	buf := make([]byte, length)
+	bytesRead, err := io.ReadFull(reader, buf)
+	return buf, bytesRead, err
+}
+
 //read a sequence with Io.ReadFull
 func ReadBytesIO(length int64, reader Reader) ([]byte, error) {
 	buf := make([]byte, length)
@@ -451,6 +457,13 @@ func WriteByte(val int8, writer Writer) error {
 	return err
 }
 
+//returns the number of bytesWritten in addition to the error
+func WriteBytesInfo(val []byte, length int64, writer Writer) (int, error) {
+	bytesWritten, err := writer.Write(val)
+	return bytesWritten, err
+}
+
+//does not return the number of bytes written
 func WriteBytes(val []byte, length int64, writer Writer) error {
 	_, err := writer.Write(val)
 	return err
