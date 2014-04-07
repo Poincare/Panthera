@@ -3,7 +3,8 @@ package writable_processor
 import (
 	"testing"
 	"bytes"
-
+	"fmt"
+	"util"
 )
 
 func TestWritableProcessorNew (t *testing.T) {
@@ -18,7 +19,8 @@ var DataRequestHeaderTestCase = []byte{0x00, 0x11, 0x51}
 var dataRequestBuffer *bytes.Buffer
 
 func setup() {
-	dataRequestBuffer = bytes.NewBuffer(DataRequestHeaderTestCase) 
+	dataRequestBuffer = bytes.NewBuffer(DataRequestHeaderTestCase)
+	util.Init()
 }
 
 func TestReadRequestHeader(t *testing.T) {

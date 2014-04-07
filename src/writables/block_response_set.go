@@ -30,26 +30,3 @@ func (b *BlockResponseSet) Size() int {
 	return len(b.Chunks)
 }
 
-/**
-* An OP_READ_BLOCK request and its 
-* corresponding set of responses
-*/
-type ReadRequestResponse struct {
-	Request *ReadBlockHeader
-	ResponseSet *BlockResponseSet
-}
-
-func NewReadRequestResponse(request *ReadBlockHeader) *ReadRequestResponse {
-	r := ReadRequestResponse{Request: request}
-	return &r
-}
-
-//conv method
-func (r *ReadRequestResponse) AddBlockPacket(q *BlockPacket) {
-	r.ResponseSet.AddBlockPacket(q)
-}
-
-//convin. method
-func (r *ReadRequestResponse) AddChunk(q *BlockPacket) {
-	r.AddBlockPacket(q)
-}

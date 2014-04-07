@@ -56,14 +56,11 @@ func (w *WritableProcessor) readComm() *CommMessage {
 }
 
 func (w *WritableProcessor) ReadRequestHeader(reader writables.Reader) *writables.DataRequestHeader {
-	util.TempLogger.Println("Reading request header...")
 	drh := writables.NewDataRequestHeader()
 	err := drh.Read(reader)
 	if err != nil {
 		return nil
 	}
-
-	util.TempLogger.Println("Finished reading request header...")
 
 	return drh
 }
