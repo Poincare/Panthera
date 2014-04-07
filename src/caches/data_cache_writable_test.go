@@ -3,6 +3,7 @@ package caches
 import (
 	//go packages
 	"testing"
+	"fmt"
 
 	//local packages
 	"writables"
@@ -46,6 +47,39 @@ func TestAddReadPair(t *testing.T) {
 	}
 
 	if cache.RpcStore[0] != pair {
+		t.Fail()
+	}
+
+	//add 15 more, then the cache should 
+	//consistently discard items and keep
+	//the number of items at cacheSize
+	for i := 0; i < cacheSize+45; i++ {
+		cache.AddReadPair(pair)
+	}
+
+	if cache.CurrSize() != 10 {
+		fmt.Println("Current size doesn't match, expected 1, got: ", 
+			cache.CurrSize())
+		t.Fail()
+	}
+
+	if cache.RpcStore[0] != pair {
+		t.Fail()
+	}
+}
+
+func TestWDCQuery(t *testing.T) {
+	setupWDC()
+
+	cache.AddReadPair(pair)
+	resPair := cache.Query(pair.Request)
+
+	//nil => not found
+	if resPair == nil {
+		t.Fail()
+	}
+
+	if resPair != pair {
 		t.Fail()
 	}
 }

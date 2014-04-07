@@ -98,4 +98,12 @@ func TestReadRequestHeaderEquals(t *testing.T) {
 	if r1.Equals(r2) {
 		t.Fail()
 	}
+
+	r2.Length = r1.Length
+	r2.ClientName.Length = 15
+	r2.ClientName.Bytes = make([]byte, 15)
+
+	if r1.Equals(r2) {
+		t.Fail()
+	}
 }

@@ -65,3 +65,19 @@ func (w *WritableDataCache) AddReadPair(pair *writables.ReadPair) {
 	w.RpcStore = append(w.RpcStore, pair)
 }
 
+//return a pair by providing a ReadBlockHeader
+func (w *WritableDataCache) Query(
+	toFind *writables.ReadBlockHeader) *writables.ReadPair {
+
+	//iterate through the availbale pairs
+	//and check if any of the requests matches toFind
+	for i := 0; i < w.CurrSize(); i++ {
+		pair := w.RpcStore[i]
+		if pair.Request.Equals(toFind) {
+			return pair
+		}
+	}
+
+	return nil
+}
+
