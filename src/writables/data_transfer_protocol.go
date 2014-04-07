@@ -4,7 +4,6 @@ import (
 	//go packages
 
 	//local packages
-	"util"
 
 )
 
@@ -156,11 +155,9 @@ func NewDataRequestHeader() *DataRequestHeader {
 }
 
 func (d *DataRequestHeader) Read(reader Reader) error {
-	util.TempLogger.Println("Reading DataRequestHeader (in Read())... ")
 	var err error
 
 	d.Version, err = ReadShortInt(reader)
-	util.TempLogger.Println("Finished reading Version.")
 	if err != nil {
 		return err
 	}
@@ -169,8 +166,6 @@ func (d *DataRequestHeader) Read(reader Reader) error {
 	if err != nil {
 		return err
 	}
-
-	util.TempLogger.Println("Fnished reading DataRequestHeader")
 	
 	return nil
 }
@@ -427,13 +422,6 @@ func (r *BlockPacket) Read(reader Reader) error {
 		return err
 	}
 
-	util.TempLogger.Println("r.PacketLength: ", r.PacketLength)
-	util.TempLogger.Println("r.Offset: ", r.Offset)
-	util.TempLogger.Println("r.SeqNo: ", r.SeqNo)
-	util.TempLogger.Println("r.LastPacket: ", r.LastPacket)
-	util.TempLogger.Println("r.Length: ", r.Length)
-	util.TempLogger.Println("DATA LENGTH (from BlockPacket.Read()): ", int64(r.Length))
-
 	//read in the checksum bytes
 	checksumLen := r.checksumLen()
 	r.Data, _, err = ReadBytesIOInfo(int64(checksumLen), reader)
@@ -481,10 +469,7 @@ func (r *BlockPacket) Write(writer Writer) error {
 		return err
 	}
 
-	util.TempLogger.Println("Writing bytes (from BlockPacket.Write()): ", int64(r.Length))
-	bytesWritten, err := WriteBytesInfo(r.Data, int64(r.PacketLength), writer)
-	util.TempLogger.Println("Number of bytes actually written (from BlockPacket.Write()): ", bytesWritten)
-	util.TempLogger.Println("Error returned from WriteBytesInfo(): ", bytesWritten)
+	_, err = WriteBytesInfo(r.Data, int64(r.PacketLength), writer)
 	if err != nil {
 		return err
 	}
@@ -638,7 +623,6 @@ func (r *ReadBlockResponse) Read(reader Reader) error {
 		return err
 	}
 
-	util.TempLogger.Println("DATA LENGTH: ", int64(r.Length))
 	r.Data, err = ReadBytesIO(int64(r.Length), reader)
 	if err != nil {
 		return err
