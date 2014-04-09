@@ -63,6 +63,9 @@ func loop(server net.Listener, caches *caches.CacheSet, dnMap *configuration.Dat
 //listen on a port connected to one of the datanodes
 //will be run as a goroutine
 func loopData(listener net.Listener, location *configuration.DataNodeLocation, cache *caches.DataCache) {
+	dataCacheSize := 15
+	dataCache := caches.NewWritableDataCache(dataCacheSize)
+
 	for {
 		util.DebugLogger.Println("Waiting to accept data connection...")
 		conn, err := listener.Accept()
@@ -78,7 +81,7 @@ func loopData(listener net.Listener, location *configuration.DataNodeLocation, c
 			dataNode = nil
 		}
 
-		dataProcessor := writable_processor.New()
+		dataProcessor := writable_processor.New(dataCache)
 		//go dataProcessor.GeneralProcessing(conn, dataNode, true)
 
 		go dataProcessor.HandleClient(conn, dataNode)

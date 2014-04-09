@@ -10,6 +10,7 @@ import (
 	//local packages
 	"writables"
 	"util"
+	"caches"
 )
 
 /*
@@ -25,10 +26,14 @@ type WritableProcessor struct {
 	//communication channel between goroutines
 	//carries messages such as socket closes, etc.
 	commChan chan *CommMessage
+
+	//used to cache and query OP_READ_BLOCK requests
+	//and responses
+	dataCache *caches.WritableDataCache
 }
 
-func New() *WritableProcessor {
-	w := WritableProcessor{}
+func New(dataCache *caches.WritableDataCache) *WritableProcessor {
+	w := WritableProcessor{dataCache: dataCache}
 	
 	//generate a random id number for this processor
 	w.id = rand.Int63n(999999999)
@@ -70,15 +75,14 @@ func (w *WritableProcessor) readReadBlockRequest(reader writables.Reader) (*writ
 
 	//read in the block request
 	err := r.Read(reader)
+
+	//cache the request
+	pair := writables.NewReadPair(r)
+	w.dataCache.AddReadPair(pair)
+
 	return r, err
 }
 
-//read a pipelineAck from the client
-//called by handleReadBlockResponse()
-func (w *WritableProcessor) readPipelineAck(conn writables.ReaderWriter,
-	dataNode writables.ReaderWriter) {
-	//INCOMPLETE
-}
 
 //debugging function; reads and logs "length" number of bytes
 //from "conn" 
@@ -95,8 +99,11 @@ func (w *WritableProcessor) TempLogExtra(length int64, conn writables.ReaderWrit
 
 //this method is called to handle responses to an OP_READ_BLOCK request.
 //the response contains the contents of the actual block.
-func (w *WritableProcessor) handleReadBlockResponse(conn writables.ReaderWriter, 
-	dataNode writables.ReaderWriter) {
+func (w *WritableProcessor) handleReadBlockResponse(
+	conn writables.ReaderWriter, 
+	dataNode writables.ReaderWriter,
+	requestHeader *writables.ReadBlockHeader) {
+	
 	var err error
 	//check the channel to make sure that the socket isn't closed
 	msg := w.readComm()
@@ -120,6 +127,31 @@ func (w *WritableProcessor) handleReadBlockResponse(conn writables.ReaderWriter,
 		return
 	}
 
+	//check the cache to see if we can immediately
+	//write out the response
+	resPair := w.dataCache.Query(requestHeader)
+	util.TempLogger.Println("resPair (from cache): ", resPair)
+	util.TempLogger.Println("resPair.ResponseSet.Size(): ",
+	resPair.ResponseSet.Size())
+	//if it is available in the cache...
+	if resPair != nil && resPair.ResponseSet.Size() != 0 {
+		util.TempLogger.Println("Responded from cache.")
+		//...we write the BlockPackets to the client
+		blockPackets := resPair.ResponseSet.Chunks
+		for i := 0; i<len(blockPackets); i++ {
+			err := blockPackets[i].Write(conn)
+			if err != nil {
+				defer w.sendSocketClose()
+				return
+			}
+		}
+
+		//if we've sent out the cached responses,
+		//there is no point waiting for the server
+		//responses.
+		defer w.sendSocketClose()
+		return
+	}
 
 	for {
 		//read in the BlockPacket (contains part of the block)
@@ -130,9 +162,9 @@ func (w *WritableProcessor) handleReadBlockResponse(conn writables.ReaderWriter,
 			return
 		}
 
-		//log blockpacket data
-		util.TempLogger.Println("blockpacket.Data: ")
-		util.TempLogger.Println(hex.Dump(blockPacket.Data))
+		//cache the blockpacket with the corresponding 
+		//pair
+		w.dataCache.AddBlockPacket(requestHeader, blockPacket)
 
 		//write the packet to a buffer
 		resBuf := new(bytes.Buffer)
@@ -152,8 +184,6 @@ func (w *WritableProcessor) handleReadBlockResponse(conn writables.ReaderWriter,
 func (w *WritableProcessor) processReadBlock(requestHeader *writables.DataRequestHeader, 
 	conn writables.ReaderWriter, dataNode writables.ReaderWriter) {
 
-	go w.handleReadBlockResponse(conn, dataNode)
-
 	blockRequest, err := w.readReadBlockRequest(conn)
 	if err != nil {
 		util.DebugLogger.Println(w.id, "Error occurred in reading block request from client: ", err)
@@ -161,6 +191,9 @@ func (w *WritableProcessor) processReadBlock(requestHeader *writables.DataReques
 		go w.sendSocketClose()
 		return
 	}
+
+	//start handling the response from the server
+	go w.handleReadBlockResponse(conn, dataNode, blockRequest)
 
 	resBuf := new(bytes.Buffer)
 	requestHeader.Write(resBuf)

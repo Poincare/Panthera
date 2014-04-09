@@ -83,3 +83,17 @@ func TestWDCQuery(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func TestWDCAddBlockPacket(t *testing.T) {
+	setupWDC()
+
+	cache.AddReadPair(pair)
+	header := writables.NewBlockResponseHeader()
+	bp := writables.NewBlockPacket(header)
+	cache.AddBlockPacket(request, bp)
+
+	resPair := cache.Query(pair.Request)
+	if resPair.ResponseSet.Chunks[0] != bp {
+		t.Fail()
+	}
+}

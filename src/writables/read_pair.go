@@ -11,6 +11,7 @@ type ReadPair struct {
 
 func NewReadPair(request *ReadBlockHeader) *ReadPair {
 	r := ReadPair{Request: request}
+	r.ResponseSet = NewBlockResponseSet()
 	return &r
 }
 

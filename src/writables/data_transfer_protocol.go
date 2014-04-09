@@ -335,9 +335,10 @@ func (r *ReadBlockHeader) Equals(e *ReadBlockHeader) bool {
 		return false
 	}
 
+	/*
 	if !r.ClientName.Equals(e.ClientName) {
 		return false
-	}
+	} */
 
 	if !r.AccessToken.Equals(e.AccessToken) {
 		return false

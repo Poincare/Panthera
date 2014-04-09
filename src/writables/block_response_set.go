@@ -5,15 +5,12 @@ package writables
 ** an OP_READ_BLOCK request is received
 **/
 type BlockResponseSet struct {
-	//one header per set of responses
-	Header *BlockResponseHeader
-
 	//multiple chunks per block
 	Chunks []*BlockPacket
 }
 
-func NewBlockResponseSet(header *BlockResponseHeader) *BlockResponseSet {
-	b := BlockResponseSet{Header: header}
+func NewBlockResponseSet() *BlockResponseSet {
+	b := BlockResponseSet{}
 	b.Chunks = make([]*BlockPacket, 0)
 	return &b
 }
