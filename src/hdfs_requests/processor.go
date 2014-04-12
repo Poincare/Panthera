@@ -528,22 +528,20 @@ func (p *Processor) processRegisterRequest(reqPacket *namenode_rpc.RequestPacket
 	//we take the data and pack it into a DataNodeRegistration object
 	p.dataNodeRegistration = writables.NewDataNodeRegistration()
 	p.dataNodeRegistration.Read(dataByteBuffer)
-
-	/*
+	
 	//modify the dataNodeRegistration to reflect the values we want
-	p.dataNodeRegistration.StorageID = "DS-2096826136-127.0.1.1-2010-1395205739838"
+	p.dataNodeRegistration.Name = "dhaivat-GA-870A-UD3:2010"
 
 	//get the new dataBytes
 	dataResBuffer := new(bytes.Buffer)
-	p.dataNodeRegistration.Write(dataByteBuffer)
+	p.dataNodeRegistration.Write(dataResBuffer)
 
 	//put together packetBytes and dataBytes to create the modified packet
 	resPacket := namenode_rpc.NewRequestPacket()
 	resBuf := append(packetBytes, dataResBuffer.Bytes()...)	
 	resPacket.Load(resBuf)
 
-	return resPacket, true */
-	return nil, false
+	return resPacket, true
 }
 
 func (p *Processor) preprocessRequestPacket(reqPacket *namenode_rpc.RequestPacket) (*namenode_rpc.RequestPacket, bool) {
@@ -553,7 +551,7 @@ func (p *Processor) preprocessRequestPacket(reqPacket *namenode_rpc.RequestPacke
 	}
 
 	if string(reqPacket.MethodName) == "register" {
-		p.processRegisterRequest(reqPacket)
+		return p.processRegisterRequest(reqPacket)
 	}
 
 	fmt.Println("Ended preprocessRequestPacket()")
@@ -617,15 +615,10 @@ func (p *Processor) HandleRequestPacket(conn net.Conn, hdfs net.Conn) error {
 		t := time.Now()
 		p.nonCacheStartTime = &t
 	} else {
-		reqBytes := reqPacket.BytesNoPad()
-		loadedBytes := reqPacket.LoadedBytes()
-		fmt.Println("Request modified (request method: ", string(reqPacket.MethodName), ")",
-			"request byte length: ", len(reqBytes))
-		fmt.Println("Loaded bytes: ", reqPacket.LoadedBytes())
-		reqBytes = append(reqBytes, loadedBytes[len(reqBytes):]...)
-		fmt.Println("Packet bytes: ", reqBytes)
+		fmt.Println("Modified request written: ")
+		fmt.Println(hex.Dump(reqPacket.LoadedBytes()))
 
-		hdfs.Write(reqBytes)
+		hdfs.Write(reqPacket.LoadedBytes())
 	}
 	return nil
 }
