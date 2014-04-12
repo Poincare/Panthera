@@ -193,10 +193,7 @@ type ReqPacket interface {
 	GetParameter(i int) Parameter
 }
 
-/* This has been derived from what I've reverse 
-engineered w/ Wireshark - Hadoop doesn't seem to
-have take tne trouble to document the protocol
-that they've switched to */
+
 type RequestPacket struct {
 	Length uint32
 	PacketNumber uint32

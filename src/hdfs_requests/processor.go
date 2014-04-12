@@ -77,6 +77,10 @@ type Processor struct {
 	//start time for measuring latency
 	cacheStartTime *time.Time
 	nonCacheStartTime *time.Time
+
+	//set by preprocessAuthRequest, 
+	//used by preprocessRegistrationResponse
+	dataNodeRegistration *writables.DataNodeRegistration
 }
 
 //Object constructor. It needs the event_chan to talk with other processors,
@@ -304,8 +308,7 @@ func (p *Processor) readAuthPacketLength(conn net.Conn) (uint32, []byte, error) 
 
 //called by preprocessAuthPacket() to modify the authentication packet to change the 
 //datanode location. In essence, it tricks the namenode
-//into believing the datanode is somewhere isn't
-//TODO have to implement
+//into believing the datanode is somewhere it (the DataNode) isn't
 func (p *Processor) preprocessAuthRegister(authPacket *namenode_rpc.AuthPacket, loadedBytes []byte) []byte {
 	//figure out the length of assembled vs. the length of the loadedBytes
 	packetBytes := authPacket.Bytes()
@@ -342,6 +345,9 @@ func (p *Processor) preprocessAuthRegister(authPacket *namenode_rpc.AuthPacket, 
 	resBytes = append(resBytes, resDiffBuffer.Bytes()...)
 	fmt.Println("Res bytes: ")
 	fmt.Println(hex.Dump(resBytes))
+
+	p.dataNodeRegistration = dataNodeRegistration
+
 	return resBytes
 
 	/*
@@ -377,6 +383,7 @@ func (p *Processor) preprocessAuthRegister(authPacket *namenode_rpc.AuthPacket, 
 
 //decides how to preprocess authentication packets
 func (p *Processor) preprocessAuthPacket(authPacket *namenode_rpc.AuthPacket, loadedBytes []byte) []byte {
+	fmt.Println("Preprocessing auth packet...	")
 	if string(authPacket.MethodName) == "register" {
 		return p.preprocessAuthRegister(authPacket, loadedBytes)
 	}
@@ -492,10 +499,48 @@ func (p *Processor) preprocessBeingWrittenReport(reqPacket *namenode_rpc.Request
 	return reqPacket, true
 }
 
+//look through the "register" request packet and save the stuff
+//that will be used in modifying the response to the request
+func (p *Processor) processRegisterRequest(reqPacket *namenode_rpc.RequestPacket) {
+	fmt.Println("In processRegisterRequest(): ")
+	
+	//full byte structure
+	loadedBytes := reqPacket.LoadedBytes()
+
+	//the bytes that do not include the writable data
+	packetBytes := reqPacket.BytesNoPad()
+
+	//the difference between the two should be just the writable data
+	//which is what we are interested in.
+	dataBytes := loadedBytes[len(packetBytes):]
+
+	fmt.Println("Loaded bytes: ")
+	fmt.Println(hex.Dump(reqPacket.LoadedBytes()))
+
+	fmt.Println("reqPacket.Bytes(): ")
+	fmt.Println(hex.Dump(reqPacket.BytesNoPad()))
+
+	fmt.Println("dataBytes: ")
+	fmt.Println(hex.Dump(dataBytes))
+
+	dataByteBuffer := bytes.NewBuffer(dataBytes)
+
+	//we take the data and pack it into a DataNodeRegistration object
+	p.dataNodeRegistration = writables.NewDataNodeRegistration()
+	p.dataNodeRegistration.Read(dataByteBuffer)
+}
+
 func (p *Processor) preprocessRequestPacket(reqPacket *namenode_rpc.RequestPacket) (*namenode_rpc.RequestPacket, bool) {
+	fmt.Println("Called preprocessRequestPacket()")
 	if string(reqPacket.MethodName) == "blocksBeingWrittenReport" {
 		return p.preprocessBeingWrittenReport(reqPacket)
 	}
+
+	if string(reqPacket.MethodName) == "register" {
+		p.processRegisterRequest(reqPacket)
+	}
+
+	fmt.Println("Ended preprocessRequestPacket()")
 	return reqPacket, false
 }
 
@@ -749,18 +794,37 @@ func (p *Processor) preprocessRegistrationResponse(genericResp *namenode_rpc.Gen
 	//TODO need to make this generic with an implementation of writables
 	genericResp.ParameterValue = []byte("127.0.0.1:1389")
 	genericResp.ParameterLength = uint16(len(genericResp.ParameterValue))
+	
+	//create a buffer where we can write confirming information
+	resDiffBuffer := new(bytes.Buffer)
+
+	//set the storageid to the local value
+	p.dataNodeRegistration.StorageID = 
+	"DS-2096826136-127.0.1.1-1389-1395205739838"
+	err := p.dataNodeRegistration.WriteWithoutName(resDiffBuffer)
+	if err != nil {
+		util.DebugLogger.Println("Failed to preprocess registration response.")
+		return nil
+	}
+
+	correctBytes := []byte(packetBytes)
+	correctBytes = append(correctBytes, resDiffBuffer.Bytes()...)
+
+	/*
+	genericResp.ParameterValue = []byte("127.0.0.1:1389")
+	genericResp.ParameterLength = uint16(len(genericResp.ParameterValue))
 	correctBytes := packetBytes
 	correctBytes = append(correctBytes, []byte{0,42,68,83,45,50,48,57,54,56,50,54,49,51,54,45,49,50,55,46,48,46,49,46,49,45}...)
 	correctBytes = append(correctBytes, []byte("1389")...)
 	correctBytes = append(correctBytes, []byte{45,49,51,57,53,50,48,53,55,51,57,56,51,56,195,155,195,100,255,255,255,215,108,110,
-		46,95,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,255,0,0,0,0}...)
+		46,95,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,255,0,0,0,0}...) */
 
 	genericResp.Buf = correctBytes
 	fmt.Println("In preprocessor, genericResp.Buf: ")
 	fmt.Println(hex.Dump(genericResp.Buf))
 
 	fmt.Println("In preprocessor, genericResp Bytes: ")
-	fmt.Println(hex.Dump(genericResp.LoadedBytes()))
+	fmt.Println(hex.Dump(genericResp.LoadedBytes())) 
 	return genericResp
 }
 
@@ -818,7 +882,7 @@ func (p *Processor) HandleHDFS(conn net.Conn, hdfs net.Conn) {
 
 		//load in the buffer contents as field values
 		genericResp.Load(buf)
-		receivedBytes := buf
+		//receivedBytes := buf
 
 		//TODO this is a useful hack, but probably will not work at scale.
 		switch genericResp.(type) {
@@ -847,10 +911,11 @@ func (p *Processor) HandleHDFS(conn net.Conn, hdfs net.Conn) {
 			//proxy the read data to the associated client socket
 			util.DebugLogger.Println("About to write to connection...")
 			if !p.skipResponse {
+				/*
 				fmt.Println("Received response: ")
 				fmt.Println(hex.Dump(receivedBytes))
 				fmt.Println("Writing response: ")
-				fmt.Println(hex.Dump(genericResp.GetBuf()))
+				fmt.Println(hex.Dump(genericResp.GetBuf())) */	
 				conn.Write(genericResp.GetBuf())
 			} else {
 				p.skipResponse = false

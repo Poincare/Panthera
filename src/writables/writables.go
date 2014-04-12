@@ -692,6 +692,27 @@ func (e *ExportedBlockKeys) Read(reader Reader) error {
 	return nil
 }
 
+//single value StorageId struct for certain
+//request pre-processing needs.
+type StorageId struct {
+	StorageId string
+}
+
+func NewStorageId() *StorageId {
+	s := StorageId{}
+	return &s
+}
+
+func (s *StorageId) Write(writer Writer) error {
+	return WriteString(s.StorageId, writer)
+}
+
+func (s *StorageId) Read(reader Reader) error {
+	var err error
+	s.StorageId, err = ReadString(reader)
+	return err
+}
+
 type DataNodeRegistration struct {
 	/* 
 	* Reading scheme:
@@ -730,6 +751,18 @@ func NewDataNodeRegistration() *DataNodeRegistration {
 	dnr := DataNodeRegistration{}
 	dnr.Keys = NewExportedBlockKeys()
 	return &dnr
+}
+
+//write the structure without writing the name field
+func (d *DataNodeRegistration) WriteWithoutName(writer Writer) error {
+	WriteString(d.StorageID, writer)
+	WriteShortInt(d.InfoPort, writer)
+	WriteShortInt(d.IpcPort, writer)
+	WriteInt(d.LayoutVersion, writer)
+	WriteInt(d.NamespaceID, writer)
+	WriteLongInt(d.CTime, writer)
+	err := d.Keys.Write(writer)
+	return err
 }
 
 func (d *DataNodeRegistration) Write(writer Writer) error {

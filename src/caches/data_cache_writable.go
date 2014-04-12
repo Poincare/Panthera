@@ -88,15 +88,6 @@ func (w *WritableDataCache) Query(
 		pair := w.RpcStore[i]
 		if pair.Request.Equals(toFind) {
 			return pair
-		} else {
-			util.TempLogger.Println("Did not match in Query()")
-			util.TempLogger.Println("toFind: ", *toFind)
-			util.TempLogger.Println("toFind.ClientName.Text", 
-				string(toFind.ClientName.Bytes))
-
-			util.TempLogger.Println("pair.Request: ", *pair.Request)
-			util.TempLogger.Println("pair.Request.ClientName.Text:",
-				string(pair.Request.ClientName.Bytes))
 		}
 	}
 
