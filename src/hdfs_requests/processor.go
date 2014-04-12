@@ -501,7 +501,7 @@ func (p *Processor) preprocessBeingWrittenReport(reqPacket *namenode_rpc.Request
 
 //look through the "register" request packet and save the stuff
 //that will be used in modifying the response to the request
-func (p *Processor) processRegisterRequest(reqPacket *namenode_rpc.RequestPacket) {
+func (p *Processor) processRegisterRequest(reqPacket *namenode_rpc.RequestPacket) (*namenode_rpc.RequestPacket, bool) {
 	fmt.Println("In processRegisterRequest(): ")
 	
 	//full byte structure
@@ -528,6 +528,22 @@ func (p *Processor) processRegisterRequest(reqPacket *namenode_rpc.RequestPacket
 	//we take the data and pack it into a DataNodeRegistration object
 	p.dataNodeRegistration = writables.NewDataNodeRegistration()
 	p.dataNodeRegistration.Read(dataByteBuffer)
+
+	/*
+	//modify the dataNodeRegistration to reflect the values we want
+	p.dataNodeRegistration.StorageID = "DS-2096826136-127.0.1.1-2010-1395205739838"
+
+	//get the new dataBytes
+	dataResBuffer := new(bytes.Buffer)
+	p.dataNodeRegistration.Write(dataByteBuffer)
+
+	//put together packetBytes and dataBytes to create the modified packet
+	resPacket := namenode_rpc.NewRequestPacket()
+	resBuf := append(packetBytes, dataResBuffer.Bytes()...)	
+	resPacket.Load(resBuf)
+
+	return resPacket, true */
+	return nil, false
 }
 
 func (p *Processor) preprocessRequestPacket(reqPacket *namenode_rpc.RequestPacket) (*namenode_rpc.RequestPacket, bool) {
@@ -595,6 +611,8 @@ func (p *Processor) HandleRequestPacket(conn net.Conn, hdfs net.Conn) error {
 	//write the request to HDFS (differently depending on
 	//whether or not the request was modified)
 	if !modified {
+		fmt.Println("Unmodified request written: ")
+		fmt.Println(hex.Dump(reqPacket.LoadedBytes()))
 		hdfs.Write(reqPacket.LoadedBytes())
 		t := time.Now()
 		p.nonCacheStartTime = &t

@@ -5,211 +5,6 @@ Now calling readRequstPacket()
 Now calling readRequestPacketLength.
 About to write to connection...
 Written to connection.
-Handled Authentication Packet!
-Starting to handle request packet...
-Now calling readRequstPacket()
-Now calling readRequestPacketLength.
-About to write to connection...
-Written to connection.
-Read error value in readRequestPacketLength:  <nil>
-Done with readRequestPacketLength. Packet length:  205
-Done with readRequestPacket()
-Calling process method...
-Done with process method, respPacket.
-Starting to handle request packet...
-Now calling readRequstPacket()
-Now calling readRequestPacketLength.
-About to write to connection...
-Written to connection.
-Read error value in readRequestPacketLength:  <nil>
-Done with readRequestPacketLength. Packet length:  385
-Done with readRequestPacket()
-Calling process method...
-Done with process method, respPacket.
-Starting to handle request packet...
-Now calling readRequstPacket()
-Now calling readRequestPacketLength.
-About to write to connection...
-Written to connection.
-Done with readRequestPacket()
-Error handling request packet.
-Client connection closed. Closing local socket...
-Read error value in readRequestPacketLength:  <nil>
-Done with readRequestPacketLength. Packet length:  309
-Done with readRequestPacket()
-Calling process method...
-Done with process method, respPacket.
-Starting to handle request packet...
-Now calling readRequstPacket()
-Now calling readRequestPacketLength.
-About to write to connection...
-Written to connection.
-Read error value in readRequestPacketLength:  <nil>
-Done with readRequestPacketLength. Packet length:  309
-Done with readRequestPacket()
-Calling process method...
-Done with process method, respPacket.
-Starting to handle request packet...
-Now calling readRequstPacket()
-Now calling readRequestPacketLength.
-About to write to connection...
-Written to connection.
-Handled Authentication Packet!
-Starting to handle request packet...
-Now calling readRequstPacket()
-Now calling readRequestPacketLength.
-About to write to connection...
-Written to connection.
-Read error value in readRequestPacketLength:  <nil>
-Done with readRequestPacketLength. Packet length:  47
-Done with readRequestPacket()
-Calling process method...
-method is GFI, querying GFICache...
-in GetFileInfoCache.Query()
-Defined Equals method.
-Done querying cache.
-Done with process method, respPacket.
-Starting to handle request packet...
-Now calling readRequstPacket()
-Now calling readRequestPacketLength.
-About to write to connection...
-Written to connection.
-Read error value in readRequestPacketLength:  <nil>
-Done with readRequestPacketLength. Packet length:  47
-Done with readRequestPacket()
-Calling process method...
-method is GFI, querying GFICache...
-in GetFileInfoCache.Query()
-Defined Equals method.
-Done querying cache.
-Done with process method, respPacket.
-Starting to handle request packet...
-Now calling readRequstPacket()
-Now calling readRequestPacketLength.
-About to write to connection...
-Written to connection.
-Done with readRequestPacket()
-Error handling request packet.
-Client connection closed. Closing local socket...
-Read error value in readRequestPacketLength:  <nil>
-Done with readRequestPacketLength. Packet length:  309
-Done with readRequestPacket()
-Calling process method...
-Done with process method, respPacket.
-Starting to handle request packet...
-Now calling readRequstPacket()
-Now calling readRequestPacketLength.
-About to write to connection...
-Written to connection.
-Handled Authentication Packet!
-Starting to handle request packet...
-Now calling readRequstPacket()
-Now calling readRequestPacketLength.
-About to write to connection...
-Written to connection.
-Read error value in readRequestPacketLength:  <nil>
-Done with readRequestPacketLength. Packet length:  47
-Done with readRequestPacket()
-Calling process method...
-method is GFI, querying GFICache...
-in GetFileInfoCache.Query()
-Defined Equals method.
-Done querying cache.
-Done with process method, respPacket.
-Starting to handle request packet...
-Now calling readRequstPacket()
-Now calling readRequestPacketLength.
-About to write to connection...
-Written to connection.
-Read error value in readRequestPacketLength:  <nil>
-Done with readRequestPacketLength. Packet length:  47
-Done with readRequestPacket()
-Calling process method...
-method is GFI, querying GFICache...
-in GetFileInfoCache.Query()
-Defined Equals method.
-Done querying cache.
-Done with process method, respPacket.
-Starting to handle request packet...
-Now calling readRequstPacket()
-Now calling readRequestPacketLength.
-About to write to connection...
-Written to connection.
-Done with readRequestPacket()
-Error handling request packet.
-Client connection closed. Closing local socket...
-Read error value in readRequestPacketLength:  <nil>
-Done with readRequestPacketLength. Packet length:  309
-Done with readRequestPacket()
-Calling process method...
-Done with process method, respPacket.
-Starting to handle request packet...
-Now calling readRequstPacket()
-Now calling readRequestPacketLength.
-About to write to connection...
-Written to connection.
-Read error value in readRequestPacketLength:  <nil>
-Done with readRequestPacketLength. Packet length:  309
-Done with readRequestPacket()
-Calling process method...
-Done with process method, respPacket.
-Starting to handle request packet...
-Now calling readRequstPacket()
-Now calling readRequestPacketLength.
-About to write to connection...
-Written to connection.
-Read error value in readRequestPacketLength:  <nil>
-Done with readRequestPacketLength. Packet length:  309
-Done with readRequestPacket()
-Calling process method...
-Done with process method, respPacket.
-Starting to handle request packet...
-Now calling readRequstPacket()
-Now calling readRequestPacketLength.
-About to write to connection...
-Written to connection.
-Handled Authentication Packet!
-Starting to handle request packet...
-Now calling readRequstPacket()
-Now calling readRequestPacketLength.
-About to write to connection...
-Written to connection.
-Read error value in readRequestPacketLength:  <nil>
-Done with readRequestPacketLength. Packet length:  47
-Done with readRequestPacket()
-Calling process method...
-method is GFI, querying GFICache...
-in GetFileInfoCache.Query()
-Defined Equals method.
-Done querying cache.
-Done with process method, respPacket.
-Starting to handle request packet...
-Now calling readRequstPacket()
-Now calling readRequestPacketLength.
-About to write to connection...
-Written to connection.
-Read error value in readRequestPacketLength:  <nil>
-Done with readRequestPacketLength. Packet length:  225
-Done with readRequestPacket()
-Calling process method...
-Done with process method, respPacket.
-Starting to handle request packet...
-Now calling readRequstPacket()
-Now calling readRequestPacketLength.
-About to write to connection...
-Written to connection.
-Read error value in readRequestPacketLength:  <nil>
-Done with readRequestPacketLength. Packet length:  230
-Done with readRequestPacket()
-Calling process method...
-Done with process method, respPacket.
-Starting to handle request packet...
-Now calling readRequstPacket()
-Now calling readRequestPacketLength.
-About to write to connection...
-Written to connection.
-Data client accepted.
-Waiting to accept data connection...
 Read error value in readRequestPacketLength:  <nil>
 Done with readRequestPacketLength. Packet length:  309
 Done with readRequestPacket()
@@ -253,8 +48,73 @@ Written to connection.
 Done with readRequestPacket()
 Error handling request packet.
 Client connection closed. Closing local socket...
+Handled Authentication Packet!
+Starting to handle request packet...
+Now calling readRequstPacket()
+Now calling readRequestPacketLength.
+About to write to connection...
+Written to connection.
+Read error value in readRequestPacketLength:  <nil>
+Done with readRequestPacketLength. Packet length:  24
+Done with readRequestPacket()
+Calling process method...
+Done with process method, respPacket.
+Starting to handle request packet...
+Now calling readRequstPacket()
+Now calling readRequestPacketLength.
+About to write to connection...
+Written to connection.
+Done with readRequestPacket()
+Error handling request packet.
+Client connection closed. Closing local socket...
+Handled Authentication Packet!
+Starting to handle request packet...
+Now calling readRequstPacket()
+Now calling readRequestPacketLength.
+About to write to connection...
+Written to connection.
+Read error value in readRequestPacketLength:  <nil>
+Done with readRequestPacketLength. Packet length:  352
+Done with readRequestPacket()
+Calling process method...
+Done with process method, respPacket.
+Starting to handle request packet...
+Now calling readRequstPacket()
+Now calling readRequestPacketLength.
+About to write to connection...
+Written to connection.
 Read error value in readRequestPacketLength:  <nil>
 Done with readRequestPacketLength. Packet length:  309
+Done with readRequestPacket()
+Calling process method...
+Done with process method, respPacket.
+Starting to handle request packet...
+Now calling readRequstPacket()
+Now calling readRequestPacketLength.
+About to write to connection...
+Written to connection.
+Read error value in readRequestPacketLength:  <nil>
+Done with readRequestPacketLength. Packet length:  254
+Done with readRequestPacket()
+Calling process method...
+Done with process method, respPacket.
+Starting to handle request packet...
+Now calling readRequstPacket()
+Now calling readRequestPacketLength.
+About to write to connection...
+Written to connection.
+Read error value in readRequestPacketLength:  <nil>
+Done with readRequestPacketLength. Packet length:  352
+Done with readRequestPacket()
+Calling process method...
+Done with process method, respPacket.
+Starting to handle request packet...
+Now calling readRequstPacket()
+Now calling readRequestPacketLength.
+About to write to connection...
+Written to connection.
+Read error value in readRequestPacketLength:  <nil>
+Done with readRequestPacketLength. Packet length:  1053
 Done with readRequestPacket()
 Calling process method...
 Done with process method, respPacket.
@@ -313,3 +173,33 @@ Now calling readRequstPacket()
 Now calling readRequestPacketLength.
 About to write to connection...
 Written to connection.
+Read error value in readRequestPacketLength:  <nil>
+Done with readRequestPacketLength. Packet length:  309
+Done with readRequestPacket()
+Calling process method...
+Done with process method, respPacket.
+Starting to handle request packet...
+Now calling readRequstPacket()
+Now calling readRequestPacketLength.
+About to write to connection...
+Written to connection.
+Read error value in readRequestPacketLength:  <nil>
+Done with readRequestPacketLength. Packet length:  309
+Done with readRequestPacket()
+Calling process method...
+Done with process method, respPacket.
+Starting to handle request packet...
+Now calling readRequstPacket()
+Now calling readRequestPacketLength.
+About to write to connection...
+Written to connection.
+Read error value in readRequestPacketLength:  <nil>
+Done with readRequestPacketLength. Packet length:  309
+Done with readRequestPacket()
+Calling process method...
+Done with process method, respPacket.
+Starting to handle request packet...
+Now calling readRequstPacket()
+Now calling readRequestPacketLength.
+Read error value in readRequestPacketLength:  <nil>
+Done with readRequestPacketLength. Packet length:  4294967295
