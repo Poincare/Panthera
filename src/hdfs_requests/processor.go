@@ -530,7 +530,7 @@ func (p *Processor) processRegisterRequest(reqPacket *namenode_rpc.RequestPacket
 	p.dataNodeRegistration.Read(dataByteBuffer)
 	
 	//modify the dataNodeRegistration to reflect the values we want
-	p.dataNodeRegistration.Name = "dhaivat-GA-870A-UD3:2010"
+	p.dataNodeRegistration.Name = "127.0.0.1:2010"
 
 	//get the new dataBytes
 	dataResBuffer := new(bytes.Buffer)
