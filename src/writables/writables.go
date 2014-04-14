@@ -7,7 +7,7 @@ import (
 	"errors"
 	"io"
 	"fmt"
-
+	"strings"
 )
 
 /*
@@ -906,3 +906,318 @@ func (d *DataNodeRegistration) ReadKeys(reader Reader) error {
 	return nil
 }
 
+/**
+* Block informational structure (metadata)
+*/
+
+type Block struct {
+	BlockId uint64
+	NumBytes uint64
+	GenerationStamp uint64
+}
+
+func NewBlock() *Block {
+	b := Block{}
+	return &b
+}
+
+func (b *Block) Read(reader Reader) error {
+	return GenericRead(b, reader)
+}
+
+func (b *Block) Write(writer Writer) error {
+	return GenericWrite(b, writer)
+}
+
+type DataNodeId struct {
+	Name string
+	StorageId string
+	InfoPort uint16
+}
+
+func NewDataNodeId() *DataNodeId {
+	d := DataNodeId{}
+	return &d
+}
+
+func (d *DataNodeId) Read(reader Reader) error {
+	return GenericRead(d, reader)
+}
+
+func (d *DataNodeId) Write(writer Writer) error {
+	return GenericWrite(d, writer)
+}
+
+/**
+** Structure used in a getBlockLocations() call 
+**/
+
+type DataNodeInfo struct {
+	//the DataNodeInfo "extends" the DataNodeId structure
+	Id *DataNodeId
+
+	//short
+	IpcPort uint16
+
+	//long
+	Capacity uint64
+
+	//long
+	Remaining uint64
+
+	//long
+	LastUpdate uint64
+
+	//int
+	XceiverCount uint32
+
+	//string
+	Location string
+
+	//string
+	Hostname string
+
+	//string (written as an "enum" in hadoop, but it is basically
+	//the name of the enum written as a string)
+	AdminState string
+}
+
+func NewDataNodeInfo() *DataNodeInfo {
+	d := DataNodeInfo{}
+	d.Id = NewDataNodeId()
+	d.Hostname = ""
+	d.AdminState = ""
+	return &d
+}
+
+func (d *DataNodeInfo) Read(reader Reader) error {
+	return GenericRead(d, reader)
+}
+
+func (d *DataNodeInfo) Write(writer Writer) error {
+	var err error
+
+	err = d.Id.Write(writer)
+	if err != nil {
+		return err
+	}
+
+	err = WriteShortInt(d.IpcPort, writer)
+	if err != nil {
+		return err
+	}
+
+	err = WriteLongInt(d.Capacity, writer)
+	if err != nil {
+		return err
+	}
+
+	err = WriteLongInt(d.Remaining, writer)
+	if err != nil {
+		return err
+	}
+
+	err = WriteLongInt(d.LastUpdate, writer)
+	if err != nil {
+		return err
+	}
+
+	err = WriteInt(d.XceiverCount, writer)
+	if err != nil {
+		return err
+	}
+
+	
+	if d.Location != "" {
+		err = WriteString(d.Location, writer)
+		if err != nil {
+			return err
+		}
+	}
+	
+	if d.Hostname != "" {
+		err = WriteString(d.Hostname, writer)
+		if err != nil {
+			return err
+		}
+	}
+
+	if d.AdminState != "" {
+		err = WriteString(d.AdminState, writer)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+/**
+* LocatedBlock structure (getBlockLocations)
+*/
+type LocatedBlock struct {
+	BlockToken *Token
+	Corrupt bool
+	Offset uint64
+	B *Block
+	
+	InfoLength uint32
+	InfoArr []*DataNodeInfo
+}
+
+func NewLocatedBlock() *LocatedBlock {
+	lb := LocatedBlock{}
+	lb.BlockToken = NewToken()
+	lb.B = NewBlock()
+	return &lb
+}
+
+func (l *LocatedBlock) Write(writer Writer) error {
+	var err error
+	err = l.BlockToken.Write(writer)
+	if err != nil {
+		return err
+	}
+
+	err = WriteBoolean(l.Corrupt, writer)
+	if err != nil {
+		return err
+	}
+
+	err = WriteLongInt(l.Offset, writer)
+	if err != nil {
+		return err
+	}
+
+	err = l.B.Write(writer)
+	if err != nil {
+		return err
+	}
+
+	err = WriteInt(l.InfoLength, writer)
+	if err != nil {
+		return err
+	}
+
+	for i := 0; i< int(l.InfoLength); i++ {
+		err = l.InfoArr[i].Write(writer)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (l *LocatedBlock) Read(reader Reader) error {
+	var err error
+	err = l.BlockToken.Read(reader)
+	if err != nil {
+		return err
+	}
+
+	l.Corrupt, err = ReadBoolean(reader)
+	if err != nil {
+		return err
+	}
+
+	l.Offset, err = ReadLongInt(reader)
+	if err != nil {
+		return err
+	}
+
+	err = l.B.Read(reader)
+	if err != nil {
+		return err
+	}
+
+	l.InfoLength, err = ReadInt(reader)
+	if err != nil {
+		return err
+	}
+
+	l.InfoArr = make([]*DataNodeInfo, l.InfoLength)
+	for i := 0; i< int(l.InfoLength); i++ {
+		l.InfoArr[i] = NewDataNodeInfo()
+		err = l.InfoArr[i].Read(reader)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+/**
+** Basic structure
+** used with getBlockLocations
+*/
+
+type LocatedBlocks struct {
+	Length uint64	
+	UnderConstruction bool
+	NumberOfBlocks uint32
+	LocatedBlockArr []*LocatedBlock
+}
+
+func NewLocatedBlocks() *LocatedBlocks {
+	l := LocatedBlocks{}
+	return &l
+}
+
+func (l *LocatedBlocks) Write(writer Writer) error {
+	var err error
+	err = WriteLongInt(l.Length, writer)
+	if err != nil {
+		return err
+	}
+
+	err = WriteBoolean(l.UnderConstruction, writer)
+	if err != nil {
+		return err
+	}
+
+	err = WriteInt(l.NumberOfBlocks, writer)
+	if err != nil {
+		return err
+	}
+
+	for i := 0; i<int(l.NumberOfBlocks); i++ {
+		err = l.LocatedBlockArr[i].Write(writer)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+
+func (l *LocatedBlocks) Read(reader Reader) error {
+	var err error
+	l.Length, err = ReadLongInt(reader)
+	if err != nil {
+		return err
+	}
+
+	l.UnderConstruction, err = ReadBoolean(reader)
+	if err != nil {
+		return err
+	}
+
+	l.NumberOfBlocks, err = ReadInt(reader)
+	if err != nil {
+		return err
+	}
+
+	l.LocatedBlockArr = make([]*LocatedBlock, l.NumberOfBlocks)
+	for i := 0; i<int(l.NumberOfBlocks); i++ {
+		l.LocatedBlockArr[i] = NewLocatedBlock()
+		err = l.LocatedBlockArr[i].Read(reader)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}

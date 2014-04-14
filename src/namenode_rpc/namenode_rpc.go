@@ -94,6 +94,7 @@ func BuildResponsePacket(buf []byte, packetNumber uint32, currRequest *RequestPa
 
 }
 
+
 //this is used when we aren't exactly sure (or don't care)
 //what type of response a certain packet is
 //so we can just stuff into some random data structure.

@@ -530,18 +530,36 @@ func (p *Processor) processRegisterRequest(reqPacket *namenode_rpc.RequestPacket
 	p.dataNodeRegistration.Read(dataByteBuffer)
 	
 	//modify the dataNodeRegistration to reflect the values we want
+	//oldName := p.dataNodeRegistration.Name
 	p.dataNodeRegistration.Name = "127.0.0.1:2010"
+	//lengthDiff := len(p.dataNodeRegistration.Name) - len(oldName)
 
 	//get the new dataBytes
 	dataResBuffer := new(bytes.Buffer)
 	p.dataNodeRegistration.Write(dataResBuffer)
 
 	//put together packetBytes and dataBytes to create the modified packet
+	/*
+	resPacket := namenode_rpc.NewRequestPacket()
+	reqPacket.Length = uint32(int(reqPacket.Length) + lengthDiff)
+	packetBytes = reqPacket.BytesNoPad()
+	resBuf := append(packetBytes, dataResBuffer.Bytes()...)
+	resPacket.Load(resBuf) */
+
 	resPacket := namenode_rpc.NewRequestPacket()
 	resBuf := append(packetBytes, dataResBuffer.Bytes()...)	
 	resPacket.Load(resBuf)
 
 	return resPacket, true
+}
+
+func (p *Processor) processGetBlockLocations(
+	reqPacket *namenode_rpc.RequestPacket) (*namenode_rpc.RequestPacket, bool) {
+
+	p.currentRequest = reqPacket
+
+	return reqPacket, false
+
 }
 
 func (p *Processor) preprocessRequestPacket(reqPacket *namenode_rpc.RequestPacket) (*namenode_rpc.RequestPacket, bool) {
@@ -552,6 +570,10 @@ func (p *Processor) preprocessRequestPacket(reqPacket *namenode_rpc.RequestPacke
 
 	if string(reqPacket.MethodName) == "register" {
 		return p.processRegisterRequest(reqPacket)
+	}
+
+	if string(reqPacket.MethodName) == "getBlockLocations" {
+		p.processGetBlockLocations(reqPacket)
 	}
 
 	fmt.Println("Ended preprocessRequestPacket()")
@@ -839,14 +861,64 @@ func (p *Processor) preprocessRegistrationResponse(genericResp *namenode_rpc.Gen
 	return genericResp
 }
 
+func (p *Processor) preprocessLocatedBlocks(
+	genericResp *namenode_rpc.GenericResponsePacket) *namenode_rpc.GenericResponsePacket {
+	//total byte structure
+	loadedBytes := genericResp.GetBuf()
+
+	//only the packet parameters
+	packetBytes := genericResp.Bytes()
+
+	fmt.Println("Loaded bytes: ")
+	fmt.Println(hex.Dump(loadedBytes))
+
+	fmt.Println("Packet bytes: ")
+	fmt.Println(hex.Dump(packetBytes))
+
+	//only the data bytes (should contain an instance of 
+	//writables.LocatedBlocks)
+	dataBytes := loadedBytes[len(packetBytes):]
+
+	//TODO possible bug: we are adding back these
+	//two bytes, but it is not clear in the Hadoop
+	//codebase why this is necessary
+	dataBytes = append([]byte{0, 0}, dataBytes...)
+
+	fmt.Println("Data bytes: ")
+	fmt.Println(hex.Dump(dataBytes))
+
+	dataBytesBuf := bytes.NewBuffer(dataBytes)
+	locatedBlocks := writables.NewLocatedBlocks()
+	locatedBlocks.Read(dataBytesBuf)
+	
+	//TODO generalize
+	locatedBlocks.LocatedBlockArr[0].InfoArr[0].Id.Name = "127.0.0.1:1222"
+
+	//write the modified locatedBlocks to a blank buffer
+	dataResBuf := new(bytes.Buffer)
+	locatedBlocks.Write(dataResBuf)
+
+	//notice we have to adjust for a two-byte difference
+	resBytes := append(packetBytes, dataResBuf.Bytes()[1:]...)
+	resPacket := namenode_rpc.NewGenericResponsePacket(resBytes, genericResp.PacketNumber)
+	resPacket.Load(resPacket.Buf)
+
+	return resPacket
+}
+
 //preprocess HDFS responses. Calls other methods depending on the type
 //of modification needed.
 func (p *Processor) preprocessHDFS(genericResp *namenode_rpc.GenericResponsePacket) *namenode_rpc.GenericResponsePacket {
+	fmt.Println("Preprocessing HDFS...")
+	fmt.Println("genericResp.ObjectName1: ", string(genericResp.ObjectName1))
 	if string(genericResp.ObjectName1) == "org.apache.hadoop.hdfs.server.protocol.DatanodeRegistration" {
 		fmt.Println("Now preprocessing registration response...")
 		genericResp := p.preprocessRegistrationResponse(genericResp)
 		fmt.Println("Preprocessed response bytes: ");
 		fmt.Println(hex.Dump(genericResp.LoadedBytes()))
+	} else if string(genericResp.ObjectName1) == "org.apache.hadoop.hdfs.protocol.LocatedBlocks" {
+		genericResp = p.preprocessLocatedBlocks(genericResp)
+
 	} else {
 		fmt.Println("Did not have to preprocess registration response.")
 	}
@@ -889,18 +961,16 @@ func (p *Processor) HandleHDFS(conn net.Conn, hdfs net.Conn) {
 		//number, it doesn't particularly matter what type of packet it 
 		//actually is
 		//genericResp := namenode_rpc.NewGenericResponsePacket(buf, packetNumber)
-		genericResp := namenode_rpc.BuildResponsePacket(buf, packetNumber, p.currentRequest)
+		resp := namenode_rpc.BuildResponsePacket(buf, packetNumber, p.currentRequest)
+		genericResp := resp.(*namenode_rpc.GenericResponsePacket)
 
 		//load in the buffer contents as field values
 		genericResp.Load(buf)
 		//receivedBytes := buf
 
 		//TODO this is a useful hack, but probably will not work at scale.
-		switch genericResp.(type) {
-		case *namenode_rpc.GenericResponsePacket:
-			genericResp := genericResp.(*namenode_rpc.GenericResponsePacket)
-			genericResp = p.preprocessHDFS(genericResp)
-		}
+		genericResp = p.preprocessHDFS(genericResp)
+
 
 		//detects EOF's etc.
 		if readErr != nil {
@@ -922,11 +992,9 @@ func (p *Processor) HandleHDFS(conn net.Conn, hdfs net.Conn) {
 			//proxy the read data to the associated client socket
 			util.DebugLogger.Println("About to write to connection...")
 			if !p.skipResponse {
-				/*
-				fmt.Println("Received response: ")
-				fmt.Println(hex.Dump(receivedBytes))
-				fmt.Println("Writing response: ")
-				fmt.Println(hex.Dump(genericResp.GetBuf())) */	
+				fmt.Println("Response: ")
+				fmt.Println(hex.Dump(genericResp.GetBuf()))
+
 				conn.Write(genericResp.GetBuf())
 			} else {
 				p.skipResponse = false
