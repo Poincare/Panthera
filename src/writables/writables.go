@@ -7,7 +7,7 @@ import (
 	"errors"
 	"io"
 	"fmt"
-	"strings"
+	//"strings"
 )
 
 /*
@@ -963,6 +963,9 @@ type DataNodeInfo struct {
 	Capacity uint64
 
 	//long
+	DfsUsed uint64
+
+	//long
 	Remaining uint64
 
 	//long
@@ -971,27 +974,80 @@ type DataNodeInfo struct {
 	//int
 	XceiverCount uint32
 
-	//string
-	Location string
+	Tree string
 
-	//string
-	Hostname string
-
-	//string (written as an "enum" in hadoop, but it is basically
+	Location *Text
+	Hostname *Text
+	//Text (written as an "enum" in hadoop, but it is basically
 	//the name of the enum written as a string)
-	AdminState string
+	AdminState *Text
 }
 
 func NewDataNodeInfo() *DataNodeInfo {
 	d := DataNodeInfo{}
 	d.Id = NewDataNodeId()
-	d.Hostname = ""
-	d.AdminState = ""
+
+	d.Location = NewText()
+	d.Hostname = NewText()
+	d.AdminState = NewText()
+
 	return &d
 }
 
 func (d *DataNodeInfo) Read(reader Reader) error {
-	return GenericRead(d, reader)
+	var err error
+
+	err = d.Id.Read(reader)
+	if err != nil {
+		return err
+	}
+
+	d.IpcPort, err = ReadShortInt(reader)
+	if err != nil {
+		return err
+	}
+
+	d.Capacity, err = ReadLongInt(reader)
+	if err != nil {
+		return err
+	}
+
+	d.DfsUsed, err = ReadLongInt(reader)
+	if err != nil {
+		return err
+	}
+
+	d.Remaining, err = ReadLongInt(reader)
+	if err != nil {
+		return err
+	}
+
+	d.LastUpdate, err = ReadLongInt(reader)
+	if err != nil {
+		return err
+	}
+
+	d.XceiverCount, err = ReadInt(reader)
+	if err != nil {
+		return err
+	}
+
+	err = d.Location.Read(reader)
+	if err != nil {
+		return err
+	}
+
+	err = d.Hostname.Read(reader)
+	if err != nil {
+		return err
+	}
+
+	err = d.AdminState.Read(reader)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (d *DataNodeInfo) Write(writer Writer) error {
@@ -1012,6 +1068,11 @@ func (d *DataNodeInfo) Write(writer Writer) error {
 		return err
 	}
 
+	err = WriteLongInt(d.DfsUsed, writer)
+	if err != nil {
+		return err
+	}
+
 	err = WriteLongInt(d.Remaining, writer)
 	if err != nil {
 		return err
@@ -1027,26 +1088,19 @@ func (d *DataNodeInfo) Write(writer Writer) error {
 		return err
 	}
 
-	
-	if d.Location != "" {
-		err = WriteString(d.Location, writer)
-		if err != nil {
-			return err
-		}
-	}
-	
-	if d.Hostname != "" {
-		err = WriteString(d.Hostname, writer)
-		if err != nil {
-			return err
-		}
+	err = d.Location.Write(writer)
+	if err != nil {
+		return err
 	}
 
-	if d.AdminState != "" {
-		err = WriteString(d.AdminState, writer)
-		if err != nil {
-			return err
-		}
+	err = d.Hostname.Write(writer)
+	if err != nil {
+		return err
+	}
+
+	err = d.AdminState.Write(writer)
+	if err != nil {
+		return err
 	}
 
 	return nil

@@ -872,9 +872,6 @@ func (p *Processor) preprocessLocatedBlocks(
 	fmt.Println("Loaded bytes: ")
 	fmt.Println(hex.Dump(loadedBytes))
 
-	fmt.Println("Packet bytes: ")
-	fmt.Println(hex.Dump(packetBytes))
-
 	//only the data bytes (should contain an instance of 
 	//writables.LocatedBlocks)
 	dataBytes := loadedBytes[len(packetBytes):]
@@ -884,22 +881,22 @@ func (p *Processor) preprocessLocatedBlocks(
 	//codebase why this is necessary
 	dataBytes = append([]byte{0, 0}, dataBytes...)
 
-	fmt.Println("Data bytes: ")
-	fmt.Println(hex.Dump(dataBytes))
 
 	dataBytesBuf := bytes.NewBuffer(dataBytes)
 	locatedBlocks := writables.NewLocatedBlocks()
 	locatedBlocks.Read(dataBytesBuf)
 	
 	//TODO generalize
-	locatedBlocks.LocatedBlockArr[0].InfoArr[0].Id.Name = "127.0.0.1:1222"
+	locatedBlocks.LocatedBlockArr[0].InfoArr[0].Id.Name = "127.0.0.1:1389"
+	
+	fmt.Println("xceiver count: ", locatedBlocks.LocatedBlockArr[0].InfoArr[0].XceiverCount)
 
 	//write the modified locatedBlocks to a blank buffer
 	dataResBuf := new(bytes.Buffer)
 	locatedBlocks.Write(dataResBuf)
 
 	//notice we have to adjust for a two-byte difference
-	resBytes := append(packetBytes, dataResBuf.Bytes()[1:]...)
+	resBytes := append(packetBytes, dataResBuf.Bytes()[2:]...)
 	resPacket := namenode_rpc.NewGenericResponsePacket(resBytes, genericResp.PacketNumber)
 	resPacket.Load(resPacket.Buf)
 
@@ -970,7 +967,6 @@ func (p *Processor) HandleHDFS(conn net.Conn, hdfs net.Conn) {
 
 		//TODO this is a useful hack, but probably will not work at scale.
 		genericResp = p.preprocessHDFS(genericResp)
-
 
 		//detects EOF's etc.
 		if readErr != nil {
