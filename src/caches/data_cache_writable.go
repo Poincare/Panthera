@@ -50,12 +50,19 @@ func (w *WritableDataCache) CurrSize() int {
 }
 
 func (w *WritableDataCache) currSize() int {
+	if !w.Enabled {
+		return 0
+	}
 	return len(w.RpcStore)
 }
 
 func (w *WritableDataCache) AddReadPair(pair *writables.ReadPair) {
 	w.Lock()
 	defer w.Unlock()
+
+	if !w.Enabled {
+		return
+	}
 
 	//see if the pair is already in the cache
 	resPair := w.Query(pair.Request)
@@ -82,6 +89,10 @@ func (w *WritableDataCache) AddReadPair(pair *writables.ReadPair) {
 func (w *WritableDataCache) Query(
 	toFind *writables.ReadBlockHeader) *writables.ReadPair {
 
+	if !w.Enabled {
+		return nil
+	}
+
 	//iterate through the availbale pairs
 	//and check if any of the requests matches toFind
 	for i := 0; i < w.currSize(); i++ {
@@ -99,6 +110,10 @@ func (w *WritableDataCache) Query(
 func (w *WritableDataCache) AddBlockPacket(
 	header *writables.ReadBlockHeader,
 	blockPacket *writables.BlockPacket) {
+
+	if !w.Enabled {
+		return
+	}
 
 	//get the pair that the header is in
 	pair := w.Query(header)

@@ -166,8 +166,8 @@ func main() {
 	
 	/* setup the data layer */
 	//TODO should probably be a configuration option
-	portOffset := 2010
-	dataNode := configuration.NewDataNodeLocation("127.0.0.1", "1389")
+	portOffset := 1389 
+	dataNode := configuration.NewDataNodeLocation("162.243.65.142", "1389")
 	dataNodeList := make([]*configuration.DataNodeLocation, 0)
 	dataNodeList = append(dataNodeList, dataNode)
 	dataNodeMap := configuration.MakeDataNodeMap(dataNodeList, portOffset)

@@ -133,9 +133,9 @@ func (p *Processor) CacheRequest(req *namenode_rpc.RequestPacket) {
 	/*
 	if(string(req.MethodName) == "getFileInfo") {
 		//follow through with the GetFileInfoCache
-		fmt.Println("Caching request..., cache size: ", len(p.cacheSet.GfiCache.Cache.RequestResponse))
+		//fmt.Println("Caching request..., cache size: ", len(p.cacheSet.GfiCache.Cache.RequestResponse))
 		p.cacheSet.GfiCache.Cache.AddRequest(req)
-		fmt.Println("Cached request. Cache size: ", len(p.cacheSet.GfiCache.Cache.RequestResponse))
+		//fmt.Println("Cached request. Cache size: ", len(p.cacheSet.GfiCache.Cache.RequestResponse))
 		log.Println("Cached GFI Request: ")
 	} else */
 	if(string(req.MethodName) == "getListing") {
@@ -174,7 +174,7 @@ func (p *Processor) readLength(conn net.Conn) (uint32, error) {
 
 	buf = buf[0:bytesRead]
 	if bytesRead != 0 {
-		fmt.Println("bytes read: ", bytesRead, "buffer: ", buf);
+		//fmt.Println("bytes read: ", bytesRead, "buffer: ", buf);
 	}
 
 	byteBuffer := bytes.NewBuffer(buf)
@@ -190,7 +190,7 @@ func (p *Processor) readLength(conn net.Conn) (uint32, error) {
 //TODO this needs a fix to consider the case where the new port string length != old port string
 //length
 func (p *Processor) ModifyBlockReport(req *namenode_rpc.RequestPacket) []byte {
-	fmt.Println("Modifying block report...")
+	//fmt.Println("Modifying block report...")
 	//we need to change the port numbers on the blockReport calls
 	//so that it registers the cache layer instead of the DN port number
 
@@ -216,7 +216,7 @@ func (p *Processor) ModifyBlockReport(req *namenode_rpc.RequestPacket) []byte {
 			correspondingPort = string(port)
 		}
 	}
-	fmt.Println("Corresponding port: ", correspondingPort)
+	//fmt.Println("Corresponding port: ", correspondingPort)
 
 	//something like "DS-678002061-127.0.1.1-1389-1387734822426"
 	storageString := string(storageParameter.Value)
@@ -224,7 +224,7 @@ func (p *Processor) ModifyBlockReport(req *namenode_rpc.RequestPacket) []byte {
 	storagePieces := strings.Split(storageString, "-")
 	storagePieces[3] = correspondingPort
 	storageString = strings.Join(storagePieces, "-")
-	fmt.Println("New storageString: ", storageString)
+	//fmt.Println("New storageString: ", storageString)
 	
 	//TODO consider the case where the length of the value is now different
 	binary.Write(&offsetBuffer, binary.BigEndian, req.Parameters[1].TypeLength)
@@ -241,8 +241,8 @@ func (p *Processor) ModifyBlockReport(req *namenode_rpc.RequestPacket) []byte {
 
 	req.Load(offsetBuffer.Bytes())
 
-	fmt.Println("Modified block report bytes: ")
-	fmt.Println(hex.Dump(offsetBuffer.Bytes()))
+	//fmt.Println("Modified block report bytes: ")
+	//fmt.Println(hex.Dump(offsetBuffer.Bytes()))
 	return offsetBuffer.Bytes()
 	/*
 	req.Parameters[1].Value = []byte(storageString)
@@ -260,8 +260,8 @@ func (p *Processor) Preprocess(req *namenode_rpc.RequestPacket) (*namenode_rpc.R
 	if string(req.MethodName) == "blockReport" || string(req.MethodName) == "blocksBeingWrittenReport" {
 		fmt.Println("Modifying request...")
 		p.ModifyBlockReport(req)
-		fmt.Println("New request.Parameters[1].Type", string(req.Parameters[1].Type))
-		fmt.Println("New request.Parameters[1].Value", string(req.Parameters[1].Value))
+		//fmt.Println("New request.Parameters[1].Type", string(req.Parameters[1].Type))
+		//fmt.Println("New request.Parameters[1].Value", string(req.Parameters[1].Value))
 		
 		return req, true
 	}
@@ -280,7 +280,7 @@ func (p *Processor) HandleConnZeroPacket(conn net.Conn, hdfs net.Conn) error {
 	}
 
 	_, writeError := hdfs.Write(byteBuffer)
-	fmt.Println("Zero packet: ", byteBuffer)
+	//fmt.Println("Zero packet: ", byteBuffer)
 
 	return writeError
 }
@@ -300,9 +300,9 @@ func (p *Processor) readAuthPacketLength(conn net.Conn) (uint32, []byte, error) 
 	} */
 	//return packetLength, readErr
 	byteBuffer := bytes.NewBuffer(buf)
-	fmt.Println("buf before: ", byteBuffer.Bytes())
+	//fmt.Println("buf before: ", byteBuffer.Bytes())
 	binary.Read(byteBuffer, binary.BigEndian, &packetLength)
-	fmt.Println("buf: ", byteBuffer.Bytes(), "pack len: ", packetLength)
+	//fmt.Println("buf: ", byteBuffer.Bytes(), "pack len: ", packetLength)
 	return packetLength, buf, readErr
 }
 
@@ -312,10 +312,10 @@ func (p *Processor) readAuthPacketLength(conn net.Conn) (uint32, []byte, error) 
 func (p *Processor) preprocessAuthRegister(authPacket *namenode_rpc.AuthPacket, loadedBytes []byte) []byte {
 	//figure out the length of assembled vs. the length of the loadedBytes
 	packetBytes := authPacket.Bytes()
-	fmt.Println("Length of packet bytes: ", len(packetBytes))
-	fmt.Println("Length of loaded bytes: ", len(loadedBytes))
-	fmt.Println("Diff bytes: ", loadedBytes[len(packetBytes):])
-	fmt.Println("Diff string: ", string(loadedBytes[len(packetBytes):]))
+	//fmt.Println("Length of packet bytes: ", len(packetBytes))
+	//fmt.Println("Length of loaded bytes: ", len(loadedBytes))
+	//fmt.Println("Diff bytes: ", loadedBytes[len(packetBytes):])
+	//fmt.Println("Diff string: ", string(loadedBytes[len(packetBytes):]))
 
 	//we load the "diff bytes" into the Writable DataNodeRegistration
 	diffBuffer := bytes.NewBuffer(loadedBytes[len(packetBytes):])
@@ -333,8 +333,8 @@ func (p *Processor) preprocessAuthRegister(authPacket *namenode_rpc.AuthPacket, 
 
 	resDiffBuffer := new(bytes.Buffer)
 	err = dataNodeRegistration.Write(resDiffBuffer)
-	fmt.Println("ResDiffBuffer: ")
-	fmt.Println(hex.Dump(resDiffBuffer.Bytes()))
+	//fmt.Println("ResDiffBuffer: ")
+	//fmt.Println(hex.Dump(resDiffBuffer.Bytes()))
 	if err != nil {
 		util.DebugLogger.Println("Error occurred in preprocessing DataNodeRegistration: ", err)
 		util.DebugLogger.Println("Not submitting registration.")
@@ -343,8 +343,8 @@ func (p *Processor) preprocessAuthRegister(authPacket *namenode_rpc.AuthPacket, 
 
 	resBytes := []byte(packetBytes)
 	resBytes = append(resBytes, resDiffBuffer.Bytes()...)
-	fmt.Println("Res bytes: ")
-	fmt.Println(hex.Dump(resBytes))
+	//fmt.Println("Res bytes: ")
+	//fmt.Println(hex.Dump(resBytes))
 
 	p.dataNodeRegistration = dataNodeRegistration
 
@@ -358,10 +358,10 @@ func (p *Processor) preprocessAuthRegister(authPacket *namenode_rpc.AuthPacket, 
 	correctBytes = append(correctBytes, []byte("2010")...)
 	correctBytes = append(correctBytes, []byte{45,49,51,57,53,50,48,53,55,51,57,56,51,56,195,155,195,100,255,255,255,215,108,110,46,95,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,255,0,0,0,0}...)
 	packetBytes = append(packetBytes, correctBytes...)
-	fmt.Println("Packet bytes: ")
-	fmt.Println(hex.Dump(packetBytes))
-	fmt.Println("Loaded bytes: ")
-	fmt.Println(hex.Dump(loadedBytes))
+	//fmt.Println("Packet bytes: ")
+	//fmt.Println(hex.Dump(packetBytes))
+	//fmt.Println("Loaded bytes: ")
+	//fmt.Println(hex.Dump(loadedBytes))
 	return packetBytes */
 	
 	//TODO make this generic so that we can actually set a port #, id, etc.
@@ -375,15 +375,15 @@ func (p *Processor) preprocessAuthRegister(authPacket *namenode_rpc.AuthPacket, 
 		100, 255, 255, 255, 215, 4, 220, 11, 33, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
 		0, 0, 0, 255, 0, 0, 0, 0}...) 
 
-	fmt.Println("Correct bytes: ", string(correctBytes))
+	//fmt.Println("Correct bytes: ", string(correctBytes))
 	packetBytes = append(packetBytes, correctBytes...)
-	fmt.Println("Packet bytes: ", packetBytes)
-	fmt.Println("Loaded bytes: ", loadedBytes) */
+	//fmt.Println("Packet bytes: ", packetBytes)
+	//fmt.Println("Loaded bytes: ", loadedBytes) */
 }
 
 //decides how to preprocess authentication packets
 func (p *Processor) preprocessAuthPacket(authPacket *namenode_rpc.AuthPacket, loadedBytes []byte) []byte {
-	fmt.Println("Preprocessing auth packet...	")
+	//fmt.Println("Preprocessing auth packet...	")
 	if string(authPacket.MethodName) == "register" {
 		return p.preprocessAuthRegister(authPacket, loadedBytes)
 	}
@@ -434,7 +434,7 @@ func (p *Processor) HandleConnAuthPacket(conn net.Conn, hdfs net.Conn) error {
 	authPacket.Load(finalBuf)
 	finalBuf = p.preprocessAuthPacket(authPacket, finalBuf)
 
-	fmt.Println("Auth packet authentication method name: ", string(authPacket.MethodName))
+	//fmt.Println("Auth packet authentication method name: ", string(authPacket.MethodName))
 	_, writeError := hdfs.Write(finalBuf)
 	
 	return writeError
@@ -474,7 +474,7 @@ func (p *Processor) readRequestPacket(conn net.Conn) (*namenode_rpc.RequestPacke
 
 	restBuf := make([]byte, int(packetLength))
 	bytesRead, readError := conn.Read(restBuf)
-	fmt.Println("read request packet, bytesRead: ", bytesRead)
+	//fmt.Println("read request packet, bytesRead: ", bytesRead)
 	if bytesRead == 0 || readError != nil {
 		return nil, readError
 	}
@@ -485,7 +485,7 @@ func (p *Processor) readRequestPacket(conn net.Conn) (*namenode_rpc.RequestPacke
 
 	reqPacket := namenode_rpc.NewRequestPacket()
 	reqPacket.Load(finalBuf)
-	fmt.Println("Read request with method name: ", string(reqPacket.MethodName))
+	//fmt.Println("Read request with method name: ", string(reqPacket.MethodName))
 
 	p.currentRequest = reqPacket
 
@@ -502,7 +502,7 @@ func (p *Processor) preprocessBeingWrittenReport(reqPacket *namenode_rpc.Request
 //look through the "register" request packet and save the stuff
 //that will be used in modifying the response to the request
 func (p *Processor) processRegisterRequest(reqPacket *namenode_rpc.RequestPacket) (*namenode_rpc.RequestPacket, bool) {
-	fmt.Println("In processRegisterRequest(): ")
+	//fmt.Println("In processRegisterRequest(): ")
 	
 	//full byte structure
 	loadedBytes := reqPacket.LoadedBytes()
@@ -514,14 +514,14 @@ func (p *Processor) processRegisterRequest(reqPacket *namenode_rpc.RequestPacket
 	//which is what we are interested in.
 	dataBytes := loadedBytes[len(packetBytes):]
 
-	fmt.Println("Loaded bytes: ")
-	fmt.Println(hex.Dump(reqPacket.LoadedBytes()))
+	//fmt.Println("Loaded bytes: ")
+	//fmt.Println(hex.Dump(reqPacket.LoadedBytes()))
 
-	fmt.Println("reqPacket.Bytes(): ")
-	fmt.Println(hex.Dump(reqPacket.BytesNoPad()))
+	//fmt.Println("reqPacket.Bytes(): ")
+	//fmt.Println(hex.Dump(reqPacket.BytesNoPad()))
 
-	fmt.Println("dataBytes: ")
-	fmt.Println(hex.Dump(dataBytes))
+	//fmt.Println("dataBytes: ")
+	//fmt.Println(hex.Dump(dataBytes))
 
 	dataByteBuffer := bytes.NewBuffer(dataBytes)
 
@@ -563,7 +563,7 @@ func (p *Processor) processGetBlockLocations(
 }
 
 func (p *Processor) preprocessRequestPacket(reqPacket *namenode_rpc.RequestPacket) (*namenode_rpc.RequestPacket, bool) {
-	fmt.Println("Called preprocessRequestPacket()")
+	//fmt.Println("Called preprocessRequestPacket()")
 	if string(reqPacket.MethodName) == "blocksBeingWrittenReport" {
 		return p.preprocessBeingWrittenReport(reqPacket)
 	}
@@ -576,7 +576,7 @@ func (p *Processor) preprocessRequestPacket(reqPacket *namenode_rpc.RequestPacke
 		p.processGetBlockLocations(reqPacket)
 	}
 
-	fmt.Println("Ended preprocessRequestPacket()")
+	//fmt.Println("Ended preprocessRequestPacket()")
 	return reqPacket, false
 }
 
@@ -621,7 +621,7 @@ func (p *Processor) HandleRequestPacket(conn net.Conn, hdfs net.Conn) error {
 		conn.Write(respPacket.GetBuf())
 		
 		p.recordCachedLatency()
-		fmt.Println("Diff in cached time: ", time.Now().Sub(*p.cacheStartTime).Nanoseconds())
+		//fmt.Println("Diff in cached time: ", time.Now().Sub(*p.cacheStartTime).Nanoseconds())
 
 		util.DebugLogger.Println("Done writing resp packet, bytes") 
 	} else {
@@ -631,14 +631,14 @@ func (p *Processor) HandleRequestPacket(conn net.Conn, hdfs net.Conn) error {
 	//write the request to HDFS (differently depending on
 	//whether or not the request was modified)
 	if !modified {
-		fmt.Println("Unmodified request written: ")
-		fmt.Println(hex.Dump(reqPacket.LoadedBytes()))
+		//fmt.Println("Unmodified request written: ")
+		//fmt.Println(hex.Dump(reqPacket.LoadedBytes()))
 		hdfs.Write(reqPacket.LoadedBytes())
 		t := time.Now()
 		p.nonCacheStartTime = &t
 	} else {
-		fmt.Println("Modified request written: ")
-		fmt.Println(hex.Dump(reqPacket.LoadedBytes()))
+		//fmt.Println("Modified request written: ")
+		//fmt.Println(hex.Dump(reqPacket.LoadedBytes()))
 
 		hdfs.Write(reqPacket.LoadedBytes())
 	}
@@ -887,7 +887,7 @@ func (p *Processor) preprocessLocatedBlocks(
 	locatedBlocks.Read(dataBytesBuf)
 	
 	//TODO generalize
-	locatedBlocks.LocatedBlockArr[0].InfoArr[0].Id.Name = "127.0.0.1:1389"
+	locatedBlocks.LocatedBlockArr[0].InfoArr[0].Id.Name = "127.0.0.1:2010"
 	
 	fmt.Println("xceiver count: ", locatedBlocks.LocatedBlockArr[0].InfoArr[0].XceiverCount)
 
@@ -914,7 +914,7 @@ func (p *Processor) preprocessHDFS(genericResp *namenode_rpc.GenericResponsePack
 		fmt.Println("Preprocessed response bytes: ");
 		fmt.Println(hex.Dump(genericResp.LoadedBytes()))
 	} else if string(genericResp.ObjectName1) == "org.apache.hadoop.hdfs.protocol.LocatedBlocks" {
-		genericResp = p.preprocessLocatedBlocks(genericResp)
+		//genericResp = p.preprocessLocatedBlocks(genericResp)
 
 	} else {
 		fmt.Println("Did not have to preprocess registration response.")
