@@ -988,8 +988,8 @@ func (p *Processor) HandleHDFS(conn net.Conn, hdfs net.Conn) {
 			//proxy the read data to the associated client socket
 			util.DebugLogger.Println("About to write to connection...")
 			if !p.skipResponse {
-				fmt.Println("Response: ")
-				fmt.Println(hex.Dump(genericResp.GetBuf()))
+				//fmt.Println("Response: ")
+				//fmt.Println(hex.Dump(genericResp.GetBuf()))
 
 				conn.Write(genericResp.GetBuf())
 			} else {
