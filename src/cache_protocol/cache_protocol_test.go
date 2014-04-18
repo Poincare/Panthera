@@ -116,6 +116,10 @@ func TestCachedBlocksNew(t *testing.T) {
 	}
 }
 
+func TestCachedBlocksCreate(t *testing.T) {
+	
+}
+
 func TestCachedBlocksRead(t *testing.T) {
 	numBlocks := uint32(2)
 	block := NewBlockDescription()

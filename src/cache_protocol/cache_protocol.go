@@ -134,6 +134,19 @@ func NewCachedBlocks() *CachedBlocks {
 	return &c
 }
 
+//creates the CachedBlocks structure given an instance of 
+//caches.WritableDataCache.
+func CreateCachedBlocks(dataCache *caches.WritableDataCache) *CachedBlocks {
+	c := NewCachedBlocks()
+	c.NumBlocks = dataCache.CurrSize()
+	c.Blocks = make([]*BlockDescription, c.NumBlocks)
+
+	for i := 0; i<int(c.NumBlocks); i++ {
+		blockId := dataCache.RpcStore[i].Request.BlockId
+		c.Blocks[i] = NewBlockDescription(blockId)
+	}
+}
+
 func (c *CachedBlocks) Read(reader writables.Reader) error {
 	var err error
 	c.NumBlocks, err = writables.ReadInt(reader)
