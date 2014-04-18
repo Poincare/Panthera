@@ -105,4 +105,98 @@ func TestBlockDescriptionWrite(t *testing.T) {
 	}
 }
 
+/*
+* CachedBlocks
+*/
 
+func TestCachedBlocksNew(t *testing.T) {
+	c := NewCachedBlocks()
+	if c == nil {
+		t.Fail()
+	}
+}
+
+func TestCachedBlocksRead(t *testing.T) {
+	numBlocks := uint32(2)
+	block := NewBlockDescription()
+	block.BlockId = 64
+
+	block2 := NewBlockDescription()
+	block.BlockId = 16
+
+	buf := []byte{0, 0, 0, 2}
+	byteBuf := bytes.NewBuffer(buf)
+	block.Write(byteBuf)
+	block2.Write(byteBuf)
+
+	c := NewCachedBlocks()
+	c.Read(byteBuf)
+
+	if c.NumBlocks != numBlocks {
+		t.Fail()
+	}
+
+	if !reflect.DeepEqual(*c.Blocks[0], *block) {
+		t.Fail()
+	}
+
+	if !reflect.DeepEqual(*c.Blocks[1], *block2) {
+		t.Fail()
+	}
+}
+
+func  TestCachedBlocksWrite(t *testing.T) {
+	expected := []byte{0, 0, 0, 2}
+	expectedBuf := bytes.NewBuffer(expected)
+	block := NewBlockDescription()
+	block.BlockId = 64
+	block2 := NewBlockDescription()
+	block2.BlockId = 16
+	block.Write(expectedBuf)
+	block2.Write(expectedBuf)
+
+	c := NewCachedBlocks()
+	c.NumBlocks = 2
+	c.Blocks = make([]*BlockDescription, c.NumBlocks)
+	c.Blocks[0] = block
+	c.Blocks[1] = block2
+
+	resBuf := new(bytes.Buffer)
+	err := c.Write(resBuf)
+	if err != nil {
+		t.Fail()
+	}
+
+	if !reflect.DeepEqual(resBuf.Bytes(), expectedBuf.Bytes()) {
+		t.Fail()
+	}
+}
+
+/*
+* Request 
+*/
+
+func TestRequestRead(t *testing.T) {
+	r := new(Request)
+	buf := []byte{0, 0}
+	byteBuf := bytes.NewBuffer(buf)
+
+	r.Read(byteBuf)
+	if r.RequestType != 0 {
+		t.Fail()
+	}
+}
+
+func TestRequestWrite(t *testing.T) {
+	r := NewRequest(REQ_CACHED_BLOCKS)
+	expectedBuf := []byte{0, 1}
+	resBuf := new(bytes.Buffer)
+	err := r.Write(resBuf)
+	if err != nil {
+		t.Fail()
+	}
+
+	if !reflect.DeepEqual(resBuf.Bytes(), expectedBuf) {
+		t.Fail()
+	}
+}
