@@ -37,6 +37,11 @@ func NewProcessor(dataCache *caches.WritableDataCache,
 	return &p
 }
 
+func (p *Processor) HandleCachedBlocks(r *cache_protocol.Request) error {
+	blocks := cache_protocol.CreateCachedBlocks(p.DataCache)
+	return blocks.Write(p.Client)
+}
+
 func (p *Processor) HandleCacheDescription(r *cache_protocol.Request) error {
 	descr := cache_protocol.CreateCacheDescription(p.DataCache)
 	return descr.Write(p.Client)
@@ -47,6 +52,8 @@ func (p *Processor) HandleRequest(r *cache_protocol.Request) error {
 	switch(r.RequestType) {
 	case cache_protocol.REQ_CACHE_DESCRIPTION:
 		return p.HandleCacheDescription(r)
+	case cache_protocol.REQ_CACHED_BLOCKS:
+		return p.HandleCachedBlocks(r)
 	}
 	return nil
 }

@@ -186,6 +186,25 @@ func (c *CachedBlocks) Write(writer writables.Writer) error {
 }
 
 /**
+* CacheInfo
+* Combines CachedBlocks and CacheDescription
+* into one structure.
+* Does not have write/read methods since it is
+* not part of the protocol, but is used as a structure
+* on the client
+*/
+type CacheInfo struct {
+	Blocks *CachedBlocks
+	Descr *CacheDescription
+}
+
+func NewCacheInfo(descr *CacheDescription, blocks *CachedBlocks) *CacheInfo {
+	c := CacheInfo{Blocks: blocks, 
+		Descr: descr}
+	return &c
+}
+
+/**
 ** Request types
 */
 

@@ -29,6 +29,7 @@ type JobInfo struct {
 	Name string
 	BlocksAccessed []uint64
 
+	
 	//not written or accessed from the JSON
 	blocksAccessed []*cache_protocol.BlockDescription
 }
@@ -96,7 +97,7 @@ func (j *JobInfo) ScoreCache(cacheDescr *cache_protocol.CacheDescription,
 	cachedBlocks *cache_protocol.CachedBlocks) float64 {
 
 	hits := 0
-	total := cacheDescr.CurrSize
+	total := len(j.blocksAccessed)
 
 	/* outline of the algorithm:
 	* Loop over the blocks cached.
