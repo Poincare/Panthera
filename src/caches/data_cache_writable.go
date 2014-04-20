@@ -11,7 +11,6 @@ import (
 
 	//local packages
 	"writables"
-	"util"
 )
 
 type WritableDataCache struct {
@@ -69,11 +68,7 @@ func (w *WritableDataCache) AddReadPair(pair *writables.ReadPair) {
 	//if it is already in the cache, we do not
 	//need to add it again
 	if resPair != nil {
-		util.TempLogger.Println("Matched in AddReadPair()")
 		return
-	} else {
-		util.TempLogger.Println("Did not match in AddReadPair()")
-		util.TempLogger.Println("Cache size: ", w.currSize())
 	}
 
 	//if the size is already at the max point, we have to remove 

@@ -138,13 +138,16 @@ func NewCachedBlocks() *CachedBlocks {
 //caches.WritableDataCache.
 func CreateCachedBlocks(dataCache *caches.WritableDataCache) *CachedBlocks {
 	c := NewCachedBlocks()
-	c.NumBlocks = dataCache.CurrSize()
+	c.NumBlocks = uint32(dataCache.CurrSize())
 	c.Blocks = make([]*BlockDescription, c.NumBlocks)
 
 	for i := 0; i<int(c.NumBlocks); i++ {
 		blockId := dataCache.RpcStore[i].Request.BlockId
-		c.Blocks[i] = NewBlockDescription(blockId)
+		c.Blocks[i] = NewBlockDescription()
+		c.Blocks[i].BlockId = blockId
 	}
+
+	return c
 }
 
 func (c *CachedBlocks) Read(reader writables.Reader) error {

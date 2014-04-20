@@ -8,6 +8,7 @@ import (
 
 	//local imports
 	"caches"
+	"writables"
 )
 
 func TestConstants(t *testing.T) {
@@ -117,7 +118,32 @@ func TestCachedBlocksNew(t *testing.T) {
 }
 
 func TestCachedBlocksCreate(t *testing.T) {
-	
+	dataCache := caches.NewWritableDataCache(15)
+
+	req := writables.NewReadBlockHeader()
+	req.BlockId = 1
+
+	req2 := writables.NewReadBlockHeader()
+	req2.BlockId = 2
+
+	pair := writables.NewReadPair(req)
+	pair2 := writables.NewReadPair(req2)
+
+	dataCache.AddReadPair(pair)
+	dataCache.AddReadPair(pair2)
+
+	cachedBlocks := CreateCachedBlocks(dataCache)
+	if cachedBlocks.NumBlocks != 2 {
+		t.Fail()
+	}
+
+	if cachedBlocks.Blocks[0].BlockId != uint64(1) {
+		t.Fail()
+	}
+
+	if cachedBlocks.Blocks[1].BlockId != uint64(2) {
+		t.Fail()
+	}
 }
 
 func TestCachedBlocksRead(t *testing.T) {
