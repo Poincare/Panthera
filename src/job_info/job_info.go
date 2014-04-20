@@ -110,8 +110,10 @@ func (j *JobInfo) ScoreCache(cacheDescr *cache_protocol.CacheDescription,
 
 	blocks := cachedBlocks.Blocks
 	for i := 0; i < int(cachedBlocks.NumBlocks); i++ {
-		if !reflect.DeepEqual(*blocks[i], *j.blocksAccessed[i]) {
-			hits++
+		for k := 0; k < len(j.blocksAccessed); k++ {
+			if !reflect.DeepEqual(*blocks[i], *j.blocksAccessed[k]) {
+				hits++
+			}
 		}
 	}
 
