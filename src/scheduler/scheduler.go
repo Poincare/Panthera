@@ -9,22 +9,75 @@ package main
 import (
 	//go packages
 	"fmt"
+	"sort"
 
 	//local packages
 	"cache_protocol"
+	"job_info"
 	"scheduler/configuration"
 	"scheduler/cache_comm"
 )
 
 type Scheduler struct {
 	Caches []*cache_protocol.CacheInfo
+	Jobs []*job_info.JobInfo
 }
 
 func NewScheduler() *Scheduler {
 	scheduler := Scheduler{}
 	scheduler.Caches = make([]*cache_protocol.CacheInfo, 0)
-
+	scheduler.Jobs = make([]*job_info.JobInfo, 0)
 	return &scheduler
+}
+
+type JobSorter struct {
+	jobs []*job_info.JobInfo
+	cache *cache_protocol.CacheInfo
+}
+
+func NewJobSorter(jobs []*job_info.JobInfo, 
+	cache *cache_protocol.CacheInfo) *JobSorter {
+	j := JobSorter{jobs:jobs, cache:cache}
+	return &j
+}
+
+func (js *JobSorter) GetJobs() []*job_info.JobInfo {
+	return js.jobs
+}
+
+func (js *JobSorter) Less(i, j int) bool {
+	jobKey := func(j1, j2 *job_info.JobInfo) bool {
+		score1 := j1.ScoreCacheInfo(js.cache)
+		score2 := j2.ScoreCacheInfo(js.cache)
+		return score1 < score2
+	}
+
+	return jobKey(js.jobs[i], js.jobs[j])
+}
+
+func (j *JobSorter) Len() int {
+	return len(j.jobs)
+}
+
+func (js *JobSorter) Swap(i int, j int) {
+	js.jobs[i], js.jobs[j] = js.jobs[j], js.jobs[i]
+}
+
+func SortJobs(cache *cache_protocol.CacheInfo, 
+	jobs []*job_info.JobInfo) ([]*job_info.JobInfo) {
+
+	js := NewJobSorter(jobs, cache)
+	sort.Sort(js)
+
+	return js.GetJobs()
+}
+
+func PrintJobs(jobs []*job_info.JobInfo) {
+	fmt.Print("[")
+	for i:=0; i<len(jobs); i++ {
+		fmt.Print(*jobs[i], ",")
+	}
+	fmt.Print("]")
 }
 
 func main() {
@@ -48,7 +101,7 @@ func main() {
 	}
 
 	//get the JobInfo instances
-	_, err = conf.JobInfoList(jobInfoFiles)
+	scheduler.Jobs, err = conf.JobInfoList(jobInfoFiles)
 	if err != nil {
 		fmt.Println("Could not parse files in JobInfoDir. Quitting!")
 		fmt.Println("Error: ", err)
@@ -82,7 +135,6 @@ func main() {
 		cacheInfo := cache_protocol.NewCacheInfo(descr, cachedBlocks)
 		scheduler.Caches = append(scheduler.Caches, cacheInfo)
 	}
-	
-	fmt.Println("Scheduler caches: ")
-	fmt.Println(scheduler.Caches)
+
+
 }

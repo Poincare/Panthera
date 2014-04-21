@@ -90,6 +90,10 @@ func (j *JobInfo) GetBlocksAccessed() {
 	//with block ids, not filenames
 }
 
+func (j *JobInfo) ScoreCacheInfo(cacheInfo *cache_protocol.CacheInfo) float64 {
+	return j.ScoreCache(cacheInfo.Descr, cacheInfo.Blocks)
+}
+
 //the algorithm that tells us how well a job corresponds to a given cache
 //returns a number that tells the correlation (the higher it is, 
 //the more the job corresponds to the cache contents)
