@@ -17,6 +17,10 @@ type Configuration struct {
 	//sets whether to retry connection to HDFS if it fails
 	//necessary because sometimes HDFS doesn't respond immediately
 	RetryHdfs bool
+
+	//states the port number on which to run the cache_info_server
+	//instance
+	CacheInfoPort string
 }
 
 //constructor for the configuration object

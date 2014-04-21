@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"reflect"
+	"os/exec"
 
 	//local imports
 	"cache_protocol"
@@ -29,7 +30,14 @@ type JobInfo struct {
 	Name string
 	BlocksAccessed []uint64
 
-	
+	//shell command used to execute
+	//this job
+	CommandPath string
+	CommandArgs []string
+
+	//the directory in which to execute Command
+	ExecutionDir string
+
 	//not written or accessed from the JSON
 	blocksAccessed []*cache_protocol.BlockDescription
 }
@@ -37,6 +45,19 @@ type JobInfo struct {
 func NewJobInfo() *JobInfo {
 	j := JobInfo{}
 	return &j
+}
+
+//run the job using Command and ExecutionDir
+func (j *JobInfo) Run() (*exec.Cmd, error) {
+	c := exec.Command(j.ExecutionDir + "/" + j.CommandPath, j.CommandArgs...)
+	c.Dir = j.ExecutionDir
+
+	err := c.Start()
+	if err != nil {
+		return nil, err
+	}
+
+	return c, nil
 }
 
 //writes as the JobInfo structure 

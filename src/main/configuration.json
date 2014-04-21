@@ -5,5 +5,7 @@
 	"ServerPort": "1035",
 	"ServerHost": "0.0.0.0",
 
-	"RetryHdfs": false
+	"RetryHdfs": false,
+
+	"CacheInfoPort": "1337"
 }

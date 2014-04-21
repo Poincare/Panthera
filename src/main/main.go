@@ -10,7 +10,7 @@ import (
 	"fmt"
 	//"data_requests"
 	"writable_processor"
-
+	"cache_info_server"
 	"time"
 	"configuration"
 	"runtime/pprof"
@@ -65,11 +65,20 @@ func loop(server net.Listener, caches *caches.CacheSet, dnMap *configuration.Dat
 	}
 }
 
+//create an run an instance of cache_info_server
+func startCacheInfoServer(dataCache *caches.WritableDataCache) {
+	port := config.CacheInfoPort
+	server := cache_info_server.NewCacheInfoServer(port, dataCache)
+	go server.Start()
+}
+
 //listen on a port connected to one of the datanodes
 //will be run as a goroutine
 func loopData(listener net.Listener, location *configuration.DataNodeLocation, cache *caches.DataCache) {
 	dataCacheSize := 15
 	dataCache := caches.NewWritableDataCache(dataCacheSize)
+
+	startCacheInfoServer(dataCache)
 
 	for {
 		util.DebugLogger.Println("Waiting to accept data connection...")

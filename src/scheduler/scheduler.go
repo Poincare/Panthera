@@ -32,12 +32,12 @@ func NewScheduler() *Scheduler {
 
 type JobSorter struct {
 	jobs []*job_info.JobInfo
-	cache *cache_protocol.CacheInfo
+	caches []*cache_protocol.CacheInfo
 }
 
 func NewJobSorter(jobs []*job_info.JobInfo, 
-	cache *cache_protocol.CacheInfo) *JobSorter {
-	j := JobSorter{jobs:jobs, cache:cache}
+	caches []*cache_protocol.CacheInfo) *JobSorter {
+	j := JobSorter{jobs:jobs, caches:caches}
 	return &j
 }
 
@@ -47,8 +47,15 @@ func (js *JobSorter) GetJobs() []*job_info.JobInfo {
 
 func (js *JobSorter) Less(i, j int) bool {
 	jobKey := func(j1, j2 *job_info.JobInfo) bool {
-		score1 := j1.ScoreCacheInfo(js.cache)
-		score2 := j2.ScoreCacheInfo(js.cache)
+		score1 := float64(1)
+		score2 := float64(1)
+
+		for i := 0; i < len(js.caches); i++ {
+			cache := js.caches[i]
+			score1 = score1 * j1.ScoreCacheInfo(cache)
+			score2 = score2 * j2.ScoreCacheInfo(cache)
+		}
+
 		return score1 < score2
 	}
 
@@ -63,10 +70,10 @@ func (js *JobSorter) Swap(i int, j int) {
 	js.jobs[i], js.jobs[j] = js.jobs[j], js.jobs[i]
 }
 
-func SortJobs(cache *cache_protocol.CacheInfo, 
+func SortJobs(caches []*cache_protocol.CacheInfo, 
 	jobs []*job_info.JobInfo) ([]*job_info.JobInfo) {
 
-	js := NewJobSorter(jobs, cache)
+	js := NewJobSorter(jobs, caches)
 	sort.Sort(js)
 
 	return js.GetJobs()
@@ -78,6 +85,19 @@ func PrintJobs(jobs []*job_info.JobInfo) {
 		fmt.Print(*jobs[i], ",")
 	}
 	fmt.Print("]")
+}
+
+func runJobs(jobs []*job_info.JobInfo) {
+	for i := 0; i < len(jobs); i++ {
+		cmd, err := jobs[i].Run()
+		if err != nil {
+			fmt.Println("Unable to run job: ", jobs[i])
+			fmt.Println("Error: ", err)
+		} else {
+			cmd.Wait()
+			fmt.Println("Finished job.")
+		}
+	}
 }
 
 func main() {
@@ -130,11 +150,16 @@ func main() {
 			fmt.Println("Could not get cachedBlocks, err: ", err)
 			return
 		}
-		fmt.Println("Cached bocks: ", cachedBlocks)
+
+		fmt.Println("Cached bocks: ", cachedBlocks.Blocks[0])
 
 		cacheInfo := cache_protocol.NewCacheInfo(descr, cachedBlocks)
 		scheduler.Caches = append(scheduler.Caches, cacheInfo)
 	}
 
+	//sort the jobs
+	SortJobs(scheduler.Caches, scheduler.Jobs)
 
+	//runs the jobs according to the sorted order
+	runJobs(scheduler.Jobs)
 }
