@@ -60,7 +60,7 @@ func main() {
 	var proxy_port string
 	flag.StringVar(&proxy_port, "from", "2010", "The from port")
 	var server_port string
-	flag.StringVar(&server_port, "to", "1389", "The to port")
+	flag.StringVar(&server_port, "to", "127.0.0.1:1389", "to: hostname:port")
 
 	flag.Parse()
 
@@ -71,7 +71,7 @@ func main() {
 		return
 	}
 
-	sv, err := net.Dial("tcp", "127.0.0.1:"+server_port)
+	sv, err := net.Dial("tcp", server_port)
 	if err != nil {
 		fmt.Println("Could not connect to server on port: ", server_port)
 		fmt.Println("Quitting!")
