@@ -6,7 +6,21 @@ Now calling readRequestPacketLength.
 About to write to connection...
 Written to connection.
 Read error value in readRequestPacketLength:  <nil>
-Done with readRequestPacketLength. Packet length:  114
+Done with readRequestPacketLength. Packet length:  42
+Done with readRequestPacket()
+Calling process method...
+method is GFI, querying GFICache...
+in GetFileInfoCache.Query()
+Defined Equals method.
+Done querying cache.
+Done with process method, respPacket.
+Starting to handle request packet...
+Now calling readRequstPacket()
+Now calling readRequestPacketLength.
+About to write to connection...
+Written to connection.
+Read error value in readRequestPacketLength:  <nil>
+Done with readRequestPacketLength. Packet length:  49
 Done with readRequestPacket()
 Calling process method...
 Done with process method, respPacket.
@@ -15,22 +29,6 @@ Now calling readRequstPacket()
 Now calling readRequestPacketLength.
 About to write to connection...
 Written to connection.
-Data client accepted.
-Waiting to accept data connection...
-524786207 Error occurred while reading from client in generalProcessing():  EOF
-524786207 Assuming socket is closed.
-Data client accepted.
-Waiting to accept data connection...
-756818782 Error occurred while reading from client in generalProcessing():  EOF
-756818782 Assuming socket is closed.
-Data client accepted.
-Waiting to accept data connection...
-795630438 Error occurred while reading from client in generalProcessing():  EOF
-795630438 Assuming socket is closed.
-Data client accepted.
-Waiting to accept data connection...
 Done with readRequestPacket()
 Error handling request packet.
 Client connection closed. Closing local socket...
-272210849 Error occurred while reading from client in generalProcessing():  EOF
-272210849 Assuming socket is closed.
