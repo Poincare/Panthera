@@ -183,7 +183,7 @@ func main() {
 	cacheSet.GetListingCache = caches.NewGetListingCache(getListingCacheSize)
 	
 	//disable the metadata cache for now
-	//cacheSet.Disable()
+	cacheSet.Disable()
 
 	server, err := net.Listen("tcp", config.ServerHost + ":" + config.ServerPort)
 	log.SetOutput(ioutil.Discard)
@@ -202,7 +202,7 @@ func main() {
 	/* setup the data layer */
 	//TODO should probably be a configuration option
 	portOffset := 1389 
-	dataNode := configuration.NewDataNodeLocation("188.226.204.154", "1389")
+	dataNode := configuration.NewDataNodeLocation("188.226.198.184", "1389")
 	dataNodeList := make([]*configuration.DataNodeLocation, 0)
 	dataNodeList = append(dataNodeList, dataNode)
 	dataNodeMap := configuration.MakeDataNodeMap(dataNodeList, portOffset)
@@ -215,8 +215,9 @@ func main() {
 	//start the datanode servers
 	runDataNodeMap(dataNodeMap, dataCache)
 
-	/* start the server */
+	//start namenode relay servers
 	loop(server, cacheSet, &dataNodeMap)
+	for {}
 }
 
 

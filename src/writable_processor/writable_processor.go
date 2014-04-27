@@ -34,7 +34,7 @@ type WritableProcessor struct {
 
 func New(dataCache *caches.WritableDataCache) *WritableProcessor {
 	w := WritableProcessor{dataCache: dataCache}
-	w.dataCache.Enabled = true 
+	w.dataCache.Enabled = false 
 	
 	//generate a random id number for this processor
 	w.id = rand.Int63n(999999999)
@@ -131,6 +131,7 @@ func (w *WritableProcessor) handleReadBlockResponse(
 	//check the cache to see if we can immediately
 	//write out the response
 	resPair := w.dataCache.Query(requestHeader)
+	util.TempLogger.Println("Request block id: ", requestHeader.BlockId)
 	util.TempLogger.Println("resPair (from cache): ", resPair)
 	//if it is available in the cache...
 	if resPair != nil && resPair.ResponseSet.Size() != 0 {
