@@ -23,9 +23,7 @@ type RequestCache struct {
 	CacheSize int
 
 	/*
-	//TODO figure out whether to use a slice or a vector here
-	//because the latency caused by traversing this is *extremely*
-	//important
+
 	Packets []namenode_rpc.RequestPacket
 
 	//corresponding to the Packets listed above
