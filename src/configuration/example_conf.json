@@ -1,0 +1,9 @@
+{
+	"HdfsHostName": "127.0.0.1",
+	"HdfsPort": "1337",
+
+	"ServerPort": "1337",
+	"ServerHost": "127.0.0.1",
+
+	"RetryHdfs": false
+}

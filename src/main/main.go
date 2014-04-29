@@ -7,35 +7,21 @@ import (
 	"io/ioutil"
 	"log"
 	"caches"
-	"configuration"
 	"fmt"
-	"data_requests"
+	//"data_requests"
+	"writable_processor"
+	"cache_info_server"
 	"time"
+	"configuration"
+	"runtime/pprof"
+	"flag"
+	"os"
+	"os/signal"
 )
 
-/* 
-* TASK
-* The server seems to be reading the bytes, but the loading is not 
-* getting the address correctly
-*/
 
-//used to configure the proxy
-type Configuration struct {
-	//where the hdfs namenode is located
-	hdfsHostname string
-	hdfsPort string
-
-	//where the cache layer is supposed to be run
-	serverPort string
-	serverHost string
-
-	//sets whether to retry connection to HDFS if it fails
-	//necessary because sometimes HDFS doesn't respond immediately
-	//TODO not implemented yet
-	retryHdfs bool
-}
-
-var config Configuration;
+var config *configuration.Configuration;
+var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
 
 //main reactor function called by main
 func loop(server net.Listener, caches *caches.CacheSet, dnMap *configuration.DataNodeMap) {
@@ -54,8 +40,8 @@ func loop(server net.Listener, caches *caches.CacheSet, dnMap *configuration.Dat
 		util.DebugLog("Client Accepted; no errors received...");
 
 		//set up connection to HDFS
-		util.DebugLog("Connecting to HDFS host: " + string(config.hdfsHostname) + ":" + string(config.hdfsPort))
-		hdfs, hdfs_err := net.Dial("tcp", config.hdfsHostname + ":" + config.hdfsPort)
+		util.DebugLog("Connecting to HDFS host: " + string(config.HdfsHostname) + ":" + string(config.HdfsPort))
+		hdfs, hdfs_err := net.Dial("tcp", config.HdfsHostname + ":" + config.HdfsPort)
 		if hdfs_err != nil {
 			util.LogError(hdfs_err.Error())
 			continue
@@ -79,9 +65,21 @@ func loop(server net.Listener, caches *caches.CacheSet, dnMap *configuration.Dat
 	}
 }
 
+//create an run an instance of cache_info_server
+func startCacheInfoServer(dataCache *caches.WritableDataCache) {
+	port := config.CacheInfoPort
+	server := cache_info_server.NewCacheInfoServer(port, dataCache)
+	go server.Start()
+}
+
 //listen on a port connected to one of the datanodes
 //will be run as a goroutine
 func loopData(listener net.Listener, location *configuration.DataNodeLocation, cache *caches.DataCache) {
+	dataCacheSize := 15
+	dataCache := caches.NewWritableDataCache(dataCacheSize)
+
+	startCacheInfoServer(dataCache)
+
 	for {
 		util.DebugLogger.Println("Waiting to accept data connection...")
 		conn, err := listener.Accept()
@@ -97,11 +95,21 @@ func loopData(listener net.Listener, location *configuration.DataNodeLocation, c
 			dataNode = nil
 		}
 
+		dataProcessor := writable_processor.New(dataCache)
+		//go dataProcessor.GeneralProcessing(conn, dataNode, true)
+
+		go dataProcessor.HandleClient(conn, dataNode)
+		//go dataProcessor.HandleDataNode(conn, dataNode)
+
+		/*
 		//create a new processor this set
 		dataProcessor := data_requests.NewProcessor(cache, location)
 		go dataProcessor.HandleConnection(conn, dataNode)
-		go dataProcessor.HandleDataNode(conn, dataNode)
-		util.DebugLogger.Println("-----------")
+		
+		//go dataProcessor.HandleDataNode(conn, dataNode)
+		go dataProcessor.BruteForceHandleDataNode(conn, dataNode)
+
+		util.DebugLogger.Println("-----------") */
 	}
 }
 
@@ -124,16 +132,47 @@ func runDataNodeMap(dataNodeMap configuration.DataNodeMap, cache *caches.DataCac
 }
 
 func main() {
+	flag.Parse()
+	if *cpuprofile != "" {
+        	f, err := os.Create(*cpuprofile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		pprof.StartCPUProfile(f)
+		defer pprof.StopCPUProfile()
+	}
+
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	go func(){
+		for _ = range c {
+			if *cpuprofile != "" {
+				pprof.StopCPUProfile()
+			}
+			return
+		}
+	}()
+
 	/* setup the metadata layer */
 	util.LoggingEnabled = false
 	util.Log("Starting...")
 
-	config.hdfsHostname = "162.243.105.47"
-	config.hdfsPort = "54310"
+	/*
+	config.HdfsHostname = "162.243.105.47"
+	config.HdfsPort = "54310"
 
-	config.serverHost = "0.0.0.0"
-	config.serverPort = "1035"
-	config.retryHdfs = false
+	config.ServerHost = "0.0.0.0"
+	config.ServerPort = "1035"
+	config.RetryHdfs = false
+	*/
+
+	var err error
+	config, err = configuration.LoadFile("configuration.json")
+	if err != nil {
+		fmt.Println("Could not read configuration file: ", err)
+		fmt.Println("Exiting...")
+		return
+	}
 
 	//initialize the cacheset and the caches
 	//within it
@@ -144,9 +183,9 @@ func main() {
 	cacheSet.GetListingCache = caches.NewGetListingCache(getListingCacheSize)
 	
 	//disable the metadata cache for now
-	//cacheSet.Disable()
+	cacheSet.Disable()
 
-	server, err := net.Listen("tcp", config.serverHost + ":" + config.serverPort)
+	server, err := net.Listen("tcp", config.ServerHost + ":" + config.ServerPort)
 	log.SetOutput(ioutil.Discard)
 	
 	err = util.Init()
@@ -154,11 +193,7 @@ func main() {
 		fmt.Println("Error ocurred in initializing the utilities: ", err)
 		return
 	}
-
-	if err != nil {
-		util.LogError(err.Error());
-		return
-	}
+	util.TempLogger.Println("init()ed temporary logging")
 
 	/* setup the data cache */
 	dataCacheSize := 10
@@ -166,8 +201,8 @@ func main() {
 	
 	/* setup the data layer */
 	//TODO should probably be a configuration option
-	portOffset := 2010
-	dataNode := configuration.NewDataNodeLocation("127.0.0.1", "1389")
+	portOffset := 1389 
+	dataNode := configuration.NewDataNodeLocation("188.226.198.184", "1389")
 	dataNodeList := make([]*configuration.DataNodeLocation, 0)
 	dataNodeList = append(dataNodeList, dataNode)
 	dataNodeMap := configuration.MakeDataNodeMap(dataNodeList, portOffset)
@@ -180,8 +215,9 @@ func main() {
 	//start the datanode servers
 	runDataNodeMap(dataNodeMap, dataCache)
 
-	/* start the server */
+	//start namenode relay servers
 	loop(server, cacheSet, &dataNodeMap)
+	for {}
 }
 
 

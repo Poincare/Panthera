@@ -111,7 +111,7 @@ func TestDataCacheClear(t *testing.T) {
 	resp := datanode_rpc.NewDataResponse()
 	pair1 := datanode_rpc.NewRequestResponse(req, resp)
 
-	dc.AddRpcPair(pair1)
+	dc.AddRpcPair(*pair1)
 	dc.Clear()
 
 	if len(dc.RpcStore) != 0 {

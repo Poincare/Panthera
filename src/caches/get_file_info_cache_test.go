@@ -1,3 +1,4 @@
+
 package caches
 
 import (
@@ -6,6 +7,7 @@ import (
 	"reflect"
 	"fmt"
 )
+
 
 func TestGFICacheConstructor(t *testing.T) {
 	cs := 15

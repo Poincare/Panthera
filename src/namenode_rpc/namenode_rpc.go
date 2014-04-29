@@ -94,6 +94,7 @@ func BuildResponsePacket(buf []byte, packetNumber uint32, currRequest *RequestPa
 
 }
 
+
 //this is used when we aren't exactly sure (or don't care)
 //what type of response a certain packet is
 //so we can just stuff into some random data structure.
@@ -143,6 +144,11 @@ func (grp *GenericResponsePacket) Load(buf []byte) error {
 	return nil
 }
 
+//just return the stuff stored in Buf
+func (grp *GenericResponsePacket) LoadedBytes() []byte {
+	return grp.Buf
+}
+
 //turn the Load()-ed structure into a byte array
 func (grp *GenericResponsePacket) Bytes() []byte {
 	byteBuffer := new(bytes.Buffer)
@@ -188,10 +194,7 @@ type ReqPacket interface {
 	GetParameter(i int) Parameter
 }
 
-/* This has been derived from what I've reverse 
-engineered w/ Wireshark - Hadoop doesn't seem to
-have take tne trouble to document the protocol
-that they've switched to */
+
 type RequestPacket struct {
 	Length uint32
 	PacketNumber uint32

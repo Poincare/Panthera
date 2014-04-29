@@ -7,7 +7,6 @@ import (
 	
 	//local imports
 	"datanode_rpc"
-	"util"
 )
 
 /* Describes a basic data caching mechanism
@@ -115,8 +114,6 @@ func (dc *DataCache) Query(req datanode_rpc.DataRequest) *datanode_rpc.DataRespo
 
 	for i := 0; i < len(dc.RpcStore); i++ {
 		pair := dc.RpcStore[i]
-		util.DataReqLogger.Println("Pair request: ", pair.Request)
-		util.DataReqLogger.Println("Req:          ", req)
 		//NOTE: this is an important bit of this file.
 		//it compares two requests with a complete deepEquals,
 		//so if the request packet has a different client 

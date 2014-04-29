@@ -66,4 +66,6 @@ func main() {
 		fmt.Print(res[i], ",")
 	}
 	fmt.Println("]")
+
+	fmt.Println("As string: ", string(res))
 }
