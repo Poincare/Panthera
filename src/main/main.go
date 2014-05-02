@@ -4,7 +4,7 @@ import (
 	"net"
 	"hdfs_requests"
 	"util"
-	"io/ioutil"
+	//"io/ioutil"
 	"log"
 	"caches"
 	"fmt"
@@ -183,8 +183,9 @@ func main() {
 	cacheSet.GetListingCache = caches.NewGetListingCache(getListingCacheSize)
 	
 	//disable the metadata cache for now
-	//cacheSet.Disable()
+	cacheSet.Disable()
 
+  /*
 	server, err := net.Listen("tcp", config.ServerHost + ":" + config.ServerPort)
 	log.SetOutput(ioutil.Discard)
 	
@@ -193,7 +194,7 @@ func main() {
 		fmt.Println("Error ocurred in initializing the utilities: ", err)
 		return
 	}
-	util.TempLogger.Println("init()ed temporary logging")
+	util.TempLogger.Println("init()ed temporary logging") */
 
 	/* setup the data cache */
 	dataCacheSize := 10
@@ -216,7 +217,9 @@ func main() {
 	runDataNodeMap(dataNodeMap, dataCache)
 
 	/* start the server */
-	loop(server, cacheSet, &dataNodeMap)
+	//loop(server, cacheSet, &dataNodeMap)
+
+  for {}
 }
 
 
