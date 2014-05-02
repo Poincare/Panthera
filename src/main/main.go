@@ -203,7 +203,7 @@ func main() {
 	/* setup the data layer */
 	//TODO should probably be a configuration option
 	portOffset := 1389 
-	dataNode := configuration.NewDataNodeLocation("162.243.65.142", "1389")
+	dataNode := configuration.NewDataNodeLocation("188.226.198.184", "1389")
 	dataNodeList := make([]*configuration.DataNodeLocation, 0)
 	dataNodeList = append(dataNodeList, dataNode)
 	dataNodeMap := configuration.MakeDataNodeMap(dataNodeList, portOffset)
@@ -216,10 +216,8 @@ func main() {
 	//start the datanode servers
 	runDataNodeMap(dataNodeMap, dataCache)
 
-	/* start the server */
-	//loop(server, cacheSet, &dataNodeMap)
-
-  for {}
+	//start namenode relay servers
+	loop(server, cacheSet, &dataNodeMap)
 }
 
 

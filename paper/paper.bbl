@@ -15,6 +15,11 @@ Sudipto Das, Yannis Sismanis, Kevin~S Beyer, Rainer Gemulla, Peter~J Haas, and
 \newblock In {\em Proceedings of the 2010 ACM SIGMOD International Conference
   on Management of data}, pages 987--998. ACM, 2010.
 
+\bibitem{mapreduce}
+Jeffrey Dean and Sanjay Ghemawat.
+\newblock Mapreduce: simplified data processing on large clusters.
+\newblock {\em Communications of the ACM}, 51(1):107--113, 2008.
+
 \bibitem{hbase}
 Lars George.
 \newblock {\em HBase: the definitive guide}.

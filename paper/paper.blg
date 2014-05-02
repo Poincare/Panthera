@@ -1,48 +1,48 @@
-This is BibTeX, Version 0.99d (TeX Live 2012/Debian)
+This is BibTeX, Version 0.99d (TeX Live 2013)
 Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
 The top-level auxiliary file: paper.aux
 The style file: plain.bst
 Database file #1: references.bib
 Warning--can't use both volume and number fields in rowstron2001storage
-You've used 17 entries,
+You've used 18 entries,
             2118 wiz_defined-function locations,
-            595 strings with 7639 characters,
-and the built_in function-call counts, 7942 in all, are:
-= -- 799
-> -- 404
+            600 strings with 7747 characters,
+and the built_in function-call counts, 8275 in all, are:
+= -- 834
+> -- 417
 < -- 13
-+ -- 162
-- -- 142
-* -- 553
-:= -- 1226
-add.period$ -- 61
-call.type$ -- 17
-change.case$ -- 119
++ -- 167
+- -- 146
+* -- 579
+:= -- 1281
+add.period$ -- 64
+call.type$ -- 18
+change.case$ -- 124
 chr.to.int$ -- 0
-cite$ -- 18
-duplicate$ -- 320
-empty$ -- 591
-format.name$ -- 142
-if$ -- 1741
+cite$ -- 19
+duplicate$ -- 331
+empty$ -- 618
+format.name$ -- 146
+if$ -- 1809
 int.to.chr$ -- 0
-int.to.str$ -- 17
-missing$ -- 18
-newline$ -- 88
-num.names$ -- 34
-pop$ -- 152
+int.to.str$ -- 18
+missing$ -- 19
+newline$ -- 93
+num.names$ -- 36
+pop$ -- 155
 preamble$ -- 1
-purify$ -- 103
+purify$ -- 107
 quote$ -- 0
-skip$ -- 240
+skip$ -- 248
 stack$ -- 0
-substring$ -- 482
-swap$ -- 127
+substring$ -- 512
+swap$ -- 128
 text.length$ -- 13
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 66
+type$ -- 70
 warning$ -- 1
-while$ -- 74
-width$ -- 19
-write$ -- 199
+while$ -- 78
+width$ -- 20
+write$ -- 210
 (There was 1 warning)

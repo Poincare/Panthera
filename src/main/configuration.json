@@ -1,5 +1,9 @@
 {
+<<<<<<< HEAD
 	"HdfsHostName": "188.226.204.154",
+=======
+	"HdfsHostName": "188.226.198.184",
+>>>>>>> dbaa53e516bc2307449a804d385baf3c3db50eb0
 	"HdfsPort": "1102",
 
 	"ServerPort": "1035",
