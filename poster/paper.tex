@@ -7,6 +7,8 @@
   }
 \setbeamercolor{block body}{bg=white, fg=black}
 \setbeamerfont{block title}{size=\Large}
+\usepackage{lmodern}
+
   \usepackage[english]{babel}
   \usepackage[latin1]{inputenc}
   \usepackage{amsmath,amsthm, amssymb, latexsym}
@@ -42,24 +44,23 @@
       \begin{block}{Background}
       \textbf{Distributed computing} has seen tremendous growth in the past few years. 
       Essentially, \textbf{it allows computational algorithms to run across multiple
-      computers (i.e. nodes)}. Most distributed systems must make files accessible over 	networks of computers. \textbf{This 
+      computers (i.e. \textit{nodes})}. Most distributed systems must make files accessible over 	networks of computers. \textbf{This 
       project aims to reduce the waiting time (known as \textit{latency}) associated
       with obtaining files within distributed computing systems}.
       \end{block}
       \begin{block}{Introduction}
-      Hadoop, an open source project that allows developers to
-write distributed applications, has found extensive use in academia and industry. For example, Yahoo, Facebook, Stanford Computer Science, etc. are all heavily involved with Hadoop development. But, Hadoop does not effectively utilize Random Access Memory (RAM) and local storage to better performance. \textbf{This project develops and tests scheduling and caching mechanisms to reduce waiting time (i.e. latency) in Hadoop, thereby greatly increasing Hadoop's efficiency and applicability in fields ranging from medical diagnosis to artificial intelligence.}
+      \textbf{\textit{Hadoop}} is an open source and heavily used distributed computing sytem. It has found extensive applications in academia and industry. For example, Yahoo, Facebook, Microsoft, etc. are all heavily involved with Hadoop development. But, Hadoop does not effectively utilize Random Access Memory (RAM) and local storage to better performance. \textbf{This project develops and tests scheduling and caching mechanisms to reduce waiting time (i.e. latency) in Hadoop, thereby greatly increasing Hadoop's efficiency and applicability in fields ranging from medical diagnosis to artificial intelligence.}
       \end{block}
 
-	\begin{block}{Caching}
-	There is significant waiting time/latency associated with retrieving files from distributed filesystems (Griffioen 1994). \textbf{Caches} are used to store
-	some files locally so that they can be accessed much more quickly. Panthera implements a cache and a cache-based scheduler for Hadoop.
+	\begin{block}{Caching Theory}
+	There is significant waiting time/latency associated with retrieving files from distributed filesystems. \textbf{Caches} are used to store
+	some files in local RAM so that they can be accessed much more quickly. Panthera implements a cache and a cache-based scheduler for Hadoop.
 	\end{block}
 	
     \begin{block}{Problem}
 	\begin{itemize}
 	 \item \textbf{Develop a caching layer} for the Hadoop Distributed File System that can cache \textbf{both data and metadata}.
-	 \item The solution should be a \textbf{"drop-in" addition}, allowing for easy adoption and integration into existing systems.
+	 \item The solution should be a \textbf{``drop-in'' addition}, allowing for easy adoption and integration into existing systems.
 	 \item The layer \textbf{should reduce file access latency}/waiting time significantly in comparison to \textbf{the control group: a standard Hadoop installation}.
 	 \item \textbf{Develop a scheduler} for the Hadoop which \textbf{schedules jobs based on what is available in the cache}. In addition, it should be be able to \textbf{prefetch files that could be needed in the future}.
 	\end{itemize}
@@ -75,16 +76,30 @@ write distributed applications, has found extensive use in academia and industry
       \end{block}
 	  
 		\begin{block}{Data vs Metadata}
-			\textbf{Data} within the Hadoop file system \textbf{consists of the actual contents of a file.}
-			\textbf{Metadata is the information about files and directories}, e.g. time a file was created, the list of files in a directory, etc. \textbf{Panthera performs both metadata
+			\begin{itemize}
+				\item \textbf{Data} within the Hadoop file system \textbf{consists of the actual contents of a file.}
+				\item \textbf{Metadata is information \textit{about} files and directories}, e.g. time a file was created, the list of files in a directory, etc.
+				\item \textbf{Panthera performs both metadata
 			and data caching; both have significantly different technical implications
 			and challenges.}
+			\end{itemize}
 		\end{block}
 	
 		\begin{block}{Current Hadoop File System Architecture}
-			\centerline{\includegraphics[scale=1.5]{assets/vanilla_hadoop.pdf}}
+			\centerline{\includegraphics[scale=1.4]{assets/v2/vanilla_hadoop_arch.pdf}}
 		\end{block}
-		
+	
+		\begin{block}{Latency Types - Theory}
+		%discuss the types of latency and make the comparison
+		%between hard disk latency and regular lateny
+		In the Hadoop File System Architecture, there are several types of latencies involved (listed from highest to lowest magnitude):
+		\begin{itemize}
+		\item \textbf{Network latency}
+		\item \textbf{Hard drive latency}
+		\item \textbf{Memory latency: } Reading from RAM memory has an extremely small
+		waiting time associated with it ($<$ 1/100th that of the hard drive). \textbf{Panthera converts hard drive and network latency to memory latency, thereby greatly reducing file access time.}
+		\end{itemize}
+	  	\end{block}
 	  
 
      \end{column}
@@ -92,13 +107,29 @@ write distributed applications, has found extensive use in academia and industry
 
     \begin{column}{0.32\textwidth}
 		\begin{block}{Panthera Architecture}
-		\vspace{1em}
-		\centerline{\includegraphics[scale=1.5]{assets/v2/panthera_hadoop_arch.pdf}}	  
+		\vspace{0.5em}
+		\centerline{\includegraphics[scale=1.4]{assets/v2/panthera_hadoop_arch.pdf}}	  
 	  \end{block}   	  
 		%\begin{block}{Panthera Metadata Architecture}
 	 		%\centerline{\includegraphics[scale=1.2]{assets/panthera_metadata_large.pdf}}
       	%\end{block}
 
+		\begin{block}{Panthera Scheduling Algorithm Theory}
+		\begin{itemize}
+			\item \textbf{Problem}: Given $\mathbf{J} = J_1, J_2, ... ,J_k$ jobs to be run
+			on a Hadoop cluster with caches $\mathbf{C} = C_1, C_2, ..., C_n$, what ordering will best take advantage of the caches?
+			\item \textbf{Panthera job score algorithm}: Each $J_i$ accesses a set of blocks $F_i$
+			and each $C_i$ holds a set of blocks $B_i$.
+			Every $J_i$ is assigned a score $x_i$:
+			\begin{equation}
+				x_i = \displaystyle{\frac{\left\vert{F_i \cap B_t}\right\vert}{ \left\vert{B_t}\right\vert}} \; \textrm{where} \;
+				B_t = \bigcup_{j = 1}^{n} B_j
+			\end{equation}
+			\item \textbf{Panthera scheduling algorithm}:
+			Sort $\mathbf{J}$ in descending order with respect to the $x_i$ associated
+			with each $J_i$. While $J_i$ is running, Panthera data for $J_{i+1}$ to further reduce latency.
+		\end{itemize}
+		\end{block}
       
       %\begin{block}{Panthera Data Architecture}
       %\centerline{\includegraphics[scale=1.2]{assets/panthera_data_architecture.pdf}}
@@ -106,17 +137,16 @@ write distributed applications, has found extensive use in academia and industry
 
 	\begin{block}{Panthera - Implementation}
 	\begin{itemize}
-		\item \textbf{Panthera is implemented on Google's Go programming language} which has excellent concurrency primitives and memory management, making it perfect for
+		\item \textbf{Panthera is implemented in Google's Go programming language} which has excellent concurrency primitives and memory management, making it perfect for
 		for software like \textbf{Panthera} that must run reliably with hundreds of clients.
 	\end{itemize}
 	\end{block}
 	
 	\begin{block}{Latency Testing Methodology}
-	Client and server (i.e. NameNode or DataNode) are on separate machines
-	for both metadata and data cache testing.
+	Client and server are on separate machiner for latency testing.
 	\begin{itemize}
 		\item \textbf{Metadata}: Repeatedly request directory listing for a directory with 100 files in it.
-		\item \textbf{Data}: Repeatedly request file contents for a 1MB large file.
+		\item \textbf{Data}: Repeatedly request file contents for a 64MB large file (64MB = 1 block in Hadoop).
 	\end{itemize}
 
 	\end{block}
@@ -130,8 +160,8 @@ write distributed applications, has found extensive use in academia and industry
 	\end{block}
 	
 	\begin{block}{Procedure Testing Methodology}
-	Panthera was also tested with running times of algorithms running on Hadoop (as opposed to simply downloading files). The input sample was a repeated copyof "The 
-	Adventures of Sherlock Holmes" (192 MB).
+	Panthera was also tested with running times of algorithms running on Hadoop (as opposed to only downloading data or metadata). The input sample to both algorithms tested was a repeated copy of "The 
+	Adventures of Sherlock Holmes" (192 MB). Algorithms tested: 
 	\begin{itemize}
 	\item \textbf{WordCount}: The classic distributed algorithm that counts occurrences
 	of all words in a given text.
@@ -152,18 +182,6 @@ write distributed applications, has found extensive use in academia and industry
 		\vspace{1em}
 		\includegraphics[scale=1]{assets/v2/refgetter_boxplot.pdf}
 		\end{block}
-	
-	  \begin{block}{Latency Types}
-		%discuss the types of latency and make the comparison
-		%between hard disk latency and regular lateny
-		In the Hadoop File System Architecture, there are several types of latency involved (listed from highest to lowest latency):
-		\begin{itemize}
-		\item \textbf{Network latency}
-		\item \textbf{Hard drive latency}
-		\item \textbf{Memory latency: } Reading from RAM memory has an extremely small
-		waiting time associated with it. \textbf{Panthera converts hard drive latency to memory latency, thereby greatly reducing file access time.}
-		\end{itemize}
-	  \end{block}
 	
 	
 	
@@ -194,12 +212,12 @@ write distributed applications, has found extensive use in academia and industry
 		\midrule
 		Metadata   & 27.38x \\
 		Data       & 11.14x \\
-		Word count &  0.78x \\
+		Word count &  \phantom01.02x \\
 		Ref. count & 22.91x \\
 	\bottomrule
 	\end{tabular}
-	\caption{Reduction obtained with Panthera in the standard deviation of running times, i.e. a contraction of 9x implies that the standard deviation was reduced
-	by a factor of 9 with Panthera (compared to the status quo).}
+	\caption{Reduction obtained with Panthera in the standard deviation of running times, i.e. a \textbf{contraction of 9x implies that the standard deviation was reduced
+	by a factor of 9 with Panthera (compared to the status quo).}}
 	\end{table}
 
     \end{block}
@@ -211,27 +229,45 @@ write distributed applications, has found extensive use in academia and industry
     		\item It was able to reduce latency in comparison to a standard Hadoop installation. 
     		\item A scheduler was also implemented which uses cache information to schedule
     		Hadoop jobs.
-    		\item Metadata latency was \textbf{decreased by a factor of 7.36}
-    		\item Data latency was \textbf{decreased by a factor of 7.634}
-    		\item The running of time of WordCount (an algorithm with very few file accesses) was \textbf{improved by 25\%} with the code left unmodified.
-		\item The running time of RefCount was \textbf{improved by 331.6\%}.
+    		\item Metadata latency was \textbf{decreased by a factor of 8.626}
+    		\item Data latency was \textbf{decreased by a factor of 8.634}
+    		\item The running of time of WordCount (an algorithm with very few file accesses) was \textbf{improved by 25.1\%} with the code left unmodified.
+		\item The running time of RefCount was \textbf{improved by 331.6\%} (equivalently, decreased by a factor of 3.316).
     	\end{itemize}
 	 
-    	As a "drop-in" solution, Panthera can be employed in a variety of 
-    	applications to improve performance without code modification. With the 
-    	demonstrated time and resource savings, Panthera can have incredible 
-    	impacts in distributed systems and in specific applications.
+    Thus, Panthera can significantly improve existing distributed systems
+    without any code modifications and also enable developers to 
+    implement algorithms that were previously impractical.
 	
 	\end{block}
 	
 	\begin{block}{Applications}
-	Hadoop has diverse applications and since Panthera was created as a "drop-in" solution, the \textbf{applications span an extremely wide range of disciplines}.
+	Panthera can be applied in a vast range of disciplines since the Hadoop
+	distributed system is in widespread use. A few examples follow: 
 	\begin{itemize}
-		\item Bioinformatics (e.g. CrossBow from Johns Hopkins University)
-		\item Numerical/scientific computing 
-		\item Image processing
-		\item Artificial Intelligence/Machine Learning (e.g. Apache Mahout)
-		\item Market Research (e.g. Target)
+		\item Machine Learning
+			\begin{itemize}
+			\item Panthera was tested with Apache Mahout (a library of machine learning algorithms for Hadoop) and overall there was a 15\% reduction in total running time of
+			the k-means algorithm with two clusters.
+			\end{itemize}
+			
+		\item Bioinformatics
+			\begin{itemize}
+				\item BioDoop: a bioinformatics framework for Hadoop.
+				\item Distributed sequence alignment
+			\end{itemize}
+			
+		\item Predictive Analytics	
+			\begin{itemize}
+				\item Hadoop is heavily used for predictive analytics. Panthera can
+				be used to reduce the running time of queries and schedule queries
+				for maximal efficiency, reducing total turnaround time.
+			\end{itemize}
+		\item Image Processing
+		\item Numerical/Scientific Computing
+		\begin{itemize}
+			\item Apache Hama is a matrix computational package for Hadoop. Applications using it can be made more efficient without any modifications to their codebases due to Panthera's ``drop-in'' nature,.
+			\end{itemize}
 	\end{itemize}
 	\end{block}
 	

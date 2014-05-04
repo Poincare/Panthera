@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012/Debian) (format=pdflatex 2013.4.20)  2 MAY 2014 00:11
+This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012/Debian) (format=pdflatex 2013.4.20)  3 MAY 2014 20:47
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -672,7 +672,42 @@ Package: beamercolorthemeorchid 2010/06/17  (rcs-revision d02a7cf4d8ae)
 (/usr/share/texmf/tex/latex/beamer/base/themes/inner/beamerinnerthemerectangles
 .sty
 Package: beamerinnerthemerectangles 2010/06/17  (rcs-revision d02a7cf4d8ae)
-)) (/usr/share/texlive/texmf-dist/tex/generic/babel/babel.sty
+)) (/usr/share/texmf/tex/latex/lm/lmodern.sty
+Package: lmodern 2009/10/30 v1.6 Latin Modern Fonts
+LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
+(Font)                  OT1/cmr/m/n --> OT1/lmr/m/n on input line 22.
+LaTeX Font Info:    Overwriting symbol font `letters' in version `normal'
+(Font)                  OML/cmm/m/it --> OML/lmm/m/it on input line 23.
+LaTeX Font Info:    Overwriting symbol font `symbols' in version `normal'
+(Font)                  OMS/cmsy/m/n --> OMS/lmsy/m/n on input line 24.
+LaTeX Font Info:    Overwriting symbol font `largesymbols' in version `normal'
+(Font)                  OMX/cmex/m/n --> OMX/lmex/m/n on input line 25.
+LaTeX Font Info:    Overwriting symbol font `operators' in version `bold'
+(Font)                  OT1/cmr/bx/n --> OT1/lmr/bx/n on input line 26.
+LaTeX Font Info:    Overwriting symbol font `letters' in version `bold'
+(Font)                  OML/cmm/b/it --> OML/lmm/b/it on input line 27.
+LaTeX Font Info:    Overwriting symbol font `symbols' in version `bold'
+(Font)                  OMS/cmsy/b/n --> OMS/lmsy/b/n on input line 28.
+LaTeX Font Info:    Overwriting symbol font `largesymbols' in version `bold'
+(Font)                  OMX/cmex/m/n --> OMX/lmex/m/n on input line 29.
+LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `normal'
+(Font)                  OT1/cmr/bx/n --> OT1/lmr/bx/n on input line 31.
+LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `normal'
+(Font)                  OT1/cmss/m/n --> OT1/lmss/m/n on input line 32.
+LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `normal'
+(Font)                  OT1/cmr/m/it --> OT1/lmr/m/it on input line 33.
+LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `normal'
+(Font)                  OT1/cmtt/m/n --> OT1/lmtt/m/n on input line 34.
+LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `bold'
+(Font)                  OT1/cmr/bx/n --> OT1/lmr/bx/n on input line 35.
+LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `bold'
+(Font)                  OT1/cmss/bx/n --> OT1/lmss/bx/n on input line 36.
+LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `bold'
+(Font)                  OT1/cmr/bx/it --> OT1/lmr/bx/it on input line 37.
+LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
+(Font)                  OT1/cmtt/m/n --> OT1/lmtt/m/n on input line 38.
+)
+(/usr/share/texlive/texmf-dist/tex/generic/babel/babel.sty
 Package: babel 2008/07/08 v3.8m The Babel package
 
 (/usr/share/texlive/texmf-dist/tex/generic/babel/english.ldf
@@ -736,36 +771,36 @@ Package: booktabs 2005/04/14 v1.61803 publication quality tables
 Package: mathptmx 2005/04/12 PSNFSS-v9.2a Times w/ Math, improved (SPQR, WaS) 
 LaTeX Font Info:    Redeclaring symbol font `operators' on input line 28.
 LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
-(Font)                  OT1/cmr/m/n --> OT1/ztmcm/m/n on input line 28.
+(Font)                  OT1/lmr/m/n --> OT1/ztmcm/m/n on input line 28.
 LaTeX Font Info:    Overwriting symbol font `operators' in version `bold'
-(Font)                  OT1/cmr/bx/n --> OT1/ztmcm/m/n on input line 28.
+(Font)                  OT1/lmr/bx/n --> OT1/ztmcm/m/n on input line 28.
 LaTeX Font Info:    Redeclaring symbol font `letters' on input line 29.
 LaTeX Font Info:    Overwriting symbol font `letters' in version `normal'
-(Font)                  OML/cmm/m/it --> OML/ztmcm/m/it on input line 29.
+(Font)                  OML/lmm/m/it --> OML/ztmcm/m/it on input line 29.
 LaTeX Font Info:    Overwriting symbol font `letters' in version `bold'
-(Font)                  OML/cmm/b/it --> OML/ztmcm/m/it on input line 29.
+(Font)                  OML/lmm/b/it --> OML/ztmcm/m/it on input line 29.
 LaTeX Font Info:    Redeclaring symbol font `symbols' on input line 30.
 LaTeX Font Info:    Overwriting symbol font `symbols' in version `normal'
-(Font)                  OMS/cmsy/m/n --> OMS/ztmcm/m/n on input line 30.
+(Font)                  OMS/lmsy/m/n --> OMS/ztmcm/m/n on input line 30.
 LaTeX Font Info:    Overwriting symbol font `symbols' in version `bold'
-(Font)                  OMS/cmsy/b/n --> OMS/ztmcm/m/n on input line 30.
+(Font)                  OMS/lmsy/b/n --> OMS/ztmcm/m/n on input line 30.
 LaTeX Font Info:    Redeclaring symbol font `largesymbols' on input line 31.
 LaTeX Font Info:    Overwriting symbol font `largesymbols' in version `normal'
-(Font)                  OMX/cmex/m/n --> OMX/ztmcm/m/n on input line 31.
+(Font)                  OMX/lmex/m/n --> OMX/ztmcm/m/n on input line 31.
 LaTeX Font Info:    Overwriting symbol font `largesymbols' in version `bold'
-(Font)                  OMX/cmex/m/n --> OMX/ztmcm/m/n on input line 31.
+(Font)                  OMX/lmex/m/n --> OMX/ztmcm/m/n on input line 31.
 \symbold=\mathgroup7
 \symitalic=\mathgroup8
 LaTeX Font Info:    Redeclaring math alphabet \mathbf on input line 34.
 LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `normal'
-(Font)                  OT1/cmr/bx/n --> OT1/ptm/bx/n on input line 34.
+(Font)                  OT1/lmr/bx/n --> OT1/ptm/bx/n on input line 34.
 LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `bold'
-(Font)                  OT1/cmr/bx/n --> OT1/ptm/bx/n on input line 34.
+(Font)                  OT1/lmr/bx/n --> OT1/ptm/bx/n on input line 34.
 LaTeX Font Info:    Redeclaring math alphabet \mathit on input line 35.
 LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `normal'
-(Font)                  OT1/cmr/m/it --> OT1/ptm/m/it on input line 35.
+(Font)                  OT1/lmr/m/it --> OT1/ptm/m/it on input line 35.
 LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `bold'
-(Font)                  OT1/cmr/bx/it --> OT1/ptm/m/it on input line 35.
+(Font)                  OT1/lmr/bx/it --> OT1/ptm/m/it on input line 35.
 LaTeX Info: Redefining \hbar on input line 50.
 )
 (/usr/share/texlive/texmf-dist/tex/latex/pgfplots/pgfplots.sty
@@ -958,7 +993,7 @@ Package: anyfontsize 2007/11/22 anyfontsize.sty by pts
 Package: beamerfontthemeserif 2010/06/17  (rcs-revision d02a7cf4d8ae)
 )
 
-Package mathptmx Warning: There are no bold math fonts on input line 21.
+Package mathptmx Warning: There are no bold math fonts on input line 23.
 
 (/usr/share/texlive/texmf-dist/tex/latex/beamerposter/beamerposter.sty
 Package: 2008/03/11. v.1.07. beamerposter: latex-beamer poster extension
@@ -1434,21 +1469,25 @@ FP debug: upn: +++ result of upn-expression is "(147.40)"
 )) (./paper.aux)
 \openout1 = `paper.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 31.
+LaTeX Font Info:    ... okay on input line 31.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 31.
+LaTeX Font Info:    ... okay on input line 31.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 31.
+LaTeX Font Info:    ... okay on input line 31.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 31.
+LaTeX Font Info:    ... okay on input line 31.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 31.
+LaTeX Font Info:    ... okay on input line 31.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 31.
+LaTeX Font Info:    ... okay on input line 31.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 31.
+LaTeX Font Info:    ... okay on input line 31.
+LaTeX Font Info:    Try loading font information for OT1+lmss on input line 31.
 
+ (/usr/share/texmf/tex/latex/lm/ot1lmss.fd
+File: ot1lmss.fd 2009/10/30 v1.6 Font defs for Latin Modern
+)
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
 *geometry* verbose mode - [ preamble ] result:
@@ -1513,7 +1552,7 @@ e
 ))
 ABD: EveryShipout initializing macros
 \AtBeginShipoutBox=\box60
-Package hyperref Info: Link coloring OFF on input line 29.
+Package hyperref Info: Link coloring OFF on input line 31.
 
 (/usr/share/texlive/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2010/04/30 v2.40 Cross-referencing by name of section
@@ -1523,9 +1562,9 @@ Package: gettitlestring 2010/12/03 v1.4 Cleanup title references (HO)
 )
 \c@section@level=\count195
 )
-LaTeX Info: Redefining \ref on input line 29.
-LaTeX Info: Redefining \pageref on input line 29.
-LaTeX Info: Redefining \nameref on input line 29.
+LaTeX Info: Redefining \ref on input line 31.
+LaTeX Info: Redefining \pageref on input line 31.
+LaTeX Info: Redefining \nameref on input line 31.
 
 (./paper.out) (./paper.out)
 \@outlinefile=\write5
@@ -1534,41 +1573,41 @@ LaTeX Info: Redefining \nameref on input line 29.
 \symnumbers=\mathgroup9
 \sympureletters=\mathgroup10
 LaTeX Font Info:    Overwriting math alphabet `\mathrm' in version `normal'
-(Font)                  OT1/ztmcm/m/n --> OT1/ptm/m/n on input line 29.
-LaTeX Font Info:    Redeclaring math alphabet \mathbf on input line 29.
+(Font)                  OT1/ztmcm/m/n --> OT1/ptm/m/n on input line 31.
+LaTeX Font Info:    Redeclaring math alphabet \mathbf on input line 31.
 LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `normal'
-(Font)                  OT1/ptm/bx/n --> OT1/ptm/bx/n on input line 29.
+(Font)                  OT1/ptm/bx/n --> OT1/ptm/bx/n on input line 31.
 LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `bold'
-(Font)                  OT1/ptm/bx/n --> OT1/ptm/bx/n on input line 29.
-LaTeX Font Info:    Redeclaring math alphabet \mathsf on input line 29.
+(Font)                  OT1/ptm/bx/n --> OT1/ptm/bx/n on input line 31.
+LaTeX Font Info:    Redeclaring math alphabet \mathsf on input line 31.
 LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `normal'
-(Font)                  OT1/cmss/m/n --> OT1/cmss/m/n on input line 29.
+(Font)                  OT1/lmss/m/n --> OT1/lmss/m/n on input line 31.
 LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `bold'
-(Font)                  OT1/cmss/bx/n --> OT1/cmss/m/n on input line 29.
-LaTeX Font Info:    Redeclaring math alphabet \mathit on input line 29.
+(Font)                  OT1/lmss/bx/n --> OT1/lmss/m/n on input line 31.
+LaTeX Font Info:    Redeclaring math alphabet \mathit on input line 31.
 LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `normal'
-(Font)                  OT1/ptm/m/it --> OT1/ptm/m/it on input line 29.
+(Font)                  OT1/ptm/m/it --> OT1/ptm/m/it on input line 31.
 LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `bold'
-(Font)                  OT1/ptm/m/it --> OT1/ptm/m/it on input line 29.
-LaTeX Font Info:    Redeclaring math alphabet \mathtt on input line 29.
+(Font)                  OT1/ptm/m/it --> OT1/ptm/m/it on input line 31.
+LaTeX Font Info:    Redeclaring math alphabet \mathtt on input line 31.
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `normal'
-(Font)                  OT1/cmtt/m/n --> OT1/cmtt/m/n on input line 29.
+(Font)                  OT1/lmtt/m/n --> OT1/lmtt/m/n on input line 31.
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
-(Font)                  OT1/cmtt/m/n --> OT1/cmtt/m/n on input line 29.
+(Font)                  OT1/lmtt/m/n --> OT1/lmtt/m/n on input line 31.
 LaTeX Font Info:    Overwriting symbol font `numbers' in version `bold'
-(Font)                  OT1/ptm/m/n --> OT1/ptm/bx/n on input line 29.
+(Font)                  OT1/ptm/m/n --> OT1/ptm/bx/n on input line 31.
 LaTeX Font Info:    Overwriting symbol font `pureletters' in version `bold'
-(Font)                  OT1/ptm/m/it --> OT1/ptm/bx/it on input line 29.
+(Font)                  OT1/ptm/m/it --> OT1/ptm/bx/it on input line 31.
 LaTeX Font Info:    Overwriting math alphabet `\mathrm' in version `bold'
-(Font)                  OT1/ztmcm/m/n --> OT1/ptm/bx/n on input line 29.
+(Font)                  OT1/ztmcm/m/n --> OT1/ptm/bx/n on input line 31.
 LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `bold'
-(Font)                  OT1/ptm/bx/n --> OT1/ptm/bx/n on input line 29.
+(Font)                  OT1/ptm/bx/n --> OT1/ptm/bx/n on input line 31.
 LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `bold'
-(Font)                  OT1/cmss/m/n --> OT1/cmss/bx/n on input line 29.
+(Font)                  OT1/lmss/m/n --> OT1/lmss/bx/n on input line 31.
 LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `bold'
-(Font)                  OT1/ptm/m/it --> OT1/ptm/bx/it on input line 29.
+(Font)                  OT1/ptm/m/it --> OT1/ptm/bx/it on input line 31.
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
-(Font)                  OT1/cmtt/m/n --> OT1/cmtt/bx/n on input line 29.
+(Font)                  OT1/lmtt/m/n --> OT1/lmtt/bx/n on input line 31.
 
 (/usr/share/texmf/tex/latex/beamer/base/translator/dicts/translator-basic-dicti
 onary/translator-basic-dictionary-English.dict
@@ -1594,20 +1633,57 @@ Dictionary: translator-numbers-dictionary, Language: English
 tionary/translator-theorem-dictionary-English.dict
 Dictionary: translator-theorem-dictionary, Language: English 
 ) (./paper.nav)
+LaTeX Font Info:    Font shape `OT1/lmss/bx/it' in size <27.37> not available
+(Font)              Font shape `OT1/lmss/bx/sl' tried instead on input line 284
+.
 
-LaTeX Font Warning: Font shape `OT1/cmss/bx/it' undefined
-(Font)              using `OT1/cmss/bx/n' instead on input line 248.
+
+pdfTeX warning: pdflatex (file ./assets/v2/vanilla_hadoop_arch.pdf): PDF inclus
+ion: found PDF version <1.7>, but at most version <1.5> allowed
+<assets/v2/vanilla_hadoop_arch.pdf, id=12, 436.63126pt x 300.12125pt>
+File: assets/v2/vanilla_hadoop_arch.pdf Graphic file (type pdf)
+
+<use assets/v2/vanilla_hadoop_arch.pdf>
+Package pdftex.def Info: assets/v2/vanilla_hadoop_arch.pdf used on input line 2
+84.
+(pdftex.def)             Requested size: 611.27959pt x 420.16689pt.
+LaTeX Font Info:    Calculating math sizes for size <27.37> on input line 284.
+LaTeX Font Info:    Try loading font information for OT1+ztmcm on input line 28
+4.
+
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/ot1ztmcm.fd
+File: ot1ztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OT1/ztmcm.
+)
+LaTeX Font Info:    Try loading font information for OML+ztmcm on input line 28
+4.
+
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/omlztmcm.fd
+File: omlztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OML/ztmcm.
+)
+LaTeX Font Info:    Try loading font information for OMS+ztmcm on input line 28
+4.
+
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/omsztmcm.fd
+File: omsztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OMS/ztmcm.
+)
+LaTeX Font Info:    Try loading font information for OMX+ztmcm on input line 28
+4.
+
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/omxztmcm.fd
+File: omxztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OMX/ztmcm.
+)
+LaTeX Font Info:    Try loading font information for OT1+ptm on input line 284.
 
 
-
-pdfTeX warning: pdflatex (file ./assets/vanilla_hadoop.pdf): PDF inclusion: fou
-nd PDF version <1.7>, but at most version <1.5> allowed
-<assets/vanilla_hadoop.pdf, id=12, 533.995pt x 393.47pt>
-File: assets/vanilla_hadoop.pdf Graphic file (type pdf)
-
-<use assets/vanilla_hadoop.pdf>
-Package pdftex.def Info: assets/vanilla_hadoop.pdf used on input line 248.
-(pdftex.def)             Requested size: 800.99054pt x 590.20354pt.
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/ot1ptm.fd
+File: ot1ptm.fd 2001/06/04 font definitions for OT1/ptm.
+)
+LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <27.37> not available
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 284.
+LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <20.25394> not available
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 284.
+LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <16.42215> not available
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 284.
 
 
 pdfTeX warning: pdflatex (file ./assets/v2/panthera_hadoop_arch.pdf): PDF inclu
@@ -1617,73 +1693,36 @@ File: assets/v2/panthera_hadoop_arch.pdf Graphic file (type pdf)
 
 <use assets/v2/panthera_hadoop_arch.pdf>
 Package pdftex.def Info: assets/v2/panthera_hadoop_arch.pdf used on input line 
-248.
-(pdftex.def)             Requested size: 629.3497pt x 513.41684pt.
+284.
+(pdftex.def)             Requested size: 587.39049pt x 479.18695pt.
 
 <assets/v2/multinode_meta_box_plot.pdf, id=14, 686.565pt x 505.89pt>
 File: assets/v2/multinode_meta_box_plot.pdf Graphic file (type pdf)
 
 <use assets/v2/multinode_meta_box_plot.pdf>
 Package pdftex.def Info: assets/v2/multinode_meta_box_plot.pdf used on input li
-ne 248.
+ne 284.
 (pdftex.def)             Requested size: 686.56332pt x 505.88875pt.
 
 <assets/v2/getter_boxplot.pdf, id=15, 686.565pt x 505.89pt>
 File: assets/v2/getter_boxplot.pdf Graphic file (type pdf)
 
 <use assets/v2/getter_boxplot.pdf>
-Package pdftex.def Info: assets/v2/getter_boxplot.pdf used on input line 248.
+Package pdftex.def Info: assets/v2/getter_boxplot.pdf used on input line 284.
 (pdftex.def)             Requested size: 672.82912pt x 495.7688pt.
 
-<assets/v2/refgetter_boxplot.pdf, id=16, 693.792pt x 505.89pt>
+<assets/v2/refgetter_boxplot.pdf, id=16, 722.7pt x 505.89pt>
 File: assets/v2/refgetter_boxplot.pdf Graphic file (type pdf)
 
 <use assets/v2/refgetter_boxplot.pdf>
-Package pdftex.def Info: assets/v2/refgetter_boxplot.pdf used on input line 248
+Package pdftex.def Info: assets/v2/refgetter_boxplot.pdf used on input line 284
 .
-(pdftex.def)             Requested size: 693.7903pt x 505.88875pt.
-LaTeX Font Info:    Calculating math sizes for size <27.37> on input line 248.
-LaTeX Font Info:    Try loading font information for OT1+ztmcm on input line 24
-8.
-
-(/usr/share/texlive/texmf-dist/tex/latex/psnfss/ot1ztmcm.fd
-File: ot1ztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OT1/ztmcm.
-)
-LaTeX Font Info:    Try loading font information for OML+ztmcm on input line 24
-8.
-
-(/usr/share/texlive/texmf-dist/tex/latex/psnfss/omlztmcm.fd
-File: omlztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OML/ztmcm.
-)
-LaTeX Font Info:    Try loading font information for OMS+ztmcm on input line 24
-8.
-
-(/usr/share/texlive/texmf-dist/tex/latex/psnfss/omsztmcm.fd
-File: omsztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OMS/ztmcm.
-)
-LaTeX Font Info:    Try loading font information for OMX+ztmcm on input line 24
-8.
-
-(/usr/share/texlive/texmf-dist/tex/latex/psnfss/omxztmcm.fd
-File: omxztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OMX/ztmcm.
-)
-LaTeX Font Info:    Try loading font information for OT1+ptm on input line 248.
-
-
-(/usr/share/texlive/texmf-dist/tex/latex/psnfss/ot1ptm.fd
-File: ot1ptm.fd 2001/06/04 font definitions for OT1/ptm.
-)
-LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <27.37> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 248.
-LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <20.25394> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 248.
-LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <16.42215> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 248.
+(pdftex.def)             Requested size: 722.69823pt x 505.88875pt.
  [1
 
-{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map} <./assets/vanilla_hadoop.pd
-f> <./assets/v2/panthera_hadoop_arch.pdf> <./assets/v2/multinode_meta_box_plot.
-pdf> <./assets/v2/getter_boxplot.pdf
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map} <./assets/v2/vanilla_hadoop
+_arch.pdf> <./assets/v2/panthera_hadoop_arch.pdf> <./assets/v2/multinode_meta_b
+ox_plot.pdf> <./assets/v2/getter_boxplot.pdf
 
 pdfTeX warning: pdflatex (file ./assets/v2/getter_boxplot.pdf): PDF inclusion: 
 multiple pdfs with page group included in a single page
@@ -1701,33 +1740,37 @@ n: multiple pdfs with page group included in a single page
 \tf@snm=\write8
 \openout8 = `paper.snm'.
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 250.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 250.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 286.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 286.
  (./paper.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 250.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 250.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 286.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 286.
 Package rerunfilecheck Info: File `paper.out' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
-
-
-LaTeX Font Warning: Some font shapes were not available, defaults substituted.
-
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 250.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 286.
  ) 
 Here is how much of TeX's memory you used:
- 25504 strings out of 495059
- 555078 string characters out of 3182030
- 778944 words of memory out of 3000000
- 28036 multiletter control sequences out of 15000+200000
- 17551 words of font info for 53 fonts, out of 3000000 for 9000
+ 25620 strings out of 495059
+ 557644 string characters out of 3182030
+ 798753 words of memory out of 3000000
+ 28129 multiletter control sequences out of 15000+200000
+ 54189 words of font info for 73 fonts, out of 3000000 for 9000
  14 hyphenation exceptions out of 8191
- 50i,15n,74p,651b,918s stack positions out of 5000i,500n,10000p,200000b,50000s
-</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmss17.pfb></us
-r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb>
-Output written on paper.pdf (1 page, 102372 bytes).
+ 50i,15n,74p,651b,950s stack positions out of 5000i,500n,10000p,200000b,50000s
+{/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}{/usr/share/texmf/
+fonts/enc/dvips/lm/lm-rm.enc}</usr/share/texlive/texmf-dist/fonts/type1/public/
+amsfonts/cm/cmex10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfon
+ts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/
+cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.
+pfb></usr/share/texmf/fonts/type1/public/lm/lmss17.pfb></usr/share/texmf/fonts/
+type1/public/lm/lmssbo10.pfb></usr/share/texmf/fonts/type1/public/lm/lmssbx10.p
+fb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/
+texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texlive/texmf-d
+ist/fonts/type1/urw/times/utmri8a.pfb>
+Output written on paper.pdf (1 page, 200702 bytes).
 PDF statistics:
- 251 PDF objects out of 1000 (max. 8388607)
- 70 compressed objects within 1 object stream
+ 285 PDF objects out of 1000 (max. 8388607)
+ 96 compressed objects within 1 object stream
  3 named destinations out of 1000 (max. 500000)
  58 words of extra memory for PDF output out of 10000 (max. 10000000)
 
