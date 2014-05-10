@@ -1,48 +1,51 @@
-This is BibTeX, Version 0.99d (TeX Live 2013)
+This is BibTeX, Version 0.99d (TeX Live 2012/Debian)
 Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
 The top-level auxiliary file: paper.aux
 The style file: plain.bst
 Database file #1: references.bib
+Warning--to sort, need author or key in cloudbatch
+Warning--empty author in cloudbatch
+Warning--empty journal in puzak1985analysis
 Warning--can't use both volume and number fields in rowstron2001storage
-You've used 18 entries,
+You've used 24 entries,
             2118 wiz_defined-function locations,
-            600 strings with 7747 characters,
-and the built_in function-call counts, 8275 in all, are:
-= -- 834
-> -- 417
-< -- 13
-+ -- 167
-- -- 146
-* -- 579
-:= -- 1281
-add.period$ -- 64
-call.type$ -- 18
-change.case$ -- 124
+            625 strings with 8358 characters,
+and the built_in function-call counts, 10105 in all, are:
+= -- 1019
+> -- 480
+< -- 15
++ -- 190
+- -- 166
+* -- 698
+:= -- 1570
+add.period$ -- 82
+call.type$ -- 24
+change.case$ -- 152
 chr.to.int$ -- 0
-cite$ -- 19
-duplicate$ -- 331
-empty$ -- 618
-format.name$ -- 146
-if$ -- 1809
+cite$ -- 28
+duplicate$ -- 415
+empty$ -- 778
+format.name$ -- 166
+if$ -- 2207
 int.to.chr$ -- 0
-int.to.str$ -- 18
-missing$ -- 19
-newline$ -- 93
-num.names$ -- 36
-pop$ -- 155
+int.to.str$ -- 24
+missing$ -- 25
+newline$ -- 122
+num.names$ -- 46
+pop$ -- 186
 preamble$ -- 1
-purify$ -- 107
+purify$ -- 129
 quote$ -- 0
-skip$ -- 248
+skip$ -- 309
 stack$ -- 0
-substring$ -- 512
-swap$ -- 128
-text.length$ -- 13
+substring$ -- 615
+swap$ -- 149
+text.length$ -- 15
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 70
-warning$ -- 1
-while$ -- 78
-width$ -- 20
-write$ -- 210
-(There was 1 warning)
+type$ -- 94
+warning$ -- 4
+while$ -- 97
+width$ -- 26
+write$ -- 273
+(There were 4 warnings)
