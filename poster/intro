@@ -1,0 +1,9 @@
+Distributed computing is has seen tremendous growth in the past few years.
+Essentially, it allows computational algorithms to execute over a network (i.e.
+cluster) of computers. This project is focused on the Hadoop distributed
+computing system, which has found extensive use throughout academia and
+industry. For example, Yahoo, Microsoft and Facebook all contribute to Hadoop's
+development. Hadoop provides a mechanism (called a distributed filesystem) that 
+allows each computer (i.e. node) in a cluster to access the same set of files.
+However, it fails to utilize local memory resources to reduce the waiting
+time (i.e. latency) associated with obtaining these files. This project develops and tests scheduling and caching mechanisms to reduce waiting time (i.e. latency) in Hadoop, thereby greatly increasing Hadoop's efficiency and applicability in fields ranging from bioinformatics to artificial intelligence.

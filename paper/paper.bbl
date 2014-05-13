@@ -1,0 +1,158 @@
+\begin{thebibliography}{10}
+
+\bibitem{cloudbatch}
+{CloudBATCH: A batch job queuing system on clouds with Hadoop and HBase},
+  author={Zhang, Chen and De Sterck, Hans}.
+\newblock In {\em Cloud Computing Technology and Science (CloudCom), 2010 IEEE
+  Second International Conference on}, pages 368--375. IEEE, 2010.
+
+\bibitem{borthakur2011apache}
+Dhruba Borthakur, Jonathan Gray, Joydeep~Sen Sarma, Kannan Muthukkaruppan,
+  Nicolas Spiegelberg, Hairong Kuang, Karthik Ranganathan, Dmytro Molkov,
+  Aravind Menon, Samuel Rash, et~al.
+\newblock {Apache Hadoop Goes Realtime at Facebook}.
+\newblock In {\em Proceedings of the 2011 ACM SIGMOD International Conference
+  on Management of data}, pages 1071--1080. ACM, 2011.
+
+\bibitem{chen2012business}
+Hsinchun Chen, Roger~HL Chiang, and Veda~C Storey.
+\newblock Business intelligence and analytics: From big data to big impact.
+\newblock {\em MIS Quarterly}, 36(4), 2012.
+
+\bibitem{das2010ricardo}
+Sudipto Das, Yannis Sismanis, Kevin~S Beyer, Rainer Gemulla, Peter~J Haas, and
+  John McPherson.
+\newblock {Ricardo: Integrating R and Hadoop}.
+\newblock In {\em Proceedings of the 2010 ACM SIGMOD International Conference
+  on Management of data}, pages 987--998. ACM, 2010.
+
+\bibitem{mapreduce}
+Jeffrey Dean and Sanjay Ghemawat.
+\newblock {MapReduce: Simplified Data Processing on Large Clusters}.
+\newblock {\em Communications of the ACM}, 51(1):107--113, 2008.
+
+\bibitem{hbase}
+Lars George.
+\newblock {\em {HBase: the definitive guide}}.
+\newblock O'Reilly Media, Inc., 2011.
+
+\bibitem{griffioen1994reducing}
+Jim Griffioen and Randy Appleton.
+\newblock {Reducing File System Latency using a Predictive Approach}.
+\newblock In {\em USENIX Summer}, pages 197--207, 1994.
+
+\bibitem{kambatla2009towards}
+Karthik Kambatla, Abhinav Pathak, and Himabindu Pucha.
+\newblock {Towards Optimizing Hadoop Provisioning in the Cloud}.
+\newblock In {\em Proc. of the First Workshop on Hot Topics in Cloud
+  Computing}, page 118, 2009.
+
+\bibitem{karger1997consistent}
+David Karger, Eric Lehman, Tom Leighton, Rina Panigrahy, Matthew Levine, and
+  Daniel Lewin.
+\newblock {Consistent Hashing and Random trees: Distributed Caching Protocols
+  for Relieving Hot Spots on the World Wide Web}.
+\newblock In {\em Proceedings of the twenty-ninth annual ACM symposium on
+  Theory of computing}, pages 654--663. ACM, 1997.
+
+\bibitem{kc2010scheduling}
+Kamal Kc and Kemafor Anyanwu.
+\newblock {Scheduling Hadoop Jobs to Meet Deadlines}.
+\newblock In {\em Cloud Computing Technology and Science (CloudCom), 2010 IEEE
+  Second International Conference on}, pages 388--392. IEEE, 2010.
+
+\bibitem{leverich2010energy}
+Jacob Leverich and Christos Kozyrakis.
+\newblock {On the energy (in) efficiency of hadoop clusters}.
+\newblock {\em ACM SIGOPS Operating Systems Review}, 44(1):61--65, 2010.
+
+\bibitem{liu2009implementing}
+Xuhui Liu, Jizhong Han, Yunqin Zhong, Chengde Han, and Xubin He.
+\newblock {Implementing WebGIS on Hadoop: A case study of improving small file
+  I/O performance on HDFS}.
+\newblock In {\em Cluster Computing and Workshops, 2009. CLUSTER'09. IEEE
+  International Conference on}, pages 1--8. IEEE, 2009.
+
+\bibitem{nelson1988caching}
+Michael~N Nelson, Brent~B Welch, and John~K Ousterhout.
+\newblock {Caching in the Sprite Network File System}.
+\newblock {\em ACM Transactions on Computer Systems (TOCS)}, 6(1):134--154,
+  1988.
+
+\bibitem{pig}
+Christopher Olston, Benjamin Reed, Utkarsh Srivastava, Ravi Kumar, and Andrew
+  Tomkins.
+\newblock {Pig latin: a not-so-foreign language for data processing}.
+\newblock In {\em Proceedings of the 2008 ACM SIGMOD international conference
+  on Management of data}, pages 1099--1110. ACM, 2008.
+
+\bibitem{ramcloud}
+John Ousterhout, Parag Agrawal, David Erickson, Christos Kozyrakis, Jacob
+  Leverich, David Mazi{\`e}res, Subhasish Mitra, Aravind Narayanan, Guru
+  Parulkar, Mendel Rosenblum, et~al.
+\newblock {The Case for RAMClouds: Scalable High-performance Storage Entirely
+  in DRAM}.
+\newblock {\em ACM SIGOPS Operating Systems Review}, 43(4):92--105, 2010.
+
+\bibitem{puzak1985analysis}
+Thomas~Roberts Puzak.
+\newblock Analysis of cache replacement-algorithms.
+\newblock 1985.
+
+\bibitem{rowstron2001storage}
+Antony Rowstron and Peter Druschel.
+\newblock {Storage Management and Caching in PAST, a Large-scale, Persistent
+  Peer-to-Peer Storage Utility}.
+\newblock In {\em ACM SIGOPS Operating Systems Review}, volume~35, pages
+  188--201. ACM, 2001.
+
+\bibitem{hadoop}
+Konstantin Shvachko, Hairong Kuang, Sanjay Radia, and Robert Chansler.
+\newblock {The Hadoop Distributed File System}.
+\newblock In {\em Mass Storage Systems and Technologies (MSST), 2010 IEEE 26th
+  Symposium on}, pages 1--10. IEEE, 2010.
+
+\bibitem{hdfs}
+Konstantin Shvachko, Hairong Kuang, Sanjay Radia, and Robert Chansler.
+\newblock {The Hadoop Distributed File System}.
+\newblock In {\em Mass Storage Systems and Technologies (MSST), 2010 IEEE 26th
+  Symposium on}, pages 1--10. IEEE, 2010.
+
+\bibitem{taylor2010overview}
+Ronald~C Taylor.
+\newblock {An overview of the Hadoop/MapReduce/HBase framework and its current
+  applications in bioinformatics}.
+\newblock {\em BMC bioinformatics}, 11(Suppl 12):S1, 2010.
+
+\bibitem{wang2002conquest}
+An-I Wang, Peter~L Reiher, Gerald~J Popek, and Geoffrey~H Kuenning.
+\newblock {Conquest: Better Performance Through a Disk/Persistent-RAM Hybrid
+  File System}.
+\newblock In {\em USENIX Annual Technical Conference, General Track}, pages
+  15--28, 2002.
+
+\bibitem{cache}
+Jia Wang.
+\newblock {A Survey of Web Caching Schemes for the Internet}.
+\newblock {\em ACM SIGCOMM Computer Communication Review}, 29(5):36--46, 1999.
+
+\bibitem{wang1999survey}
+Jia Wang.
+\newblock {A Survey of Web Caching Schemes for the Internet}.
+\newblock {\em ACM SIGCOMM Computer Communication Review}, 29(5):36--46, 1999.
+
+\bibitem{wang2009kepler+}
+Jianwu Wang, Daniel Crawl, and Ilkay Altintas.
+\newblock {Kepler+ Hadoop: a General Architecture Facilitating Data-Intensive
+  Applications in Scientific Workflow Systems}.
+\newblock In {\em Proceedings of the 4th Workshop on Workflows in Support of
+  Large-Scale Science}, page~12. ACM, 2009.
+
+\bibitem{spark}
+Matei Zaharia, Mosharaf Chowdhury, Michael~J Franklin, Scott Shenker, and Ion
+  Stoica.
+\newblock Spark: cluster computing with working sets.
+\newblock In {\em Proceedings of the 2nd USENIX conference on Hot topics in
+  cloud computing}, pages 10--10, 2010.
+
+\end{thebibliography}

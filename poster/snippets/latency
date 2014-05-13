@@ -1,0 +1,6 @@
+In the Hadoop File System Architecture, there are several types of latency involved:
+		\begin{itemize}
+		\item \textbf{Network latency: } Information shared between client and server (e.g. between a DataNode and a client) has an attached waiting time. With \textbf{Panthera}, this latency is eliminated since the data is cached on the client.
+		\item \textbf{Hard drive latency: } Reading from the hard drive also has significant latency. Hadoop generally reads from the hard drive when accessing files.
+		\item \textbf{Memory latency: } Reading from RAM memory has an extremely small
+		waiting time associated with it. \textbf{Memory waiting time is less than 1/1000th hard drive waiting time. Panthera converts hard drive latency to memory latency, greatly reducing file access time.}

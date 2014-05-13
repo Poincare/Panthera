@@ -1,0 +1,11 @@
+{
+	"HdfsHostName": "188.226.198.184",
+	"HdfsPort": "1102",
+
+	"ServerPort": "1035",
+	"ServerHost": "0.0.0.0",
+
+	"RetryHdfs": false,
+
+	"CacheInfoPort": "1337"
+}
