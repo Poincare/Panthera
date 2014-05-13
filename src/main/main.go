@@ -24,7 +24,8 @@ var config *configuration.Configuration;
 var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
 
 //main reactor function called by main
-func loop(server net.Listener, caches *caches.CacheSet, dnMap *configuration.DataNodeMap) {
+func loop(server net.Listener, caches *caches.CacheSet, 
+dnMap *configuration.DataNodeMap) {
 	fmt.Println("looping...")
 	eventChannel := make(chan hdfs_requests.ProcessorEvent)
 	
@@ -40,8 +41,10 @@ func loop(server net.Listener, caches *caches.CacheSet, dnMap *configuration.Dat
 		util.DebugLog("Client Accepted; no errors received...");
 
 		//set up connection to HDFS
-		util.DebugLog("Connecting to HDFS host: " + string(config.HdfsHostname) + ":" + string(config.HdfsPort))
-		hdfs, hdfs_err := net.Dial("tcp", config.HdfsHostname + ":" + config.HdfsPort)
+		util.DebugLog("Connecting to HDFS host: " + 
+		string(config.HdfsHostname) + ":" + string(config.HdfsPort))
+		hdfs, hdfs_err := net.Dial("tcp", config.HdfsHostname + ":" 
+		+ config.HdfsPort)
 		if hdfs_err != nil {
 			util.LogError(hdfs_err.Error())
 			continue
@@ -74,7 +77,8 @@ func startCacheInfoServer(dataCache *caches.WritableDataCache) {
 
 //listen on a port connected to one of the datanodes
 //will be run as a goroutine
-func loopData(listener net.Listener, location *configuration.DataNodeLocation, cache *caches.DataCache) {
+func loopData(listener net.Listener, 
+	location *configuration.DataNodeLocation, cache *caches.DataCache) {
 	dataCacheSize := 15
 	dataCache := caches.NewWritableDataCache(dataCacheSize)
 
@@ -85,7 +89,8 @@ func loopData(listener net.Listener, location *configuration.DataNodeLocation, c
 		conn, err := listener.Accept()
 		util.DebugLogger.Println("Data client accepted.")
 		if err != nil {
-			util.LogError("Could not accept connection from the DataNode: " + err.Error())
+			util.LogError("Could not accept connection from the DataNode: "
+			 + err.Error())
 		}
 
 		//connection object to the datanode location
@@ -115,12 +120,15 @@ func loopData(listener net.Listener, location *configuration.DataNodeLocation, c
 
 //takes a data node map and runs a main loop for each of 
 //the location and port combinations
-func runDataNodeMap(dataNodeMap configuration.DataNodeMap, cache *caches.DataCache) {
+func runDataNodeMap(dataNodeMap configuration.DataNodeMap, 
+	cache *caches.DataCache) {
 	for port, location := range dataNodeMap {
 		listener, err := net.Listen("tcp", ":" + string(port))
 		if err != nil || listener == nil {
-			log.Println("Could not listen on relay port:", port, " because: ", err.Error(), listener, location)
-			util.DebugLogger.Println("Could not listen on relay port: ", port, " because: ", err.Error(), listener, location)
+			log.Println("Could not listen on relay port:", port, 
+			" because: ", err.Error(), listener, location)
+			util.DebugLogger.Println("Could not listen on relay port: ", 
+			port, " because: ", err.Error(), listener, location)
 		}
 
 		fmt.Println("Listener: ", listener)
@@ -180,7 +188,8 @@ func main() {
 	getListingCacheSize := 15
 	cacheSet := caches.NewCacheSet()
 	cacheSet.GfiCache = caches.NewGetFileInfoCache(gfiCacheSize)
-	cacheSet.GetListingCache = caches.NewGetListingCache(getListingCacheSize)
+	cacheSet.GetListingCache = caches.NewGetListingCache(
+	getListingCacheSize)
 	
 	//disable the metadata cache for now
 	cacheSet.Disable()
@@ -201,7 +210,6 @@ func main() {
 	dataCache := caches.NewDataCache(dataCacheSize)
 	
 	/* setup the data layer */
-	//TODO should probably be a configuration option
 	portOffset := 1389 
 	dataNode := configuration.NewDataNodeLocation("188.226.198.184", "1389")
 	dataNodeList := make([]*configuration.DataNodeLocation, 0)
@@ -209,7 +217,6 @@ func main() {
 	dataNodeMap := configuration.MakeDataNodeMap(dataNodeList, portOffset)
 	
 	//retrofitted modification
-	//dataNodeMap[configuration.Port(1389)] = dataNodeMap[configuration.Port(2010)]
 	//delete(dataNodeMap, configuration.Port(2010))
 
 	

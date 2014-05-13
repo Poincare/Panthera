@@ -242,7 +242,9 @@ func GenericRead(packet interface{}, reader Reader) error {
 		//Hadoop's protocol (if it isn't, don't use GenericRead)
 		case []byte:
 			if i <= 0 {
-				return errors.New("There is a []byte as the first element of the packet structure; don't know the length, so cannot proceed.")
+				return errors.New("There is a []byte as the first element 
+				of the packet structure; don't know the length, so cannot 
+				proceed.")
 			}
 
 			length := reflect.ValueOf(packet).Elem().Field(i-1).Interface()
@@ -543,7 +545,8 @@ func WriteVInt(val int64, writer Writer) {
   for idx := length; idx != 0; idx-- {
   	shiftbits := (idx - 1) * 8
   	mask := 0xFF << uint(shiftbits)
-  	binary.Write(writer, binary.BigEndian, int8((val & int64(mask)) >> uint(shiftbits)))
+  	binary.Write(writer, binary.BigEndian, int8((val & int64(mask)) >> 
+  	uint(shiftbits)))
   }
 }
 

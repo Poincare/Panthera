@@ -35,7 +35,8 @@ type RequestCache struct {
 	//NameNode
 	RequestResponse map[PacketNumber](namenode_rpc.PacketPair)
 
-	//records the order in which packet numbers were placed in RequestResponse
+	//records the order in which packet numbers were placed in 
+	//RequestResponse
 	PacketNumbers []PacketNumber
 
 	Hits int
@@ -61,14 +62,17 @@ func (rc *RequestCache) Disable() {
 	rc.Enabled = false
 }
 
-//this a private method because it assumes that the mutex has already been locked
-func (rc *RequestCache) add(rp namenode_rpc.ReqPacket, resp namenode_rpc.ResponsePacket) error {
+//this a private method because it assumes that the mutex has already 
+//been locked
+func (rc *RequestCache) add(rp namenode_rpc.ReqPacket, 
+resp namenode_rpc.ResponsePacket) error {
 
 	//the central assumption does not hold if 
 	//we do not have equal packet numbers
 	if rp != nil && resp != nil {
 		if rp.GetPacketNumber() != resp.GetPacketNumber() {
-			return errors.New("Packet numbers are not equal for request and response")
+			return errors.New("Packet numbers are not equal for request 
+			and response")
 		}
 	}
 
@@ -101,7 +105,8 @@ func (rc *RequestCache) add(rp namenode_rpc.ReqPacket, resp namenode_rpc.Respons
 	return nil
 }
 
-func (rc *RequestCache) Add(rp namenode_rpc.ReqPacket, resp namenode_rpc.ResponsePacket) error {
+func (rc *RequestCache) Add(rp namenode_rpc.ReqPacket, 
+	resp namenode_rpc.ResponsePacket) error {
 	rc.Lock()
 	//unlock the mutex after done w/ processing this function
 	defer rc.Unlock()
@@ -109,7 +114,8 @@ func (rc *RequestCache) Add(rp namenode_rpc.ReqPacket, resp namenode_rpc.Respons
 	return rc.add(rp, resp)
 }
 
-//same as Add() but adds a PacketPair with a nil in place of the response packet
+//same as Add() but adds a PacketPair with a nil in place of the response 
+//packet
 func (rc *RequestCache) AddRequest(req namenode_rpc.ReqPacket) error {
 	rc.Lock()
 	defer rc.Unlock()
@@ -117,9 +123,11 @@ func (rc *RequestCache) AddRequest(req namenode_rpc.ReqPacket) error {
 }
 
 //adds a response to the packet pair that was partially filled with AddRequest
-//HOWEVER, this assumes that the bucket already has a Request inside it (i.e we
+//HOWEVER, this assumes that the bucket already has a Request inside it 
+//(i.e we
 //can't have a Response before a Request)
-func (rc *RequestCache) AddResponse(resp namenode_rpc.ResponsePacket) error {
+func (rc *RequestCache) AddResponse(resp namenode_rpc.ResponsePacket) 
+error {
 	rc.Lock()
 	defer rc.Unlock()
 
@@ -133,15 +141,15 @@ func (rc *RequestCache) Clear() {
 	rc.RequestResponse = make(map[PacketNumber](namenode_rpc.PacketPair))
 }
 
-//TODO optimize this function somehow?
-//TODO returns nil if nothing is found, is that a bad idea?
-func (rc *RequestCache) Query(rp namenode_rpc.ReqPacket) namenode_rpc.ResponsePacket {
+func (rc *RequestCache) Query(rp namenode_rpc.ReqPacket) 
+namenode_rpc.ResponsePacket {
 	rc.RLock()
 	defer rc.RUnlock()
 
 	//use the reflect.DeepEqual as the default
 	//equality comparator
-	equals := EqualityFunc(func(rp1 namenode_rpc.ReqPacket, rp2 namenode_rpc.ReqPacket) bool {
+	equals := EqualityFunc(func(rp1 namenode_rpc.ReqPacket, 
+	rp2 namenode_rpc.ReqPacket) bool {
 			return reflect.DeepEqual(rp1, rp2)
 		})
 
@@ -154,7 +162,8 @@ func (rc *RequestCache) Query(rp namenode_rpc.ReqPacket) namenode_rpc.ResponsePa
 //different equality measures
 type EqualityFunc func(namenode_rpc.ReqPacket, namenode_rpc.ReqPacket) bool
 
-func (rc *RequestCache) queryCustom(rp namenode_rpc.ReqPacket, equals EqualityFunc) namenode_rpc.ResponsePacket {
+func (rc *RequestCache) queryCustom(rp namenode_rpc.ReqPacket, 
+equals EqualityFunc) namenode_rpc.ResponsePacket {
 	if !rc.Enabled {
 		return nil
 	}
@@ -171,7 +180,8 @@ func (rc *RequestCache) queryCustom(rp namenode_rpc.ReqPacket, equals EqualityFu
 	return nil	
 }
 
-func (rc *RequestCache) QueryCustom(rp namenode_rpc.ReqPacket, equals EqualityFunc) namenode_rpc.ResponsePacket {
+func (rc *RequestCache) QueryCustom(rp namenode_rpc.ReqPacket, 
+equals EqualityFunc) namenode_rpc.ResponsePacket {
 	rc.RLock()
 	defer rc.RUnlock()
 

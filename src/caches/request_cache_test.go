@@ -14,7 +14,6 @@ func TestRequestCacheConstructor(t *testing.T) {
 	}
 }
 
-//TODO revise structure of this unit test
 func TestRequestCacheAdd(t *testing.T) {
 	rs := NewRequestCache(2)
 
@@ -80,7 +79,6 @@ func TestRequestCacheQuery(t *testing.T) {
 		t.Fail()
 	}
 
-	//TODO this dereferencing going on here is too complicated
 	if !reflect.DeepEqual(resp, rc.Query(rp)) {
 		fmt.Println("Failed query result: ", rc.Query(rp))
 		fmt.Println("First response packet: ", rc.RequestResponse[PacketNumber(resp.GetPacketNumber())].Response)

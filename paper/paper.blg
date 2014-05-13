@@ -1,51 +1,53 @@
-This is BibTeX, Version 0.99d (TeX Live 2012/Debian)
+This is BibTeX, Version 0.99d (TeX Live 2013)
 Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
 The top-level auxiliary file: paper.aux
 The style file: plain.bst
 Database file #1: references.bib
+Warning--I didn't find a database entry for "griffioen"
+Warning--I didn't find a database entry for "hive"
 Warning--to sort, need author or key in cloudbatch
 Warning--empty author in cloudbatch
 Warning--empty journal in puzak1985analysis
 Warning--can't use both volume and number fields in rowstron2001storage
-You've used 24 entries,
+You've used 25 entries,
             2118 wiz_defined-function locations,
-            625 strings with 8358 characters,
-and the built_in function-call counts, 10105 in all, are:
-= -- 1019
-> -- 480
-< -- 15
-+ -- 190
-- -- 166
-* -- 698
-:= -- 1570
-add.period$ -- 82
-call.type$ -- 24
-change.case$ -- 152
+            632 strings with 8594 characters,
+and the built_in function-call counts, 10611 in all, are:
+= -- 1067
+> -- 508
+< -- 16
++ -- 201
+- -- 176
+* -- 733
+:= -- 1646
+add.period$ -- 85
+call.type$ -- 25
+change.case$ -- 160
 chr.to.int$ -- 0
-cite$ -- 28
-duplicate$ -- 415
-empty$ -- 778
-format.name$ -- 166
-if$ -- 2207
+cite$ -- 29
+duplicate$ -- 436
+empty$ -- 816
+format.name$ -- 176
+if$ -- 2318
 int.to.chr$ -- 0
-int.to.str$ -- 24
-missing$ -- 25
-newline$ -- 122
-num.names$ -- 46
-pop$ -- 186
+int.to.str$ -- 25
+missing$ -- 26
+newline$ -- 127
+num.names$ -- 48
+pop$ -- 197
 preamble$ -- 1
-purify$ -- 129
+purify$ -- 136
 quote$ -- 0
-skip$ -- 309
+skip$ -- 326
 stack$ -- 0
-substring$ -- 615
-swap$ -- 149
-text.length$ -- 15
+substring$ -- 644
+swap$ -- 158
+text.length$ -- 16
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 94
+type$ -- 98
 warning$ -- 4
-while$ -- 97
-width$ -- 26
-write$ -- 273
-(There were 4 warnings)
+while$ -- 102
+width$ -- 27
+write$ -- 284
+(There were 6 warnings)

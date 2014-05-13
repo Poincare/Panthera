@@ -44,12 +44,14 @@ func TestDataNodeMapConstructor (t *testing.T) {
 	dnLocationMap := MakeDataNodeMap(dnLocations, 2000)
 
 	if !reflect.DeepEqual(dnLocationMap[Port("2000")], dnLocations[0]) {
-		fmt.Println("Failed, not equal: ", dnLocationMap["2000"], dnLocations[0])
+		fmt.Println("Failed, not equal: ", dnLocationMap["2000"], 
+		dnLocations[0])
 		t.Fail()
 	}
 
 	if !reflect.DeepEqual(dnLocationMap[Port("2000")], dnl) {
-		fmt.Println("Failed second, not equal:", dnLocationMap["2000"], dnl)
+		fmt.Println("Failed second, not equal:", dnLocationMap["2000"], 
+		dnl)
 		t.Fail()
 	}
 

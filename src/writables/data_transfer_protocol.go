@@ -575,7 +575,8 @@ func (header *BlockResponseHeader) AdjustChecksumSize(dataLen int64) int64 {
 	bytesPerChecksum := int64(header.Checksum.BytesPerChecksum)
 	checksumSize := int64(header.Checksum.Size())
 
-	requiredSize := ((dataLen + bytesPerChecksum - 1)/bytesPerChecksum)*checksumSize
+	requiredSize := ((dataLen + bytesPerChecksum - 1)/bytesPerChecksum)*
+	checksumSize
 	return requiredSize
 }
 

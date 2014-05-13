@@ -143,15 +143,11 @@ func TestRequestPacketLoad(t *testing.T) {
 		t.Fail()
 	}
 
-	//TODO this part makes absolutely no sense, but 
-	//it is how Wireshark seems to be reporting it
-	//TODO does the [B have a special meaning attached to it?
 	//test second parameter for type and value
 	if p2.TypeLength != 2 {
 		t.Fail()
 	}
 
-	//TODO WTF does this mean
 	if string(p2.Type) !=  "[B" {
 		t.Fail()
 	}
@@ -169,13 +165,20 @@ func TestNewGetFileInfoResponse(t *testing.T) {
 }
 
 //this is the test case, but in hexademical because converting is hard
-var GetFileInfoResponseTestCase []byte = []byte{0,0,0,1,0,0,0,0,0,46,111,114,103,
-	46,97,112,97,99,104,101,46,104,97,100,111,111,112,46,104,100,102,115,46,112,114,
-	111,116,111,99,111,108,46,72,100,102,115,70,105,108,101,83,116,97,116,117,115,0,
-	46,111,114,103,46,97,112,97,99,104,101,46,104,97,100,111,111,112,46,104,100,102,
-	115,46,112,114,111,116,111,99,111,108,46,72,100,102,115,70,105,108,101,83,116,97,
-	116,117,115,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,65,230,55,105,95,
-	0,0,0,0,0,0,0,0,1,237,6,104,100,117,115,101,114,10,115,117,112,101,114,103,114,111,
+var GetFileInfoResponseTestCase []byte = []byte{0,0,0,1,0,0,0,0,0,46,111,
+114,103,
+	46,97,112,97,99,104,101,46,104,97,100,111,111,112,46,104,100,102,115,46,
+	112,114,
+	111,116,111,99,111,108,46,72,100,102,115,70,105,108,101,83,116,97,116,
+	117,115,0,
+	46,111,114,103,46,97,112,97,99,104,101,46,104,97,100,111,111,112,46,104,
+	100,102,
+	115,46,112,114,111,116,111,99,111,108,46,72,100,102,115,70,105,108,101,
+	83,116,97,
+	116,117,115,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,65,230,
+	55,105,95,
+	0,0,0,0,0,0,0,0,1,237,6,104,100,117,115,101,114,10,115,117,112,101,114,
+	103,114,111,
 	117,112}
 
 
@@ -197,8 +200,6 @@ var GetFileInfoExpected GetFileInfoResponse = GetFileInfoResponse {
 	ModifiedTime: 1382546893151,
 	AccessTime: 0,
 
-	//TODO not exactly sure what the two 
-	//file permission headers specify
 	FilePermission2: 493,
 
 	OwnerNameLength: 6,
@@ -251,7 +252,7 @@ func TestLoadObjectNameLength(t *testing.T) {
 	}
 }
 
-//TODO currently failing
+
 func TestLoadObjectName(t *testing.T) {
 	gf := NewGetFileInfoResponse()
 	fmt.Println("test case: ", GetFileInfoResponseTestCase)
@@ -286,7 +287,7 @@ func TestLoadObjectName2(t *testing.T) {
 	gf := NewGetFileInfoResponse()
 	gf.Load(GetFileInfoResponseTestCase)
 
-	//TODO this is replicated from the TestLoadObjectName
+	
 	if string(gf.ObjectName2) != "org.apache.hadoop.hdfs.protocol.HdfsFileStatus" {
 		t.FailNow()
 	}
@@ -409,7 +410,7 @@ var CreateRequestPacketTestCase []byte = []byte{0,0,0,248,0,0,0,2,0,6,99,114,
 
 var CreateRequestPacketExpectedFP string = "/user/hduser/rpc-test/newfile"
 
-//TODO this whole method is kinda monkeypatched in there
+
 func TestGetCreateRequestPath (t *testing.T) {
 	rq := NewRequestPacket()
 	rq.Load(CreateRequestPacketTestCase)
@@ -435,7 +436,7 @@ func TestNewGetListingResponse (t *testing.T) {
 var BlockBeingWrittenTestCase = []byte{0,0,1,11,0,0,0,3,0,24,98,108,111,99,107,115,66,101,105,110,103,87,114,105,116,116,101,110,82,101,112,111,114,116,0,0,0,2,0,59,111,114,103,46,97,112,97,99,104,101,46,104,97,100,111,111,112,46,104,100,102,115,46,115,101,114,118,101,114,46,112,114,111,116,111,99,111,108,46,68,97,116,97,110,111,100,101,82,101,103,105,115,116,114,97,116,105,111,110,0,59,111,114,103,46,97,112,97,99,104,101,46,104,97,100,111,111,112,46,104,100,102,115,46,115,101,114,118,101,114,46,112,114,111,116,111,99,111,108,46,68,97,116,97,110,111,100,101,82,101,103,105,115,116,114,97,116,105,111,110,0,14,49,50,55,46,48,46,48,46,49,58,49,51,56,57,0,41,68,83,45,54,55,56,48,48,50,48,54,49,45,49,50,55,46,48,46,49,46,49,45,49,51,56,57,45,49,51,56,55,55,51,52,56,50,50,52,50,54,195,155,195,100,255,255,255,215,4,220,11,33,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,255,0,0,0,0,0,2,91,74,0,0,0,0,0}
 
 //test the Bytes() method of the RequestPacket
-//TODO test case not relevant
+
 /*
 func TestRequestPacketBytes(t *testing.T) {
 	rp := NewRequestPacket()
@@ -452,7 +453,7 @@ func TestRequestPacketBytes(t *testing.T) {
 	}
 } */
 
-//TODO test case not relevant
+
 /*
 func TestRequestPacketBytesReverse(t *testing.T) {
 	rp := NewRequestPacket()
@@ -625,19 +626,3 @@ func TestGenericResponsePacketLoad(t *testing.T) {
 	fmt.Println(GenericResponsePacketRes)
 	fmt.Println(*ap)
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

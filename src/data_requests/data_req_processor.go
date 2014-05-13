@@ -88,7 +88,8 @@ type Processor struct {
 	startTimeCached time.Time
 }
 
-func NewProcessor(dataCache *caches.DataCache, nodeLocation *configuration.DataNodeLocation) *Processor {
+func NewProcessor(dataCache *caches.DataCache, 
+nodeLocation *configuration.DataNodeLocation) *Processor {
 	p := Processor{
 		dataCache: dataCache,
 		retryDataNode: true,
@@ -155,14 +156,17 @@ func (p *Processor) setCurrentRequest(dataRequest datanode_rpc.ReqPacket) {
 	util.DataReqLogger.Println(p.id, " Set current request.")
 }
 
-func (p *Processor) queryCache(dataRequest *datanode_rpc.DataRequest) *datanode_rpc.DataResponse {
+func (p *Processor) queryCache(
+	dataRequest *datanode_rpc.DataRequest) *datanode_rpc.DataResponse {
 	resp := p.dataCache.Query(*dataRequest)
-	util.DataReqLogger.Println(p.id, " Returned from cache request: ", resp)
+	util.DataReqLogger.Println(p.id, " Returned from cache request: ", 
+	resp)
 	return resp
 }
 
 //handle the request if it is an instance of datanode_rpc.DataRequest
-func (p *Processor) handleDataRequest(conn net.Conn, dataNode net.Conn, dataRequest *datanode_rpc.DataRequest) error {
+func (p *Processor) handleDataRequest(conn net.Conn, dataNode net.Conn, 
+	dataRequest *datanode_rpc.DataRequest) error {
 	if dataRequest == nil {
 		return errors.New("Data request value is nil")
 	}
@@ -179,9 +183,12 @@ func (p *Processor) handleDataRequest(conn net.Conn, dataNode net.Conn, dataRequ
 		p.RecordCachedLatency();
 		p.skipResponse = true
 	} else {
-		util.DataReqLogger.Println(p.id, " Cache miss. (cache size: ", p.dataCache.CurrSize(), ")")
-		util.DataReqLogger.Println(p.id, " Cache contents: ", p.dataCache.CachedRequests())
-		util.DataReqLogger.Println(p.id, " Cached responses: ", p.dataCache.CachedResponses())
+		util.DataReqLogger.Println(p.id, " Cache miss. 
+		(cache size: ", p.dataCache.CurrSize(), ")")
+		util.DataReqLogger.Println(p.id, " Cache contents: ", 
+		p.dataCache.CachedRequests())
+		util.DataReqLogger.Println(p.id, " Cached responses: ", 
+		p.dataCache.CachedResponses())
 	}
 
 	dataBytes, err := dataRequest.Bytes()
@@ -195,17 +202,21 @@ func (p *Processor) handleDataRequest(conn net.Conn, dataNode net.Conn, dataRequ
 	return nil
 }
 
-func (p *Processor) handlePutFileDataRequest(conn net.Conn, dataNode net.Conn,
-	putFileDataRequest *datanode_rpc.PutFileDataRequest) error {
+func (p *Processor) handlePutFileDataRequest(conn net.Conn, 
+	dataNode net.Conn, putFileDataRequest *datanode_rpc.PutFileDataRequest) 
+	error {
+	
 	if putFileDataRequest == nil {
-		return errors.New("PutFileDataRequest is nil; cannot proceeed with handlePutFileDataRequest.")
+		return errors.New("PutFileDataRequest is nil; 
+		cannot proceeed with handlePutFileDataRequest.")
 	}
 
 	p.setCurrentRequest(putFileDataRequest)
 	
 	dataBytes, err := putFileDataRequest.Bytes()
 	if err != nil {
-		util.DataReqLogger.Println(p.id, "Could not putFileDataRequest bytes, err: ", err)
+		util.DataReqLogger.Println(p.id, "Could not putFileDataRequest 
+		bytes, err: ", err)
 		p.closeConnSocket(conn)
 		return err
 	}
@@ -221,14 +232,16 @@ func (p *Processor) handlePutFileDataRequest(conn net.Conn, dataNode net.Conn,
 func (p *Processor) handlePutDataRequest(conn net.Conn, dataNode net.Conn, 
 putDataRequest *datanode_rpc.PutDataRequest) error {
 	if putDataRequest == nil {
-		return errors.New("PutDataRequest is nil; cannot proceed with HandlingPutDataRequest")
+		return errors.New("PutDataRequest is nil; cannot proceed with 
+		HandlingPutDataRequest")
 	}
 
 	p.setCurrentRequest(putDataRequest)
 
 	dataBytes, err := putDataRequest.Bytes()
 	if err != nil {
-		util.DataReqLogger.Println(p.id, "Could not get putDataRequestBytes, err: ", err)
+		util.DataReqLogger.Println(p.id, "Could not get 
+		putDataRequestBytes, err: ", err)
 		p.closeConnSocket(conn)
 		return err
 	}
@@ -237,7 +250,8 @@ putDataRequest *datanode_rpc.PutDataRequest) error {
 	return nil
 }
 
-func (p *Processor) HandleConnectionSingular(conn net.Conn, dataNode net.Conn) {
+func (p *Processor) HandleConnectionSingular(conn net.Conn, 
+	dataNode net.Conn) {
 	for {
 		go p.checkComm(conn)
 		util.DataReqLogger.Println("Connected to client.")
@@ -249,7 +263,8 @@ func (p *Processor) HandleConnectionSingular(conn net.Conn, dataNode net.Conn) {
 		p.startTimeCached = time.Now()
 
 		if err != nil {
-			util.DataReqLogger.Println(p.id, " Could not load data request object; assuming socket is closed.")
+			util.DataReqLogger.Println(p.id, " Could not load data request 
+			object; assuming socket is closed.")
 			util.DataReqLogger.Println("---")
 			conn.Close()
 
@@ -275,9 +290,12 @@ func (p *Processor) HandleConnectionSingular(conn net.Conn, dataNode net.Conn) {
 				p.RecordCachedLatency();
 				p.skipResponse = true
 			} else {
-				util.DataReqLogger.Println(p.id, " Cache miss. (cache size: ", p.dataCache.CurrSize(), ")")
-				util.DataReqLogger.Println(p.id, " Cache contents: ", p.dataCache.CachedRequests())
-				util.DataReqLogger.Println(p.id, " Cached responses: ", p.dataCache.CachedResponses())
+				util.DataReqLogger.Println(p.id, " 
+				Cache miss. (cache size: ", p.dataCache.CurrSize(), ")")
+				util.DataReqLogger.Println(p.id, " 
+				Cache contents: ", p.dataCache.CachedRequests())
+				util.DataReqLogger.Println(p.id, " 
+				Cached responses: ", p.dataCache.CachedResponses())
 			}
 			//write the buffer to the datanode, essentially relaying the information
 			//between the client and the data node
@@ -327,12 +345,14 @@ func (p *Processor) HandleConnection(conn net.Conn, dataNode net.Conn) {
 		util.DebugLogger.Println("Loaded packet.")
 
 		if err != nil {
-			util.DebugLogger.Println("Error occurred in loading packet: ", err)
+			util.DebugLogger.Println("Error occurred in loading packet: ", 
+			err)
 			util.DataReqLogger.Println("Failed LiveReadInitial(): ", err)
 			p.closeConnSocket(conn)
 			return
 		}
-		util.DataReqLogger.Println(p.id, " Received request: ", dataRequest)
+		util.DataReqLogger.Println(p.id, " Received request: ", 
+		dataRequest)
 		p.startTimeCached = time.Now()
 
 
@@ -364,7 +384,8 @@ func (p *Processor) HandleConnection(conn net.Conn, dataNode net.Conn) {
 			p.handlePutDataRequest(conn, dataNode, putDataRequest)
 			prevPDR = true */
 		case *datanode_rpc.PutFileDataRequest:
-			putFileDataRequest := dataRequest.(*datanode_rpc.PutFileDataRequest)
+			putFileDataRequest := dataRequest.(
+			*datanode_rpc.PutFileDataRequest)
 			p.handlePutFileDataRequest(conn, dataNode, putFileDataRequest)
 			prevPDR = false
 		}
@@ -373,11 +394,13 @@ func (p *Processor) HandleConnection(conn net.Conn, dataNode net.Conn) {
 }
 
 //return value: if true, the retry was successful, if false, it failed
-func (p *Processor) retryDataNodeConnection(conn net.Conn, dataNode net.Conn) bool {
+func (p *Processor) retryDataNodeConnection(conn net.Conn, 
+dataNode net.Conn) bool {
 	util.LogError("Could not connect to data node.")
 
 	if !p.retryDataNode {
-		util.LogError("Since not retrying connections, closing data node client connections")
+		util.LogError("Since not retrying connections, closing data node 
+		client connections")
 		conn.Close()
 		return false
 	}
@@ -403,26 +426,32 @@ func (p *Processor) RecordNoCacheLatency() {
 	util.NoCacheLatencyLog.Println(duration.Nanoseconds())
 }
 
-func (p *Processor) handleDataResponse(conn net.Conn, dataNode net.Conn) error {
+func (p *Processor) handleDataResponse(conn net.Conn, 
+	dataNode net.Conn) error {
 	util.DebugLogger.Println("current request: ", p.currentRequest)
 	dataResponse := datanode_rpc.NewDataResponse()
 	err := dataResponse.LiveLoad(dataNode)
 	byt, _ := dataResponse.Bytes()
 	if len(byt) == 0 {
-		util.DebugLogger.Println("Bytes length is 0; returning from HandleDataResponse()")
+		util.DebugLogger.Println("Bytes length is 0; 
+		returning from HandleDataResponse()")
 		return errors.New("bytes read = 0")
 	}
 
 	util.DebugLogger.Println("Data response bytes len: ", len(byt))
-	util.DebugLogger.Println("dataResponse.DataLength: ", dataResponse.DataLength)
-	util.DebugLogger.Println("dataResponse.data bytes: ", dataResponse.Data)
+	util.DebugLogger.Println("dataResponse.DataLength: ", 
+	dataResponse.DataLength)
+	util.DebugLogger.Println("dataResponse.data bytes: ", 
+	dataResponse.Data)
 
 	if err != nil {
 		util.DataReqLogger.Println("DataNode connection closed.")
 		res := p.retryDataNodeConnection(conn, dataNode)
 		if !res {
-			util.DataReqLogger.Println("Could not retry successfully. Returning from HandleDataNode")
-			//connections were closed, no point in continuing with the processor
+			util.DataReqLogger.Println("Could not retry successfully. 
+			Returning from HandleDataNode")
+			//connections were closed
+			//no point in continuing with the processor
 			return nil
 		}
 	}
@@ -437,7 +466,8 @@ func (p *Processor) handleDataResponse(conn net.Conn, dataNode net.Conn) error {
 			return nil
 		}
 
-		pair := datanode_rpc.NewRequestResponse(p.currentRequest, dataResponse)
+		pair := datanode_rpc.NewRequestResponse(p.currentRequest, 
+		dataResponse)
 
 		//add the pair to the cache
 		p.dataCache.AddRpcPair(*pair)
@@ -446,7 +476,8 @@ func (p *Processor) handleDataResponse(conn net.Conn, dataNode net.Conn) error {
 		dataRespBytes, _ := dataResponse.Bytes()
 		_, err := conn.Write(dataRespBytes)
 		if err != nil {
-			util.DebugLogger.Println("Error ocurred in writing data response to client: ", dataRespBytes)
+			util.DebugLogger.Println("Error ocurred in writing data 
+			response to client: ", dataRespBytes)
 		}
 		util.DataReqLogger.Println(p.id, "Wrote response to client.")
 	}
@@ -454,7 +485,8 @@ func (p *Processor) handleDataResponse(conn net.Conn, dataNode net.Conn) error {
 	return nil
 }
 
-func (p *Processor) handlePutDataResponse(conn net.Conn, dataNode net.Conn) {
+func (p *Processor) handlePutDataResponse(conn net.Conn,
+	dataNode net.Conn) {
 	//there are actually three responses  to be read for each put request
 	for i := 0; i<1; i++ {
 		util.DebugLogger.Println("Reading put data response #", i)
@@ -474,12 +506,14 @@ func (p *Processor) handlePutDataResponse(conn net.Conn, dataNode net.Conn) {
 		conn.Write(pdrBytes)
 
 		if err != nil || bytesWritten != len(pdrBytes) {
-			util.DataReqLogger.Println("Error ocurred in writing to DataNode. Possible closed socket (no action taken)")
+			util.DataReqLogger.Println("Error ocurred in writing to 
+			DataNode. Possible closed socket (no action taken)")
 		}
 	}
 }
 
-func (p *Processor) handlePutFileDataResponse(conn net.Conn, dataNode net.Conn) {
+func (p *Processor) handlePutFileDataResponse(conn net.Conn, 
+	dataNode net.Conn) {
 	//first we have to read and proxy the "null packet" response
 	//the Hadoop documentation doesn't make clear what this packet is
 	//used for but it is clear that it is necessary for correct operation
@@ -502,16 +536,19 @@ func (p *Processor) loadResponse(conn net.Conn, dataNode net.Conn) error {
 	//the current request is
 	switch p.currentRequest.(type) {
 	case *datanode_rpc.DataRequest:
-		util.DataReqLogger.Println(p.id, " CurrRequest is DataRequest, now handling dataResponse")
+		util.DataReqLogger.Println(p.id, " CurrRequest is DataRequest, 
+		now handling dataResponse")
 		err := p.handleDataResponse(conn, dataNode)
 		if err != nil {
 			return err
 		}
 	case *datanode_rpc.PutDataRequest:
-		util.DataReqLogger.Println(p.id, " CurrRequest is PutDataRequest, now handling putDataResponse")
+		util.DataReqLogger.Println(p.id, " CurrRequest is PutDataRequest, 
+		now handling putDataResponse")
 		p.handlePutDataResponse(conn, dataNode)
 	case *datanode_rpc.PutFileDataRequest:
-		util.DataReqLogger.Println(p.id, " CurrRequest is PutFileDataRequest, now hadnling putFileDataResponse")
+		util.DataReqLogger.Println(p.id, " CurrRequest is 
+		PutFileDataRequest, now hadnling putFileDataResponse")
 		p.handlePutFileDataResponse(conn, dataNode)
 	}
 	return nil
@@ -520,13 +557,16 @@ func (p *Processor) loadResponse(conn net.Conn, dataNode net.Conn) error {
 //this is a testing function for HandleDataNode() - instead of carefully
 //taking apart response packets, it takes the hammerfisted approach of 
 //simply shovelling a bunch of data across the network
-func (p *Processor) BruteForceHandleDataNode(conn net.Conn, dataNode net.Conn) {
+func (p *Processor) BruteForceHandleDataNode(conn net.Conn, 
+	dataNode net.Conn) {
 	for {
 		buf := make([]byte, 1)
 		bytesRead, err := dataNode.Read(buf)
 		if err != nil {
-			util.DebugLogger.Println("Could not brute force handle the datanode: ", err)
-			util.DebugLogger.Println("Assuming the socket has been closed.")
+			util.DebugLogger.Println("Could not brute force 
+			handle the datanode: ", err)
+			util.DebugLogger.Println("Assuming the socket has been 
+			closed.")
 			go p.sendCloseSocket()
 			return
 		}
@@ -534,7 +574,8 @@ func (p *Processor) BruteForceHandleDataNode(conn net.Conn, dataNode net.Conn) {
 		buf = buf[0:bytesRead]
 		_, err = conn.Write(buf)
 		if err != nil {
-			util.DebugLogger.Println("Unable to write to the datanode: ", err)
+			util.DebugLogger.Println("Unable to write to the datanode: ", 
+			err)
 			continue
 		}
 	}
@@ -545,7 +586,8 @@ func (p *Processor) HandleDataNode(conn net.Conn, dataNode net.Conn) {
 
 	if dataNode == nil {
 		util.DebugLogger.Println("Datanode is nil...")
-		fmt.Println("the datanode is nil, address", p.nodeLocation.Address())
+		fmt.Println("the datanode is nil, address", 
+		p.nodeLocation.Address())
 		var err error
 		dataNode, err = net.Dial("tcp", p.nodeLocation.Address())
 		fmt.Println("new datanode: ", dataNode)
@@ -567,12 +609,14 @@ func (p *Processor) HandleDataNode(conn net.Conn, dataNode net.Conn) {
 		keepRunning := !msg.CloseSocket
 		//telling us that we've received a close down message
 		if !keepRunning {
-			util.DataReqLogger.Println("Close down message received. Shutting down...")
+			util.DataReqLogger.Println("Close down message received. 
+			Shutting down...")
 			defer util.DataReqLogger.Println("HandleDataNode() closed.")
 			return
 		}
 
-		util.DebugLogger.Println("Starting to load response from DataNode...")
+		util.DebugLogger.Println("Starting to load response from DataNode...
+		")
 		util.Log("Handling dataNode connection...")
 		//handles all of the intricacies of the different response types, etc.
 		if msg.CurrentRequestAvailable {
@@ -581,7 +625,8 @@ func (p *Processor) HandleDataNode(conn net.Conn, dataNode net.Conn) {
 				p.sendCloseSocket()
 				return
 			}
-			util.DebugLogger.Println("Finished with response from DataNode.")
+			util.DebugLogger.Println("Finished with response from 
+			DataNode.")
 		}
 	}
 
@@ -606,7 +651,7 @@ func (p *Processor) HandleDataNode(conn net.Conn, dataNode net.Conn) {
 		keepRunning := p.checkComm(dataNode)
 		//telling us that we've received a close down message
 		if !keepRunning {
-			util.DataReqLogger.Println("Close down message received. Shutting down...")
+			util.DataReqLogger.Println("Close down message received.")
 			defer util.DataReqLogger.Println("HandleDataNode() closed.")
 			return
 		}
@@ -621,8 +666,10 @@ func (p *Processor) HandleDataNode(conn net.Conn, dataNode net.Conn) {
 			util.DataReqLogger.Println("DataNode connection closed.")
 			res := p.retryDataNodeConnection(conn, dataNode)
 			if !res {
-				util.LogError("Could not retry successfully. Returning from HandleDataNode")
-				//connections were closed, no point in continuing with the processor
+				util.LogError("Could not retry successfully. Returning from
+				 HandleDataNode")
+				//connections were closed, no point in continuing with the 
+				processor
 				return
 			}
 		}
@@ -638,7 +685,8 @@ func (p *Processor) HandleDataNode(conn net.Conn, dataNode net.Conn) {
 				continue
 			}
 
-			pair := datanode_rpc.NewRequestResponse(p.currentRequest, dataResponse)
+			pair := datanode_rpc.NewRequestResponse(p.currentRequest, 
+			dataResponse)
 
 			//add the pair to the cache
 			p.dataCache.AddRpcPair(*pair)

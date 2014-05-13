@@ -181,7 +181,8 @@ func (w *WritableProcessor) handleReadBlockResponse(
 	}
 }
 
-func (w *WritableProcessor) processReadBlock(requestHeader *writables.DataRequestHeader, 
+func (w *WritableProcessor) processReadBlock(
+requestHeader *writables.DataRequestHeader, 
 	conn writables.ReaderWriter, dataNode writables.ReaderWriter) {
 
 	blockRequest, err := w.readReadBlockRequest(conn)
@@ -213,7 +214,8 @@ func (w *WritableProcessor) processReadBlock(requestHeader *writables.DataReques
 }
 
 //this method is called from generalProcessing()
-func (w *WritableProcessor) handleGeneralResponse(conn writables.ReaderWriter, dataNode writables.ReaderWriter) {
+func (w *WritableProcessor) handleGeneralResponse(
+conn writables.ReaderWriter, dataNode writables.ReaderWriter) {
 	for {
 		//check the channel to make sure that the socket isn't closed
 		msg := w.readComm()
@@ -242,7 +244,9 @@ func (w *WritableProcessor) handleGeneralResponse(conn writables.ReaderWriter, d
 	}
 }
 
-func (w *WritableProcessor) forwardRequestHeader(requestHeader *writables.DataRequestHeader, dataNode writables.ReaderWriter) error {
+func (w *WritableProcessor) forwardRequestHeader(
+requestHeader *writables.DataRequestHeader, dataNode writables.ReaderWriter) 
+error {
 	resBuf := new(bytes.Buffer)
 	err := requestHeader.Write(resBuf)
 	if err != nil {
@@ -266,7 +270,9 @@ func (w *WritableProcessor) GeneralProcessing(conn net.Conn,
 //a simple relay is set up so that data that comes in is sent directly
 //to the DataNode without modification. It also starts (as a goroutine)
 //handleGeneralResponse() that relays packets from the DataNode to the client
-func (w *WritableProcessor) generalProcessing(conn writables.ReaderWriter, dataNode writables.ReaderWriter, replaceResponse bool) {
+func (w *WritableProcessor) generalProcessing(
+conn writables.ReaderWriter, dataNode writables.ReaderWriter, 
+replaceResponse bool) {
 	util.TempLogger.Println(w.id, "General processing called.")
 
 	//start the response method
@@ -286,7 +292,8 @@ func (w *WritableProcessor) generalProcessing(conn writables.ReaderWriter, dataN
 		buf := make([]byte, 1)
 		_, err := conn.Read(buf)
 		if err != nil {
-			util.DebugLogger.Println(w.id, "Error occurred while reading from client in generalProcessing(): ", err)
+			util.DebugLogger.Println(w.id, "Error occurred while reading 
+			from client in generalProcessing(): ", err)
 			util.DebugLogger.Println(w.id, "Assuming socket is closed.")
 			go w.sendSocketClose()
 			return
@@ -294,7 +301,8 @@ func (w *WritableProcessor) generalProcessing(conn writables.ReaderWriter, dataN
 
 		_, err = dataNode.Write(buf)
 		if err != nil {
-			util.DebugLogger.Println(w.id, "Error occurred while writing to DataNode in generalProcessing(): ", err)
+			util.DebugLogger.Println(w.id, "Error occurred while writing 
+			to DataNode in generalProcessing(): ", err)
 			util.DebugLogger.Println(w.id, "Assuming socket is closed.")
 			go w.sendSocketClose()
 			return
@@ -302,7 +310,8 @@ func (w *WritableProcessor) generalProcessing(conn writables.ReaderWriter, dataN
 	}
 }
 
-func (w *WritableProcessor) processRequest(requestHeader *writables.DataRequestHeader, conn writables.ReaderWriter,
+func (w *WritableProcessor) processRequest(
+requestHeader *writables.DataRequestHeader, conn writables.ReaderWriter,
 	dataNode writables.ReaderWriter) {
 	//what kind of processing we do depends on
 	//the type of command given (stored as field Op 

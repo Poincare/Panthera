@@ -45,7 +45,8 @@ type DataNodeMap map[Port]*DataNodeLocation
 func MakeDataNodeMap(dnls []*DataNodeLocation, portOffset int) DataNodeMap {
 	res := make(DataNodeMap)
 	for i := 0; i < len(dnls); i++ {
-		fmt.Println("For port: ", strconv.Itoa(portOffset+i), ", dnls[i]: ", dnls[i])
+		fmt.Println("For port: ", strconv.Itoa(portOffset+i), 
+		", dnls[i]: ", dnls[i])
 		res[Port(strconv.Itoa(portOffset+i))] = dnls[i]
 	}
 

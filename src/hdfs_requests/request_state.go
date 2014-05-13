@@ -32,9 +32,11 @@ func NewRequestState() *RequestState {
 //this method is called a new request is received from 
 //the client. It resets the byteBuffer and readFirstPacket
 //fields and caches the current response.
-func (rs *RequestState) Empty(packetNumber uint32) *namenode_rpc.GenericResponsePacket {
+func (rs *RequestState) Empty(packetNumber uint32) 
+*namenode_rpc.GenericResponsePacket {
 	rs.ReadFirstPacket = false
-	genericResp := namenode_rpc.NewGenericResponsePacket(rs.ByteBuffer.Bytes(), rs.PacketNumber)
+	genericResp := namenode_rpc.NewGenericResponsePacket(
+	rs.ByteBuffer.Bytes(), rs.PacketNumber)
 	rs.ByteBuffer.Reset()
 	rs.PacketNumber = packetNumber
 

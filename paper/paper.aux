@@ -2,46 +2,70 @@
 \citation{taylor2010overview}
 \citation{hadoop}
 \citation{mapreduce}
-\citation{ramcloud}
-\citation{ramcloud}
 \@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}}
-\citation{hbase,cloudbatch,pig}
 \citation{hdfs}
-\@writefile{toc}{\contentsline {section}{\numberline {2}Design Constraints}{2}}
+\citation{ramcloud}
+\citation{ramcloud,spark}
+\citation{spark}
+\citation{hbase,cloudbatch,pig}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Architecture}{2}}
+\newlabel{sect:architecture}{{2}{2}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Design Constraints}{2}}
+\newlabel{design_constraints}{{2.1}{2}}
+\citation{hdfs}
 \citation{ramcloud}
 \citation{hadoop}
-\@writefile{toc}{\contentsline {section}{\numberline {3}Metadata and Data}{3}}
-\@writefile{toc}{\contentsline {section}{\numberline {4}Architecture}{3}}
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Standard Hadoop Architecture (left), \textit  {Panthera}-Hadoop Architecture (right)\relax }}{3}}
-\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
-\newlabel{arch}{{1}{3}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Metadata and Data}{3}}
+\newlabel{metadata_and_data}{{2.2}{3}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Panthera Architecture}{3}}
+\newlabel{architecture_sect}{{2.3}{3}}
 \citation{cache}
+\citation{griffioen}
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{fig:vanilla_arch}{{1a}{4}}
+\newlabel{sub@fig:vanilla_arch}{{a}{4}}
+\newlabel{fig:panthera_arch}{{1b}{4}}
+\newlabel{sub@fig:panthera_arch}{{b}{4}}
+\newlabel{fig:arch}{{\caption@xref {fig:arch}{ on input line 87}}{4}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Panthera Caching Layer}{4}}
+\newlabel{sect:caching_layer}{{3}{4}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Metadata caching}{4}}
+\newlabel{sect:metadata_caching}{{3.1}{4}}
 \citation{ramcloud,hadoop}
-\@writefile{toc}{\contentsline {section}{\numberline {5}Metadata caching}{4}}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces \textit  {Panthera} Metadata System\relax }}{4}}
-\@writefile{toc}{\contentsline {section}{\numberline {6}Data caching}{4}}
-\citation{griffioen1994reducing}
+\citation{spark}
+\citation{hive,pig}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces \textit  {Panthera} Metadata System\relax }}{5}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Data caching}{5}}
+\newlabel{sect:data_caching}{{3.2}{5}}
 \@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces \textit  {Panthera} Data System\relax }}{5}}
-\@writefile{toc}{\contentsline {section}{\numberline {7}Scheduling Algorithm}{5}}
-\newlabel{scheduler-section}{{7}{5}}
-\@writefile{toc}{\contentsline {section}{\numberline {8}Testing Methodology}{5}}
-\newlabel{data}{{4a}{6}}
-\newlabel{sub@data}{{a}{6}}
-\newlabel{meta}{{4b}{6}}
-\newlabel{sub@meta}{{b}{6}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Metadata access latency\relax }}{6}}
-\newlabel{fig:test}{{4}{6}}
-\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Latency improvement with \textit  {Panthera}\relax }}{6}}
-\newlabel{results}{{1}{6}}
-\@writefile{toc}{\contentsline {section}{\numberline {9}Results}{6}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Scheduler}{5}}
+\newlabel{sect:scheduler}{{4}{5}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Hadoop Job Structure}{5}}
+\citation{griffioen1994reducing}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Cluster Saturation}{6}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Scheduling Algorithm}{6}}
+\newlabel{sect:scheduling}{{4.3}{6}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Results}{6}}
+\newlabel{sect:results}{{5}{6}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Testing Methodology}{6}}
+\newlabel{data}{{4a}{7}}
+\newlabel{sub@data}{{a}{7}}
+\newlabel{meta}{{4b}{7}}
+\newlabel{sub@meta}{{b}{7}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Metadata access latency\relax }}{7}}
+\newlabel{fig:test}{{4}{7}}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Latency improvement with \textit  {Panthera}\relax }}{7}}
+\newlabel{results}{{1}{7}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Results}{7}}
 \citation{hdfs,borthakur2011apache}
-\newlabel{fig:sub1}{{5a}{7}}
-\newlabel{sub@fig:sub1}{{a}{7}}
-\newlabel{refgetter}{{5b}{7}}
-\newlabel{sub@refgetter}{{b}{7}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Algorithm running time comparison\relax }}{7}}
-\newlabel{fig:test}{{5}{7}}
-\@writefile{toc}{\contentsline {section}{\numberline {10}Conclusion}{7}}
+\newlabel{fig:sub1}{{5a}{8}}
+\newlabel{sub@fig:sub1}{{a}{8}}
+\newlabel{refgetter}{{5b}{8}}
+\newlabel{sub@refgetter}{{b}{8}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Algorithm running time comparison\relax }}{8}}
+\newlabel{fig:test}{{5}{8}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Conclusions}{8}}
+\newlabel{sect:conclusions}{{6}{8}}
 \citation{taylor2010overview}
 \citation{chen2012business}
 \citation{griffioen1994reducing}
@@ -51,8 +75,10 @@
 \bibdata{references}
 \bibcite{cloudbatch}{{1}{}{{}}{{}}}
 \bibcite{borthakur2011apache}{{2}{}{{}}{{}}}
-\@writefile{toc}{\contentsline {section}{\numberline {11}Applications}{8}}
-\@writefile{toc}{\contentsline {section}{\numberline {12}Future work}{8}}
+\@writefile{toc}{\contentsline {section}{\numberline {7}Applications}{9}}
+\newlabel{sect:applications}{{7}{9}}
+\@writefile{toc}{\contentsline {section}{\numberline {8}Future work}{9}}
+\newlabel{sect:future_work}{{8}{9}}
 \bibcite{chen2012business}{{3}{}{{}}{{}}}
 \bibcite{das2010ricardo}{{4}{}{{}}{{}}}
 \bibcite{mapreduce}{{5}{}{{}}{{}}}
@@ -75,4 +101,5 @@
 \bibcite{cache}{{22}{}{{}}{{}}}
 \bibcite{wang1999survey}{{23}{}{{}}{{}}}
 \bibcite{wang2009kepler+}{{24}{}{{}}{{}}}
+\bibcite{spark}{{25}{}{{}}{{}}}
 \providecommand\NAT@force@numbers{}\NAT@force@numbers

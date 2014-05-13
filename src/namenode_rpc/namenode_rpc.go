@@ -76,7 +76,8 @@ type ResponseObject struct {
 }
 
 //this method figures out, given a request, what kind of new packet to build
-func BuildResponsePacket(buf []byte, packetNumber uint32, currRequest *RequestPacket) ResponsePacket {
+func BuildResponsePacket(buf []byte, packetNumber uint32, 
+	currRequest *RequestPacket) ResponsePacket {
 	if currRequest == nil {
 		return NewGenericResponsePacket(buf, packetNumber)
 	}
@@ -119,7 +120,8 @@ func (grp *GenericResponsePacket) GetBuf() []byte {
 	return grp.Buf
 }
 
-func NewGenericResponsePacket(buf []byte, packNum uint32) *GenericResponsePacket {
+func NewGenericResponsePacket(buf []byte, packNum uint32) 
+*GenericResponsePacket {
 	grp := GenericResponsePacket{Buf: buf, 
 		PacketNumber: packNum}
 	return &grp
@@ -267,14 +269,16 @@ func (rp *RequestPacket) Load(buf []byte) error {
 
 		rp.Parameters[i] = *(NewParameter())
 		//now read in all the fields one by one
-		binary.Read(byte_buffer, binary.BigEndian, &(rp.Parameters[i].TypeLength))
+		binary.Read(byte_buffer, binary.BigEndian, &(
+		rp.Parameters[i].TypeLength))
 
 		//create space for and read in the type of this parameter
 		rp.Parameters[i].Type = make([]byte, rp.Parameters[i].TypeLength)
 		byte_buffer.Read(rp.Parameters[i].Type)
 
 
-		binary.Read(byte_buffer, binary.BigEndian, &(rp.Parameters[i].ValueLength))
+		binary.Read(byte_buffer, binary.BigEndian, &(
+		rp.Parameters[i].ValueLength))
 
 		//create space for and read in the value of this parameter
 		rp.Parameters[i].Value = make([]byte, rp.Parameters[i].ValueLength)
@@ -402,7 +406,6 @@ type GetFileInfoResponse struct {
 	ObjectNameLength uint16
 	ObjectName []byte
 
-	//TODO not exactly sure why there are two of these...
 	ObjectNameLength2 uint16
 	ObjectName2 []byte
 
@@ -419,7 +422,6 @@ type GetFileInfoResponse struct {
 	ModifiedTime uint64
 	AccessTime uint64
 
-	//TODO not exactly sure what the two 
 	//file permission headers specify
 	FilePermission2 uint16
 
@@ -464,7 +466,7 @@ func (gf *GetFileInfoResponse) Bytes() []byte {
 //load the response, reading each of the fields in the 
 //struct described above.
 
-//TODO neeed to do error checking on a lot of these 'reads'
+
 func (gf *GetFileInfoResponse) Load(buf []byte) error {
 	var err error
 
@@ -517,12 +519,12 @@ func (gf *GetFileInfoResponse) Load(buf []byte) error {
 	gf.Loaded = true
 	gf.LoadedBytes = buf
 
-	//TODO not error checking the binary.Read()s
+	
 	return nil
 }
 
 //a getListing response packet (typically returned on a dfs -ls)
-//TODO POTENTIAL BUG this structure has not
+
 //been unit tested, primarily because only the 
 //packet number is currently being used
 type GetListingResponse struct {
@@ -571,7 +573,7 @@ func (glr *GetListingResponse) Load(buf []byte) error {
 	//the rest of the buffer should be listing message
 	glr.Listing = byteBuffer.Bytes()
 
-	//TODO POTENTIAL BUG do some error checking before we
+	
 	//just return nil
 	return nil
 }
@@ -590,7 +592,7 @@ func NewPacketPair() *PacketPair {
 
 /*
     HDFS authentication length: 
-    HDFS authorization bits: .org.apache.hadoop.hdfs.protocol.ClientProtocol\001
+    HDFS authorization bits: .org.apache.hadoop.hdfs.protocol.ClientProtocol
     HDFS length: 108
     HDFS packet number: 0
     HDFS name length: 18

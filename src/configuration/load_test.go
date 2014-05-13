@@ -22,7 +22,8 @@ func TestLoadFile (t *testing.T) {
 
 	conf, err := LoadFile("example_conf.json")
 	if err != nil {
-		fmt.Println("Encountered error in loading configuration file: ", err)
+		fmt.Println("Encountered error in loading configuration file: ", 
+		err)
 		t.FailNow()
 	}
 	fmt.Println("Example conf: ", exampleConf)

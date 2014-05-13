@@ -35,16 +35,21 @@ func (gfi_cache *GetFileInfoCache) Disable() {
 	gfi_cache.Cache.Enabled = false
 }
 
-//Query the cache. Returns nil if req is not found in the cache or the Enabled is set to false.
-//gfi_cache.Cache.Query should NOT be called since it suses the wrong kind of equality comparator
-func (gfi_cache *GetFileInfoCache) Query(req namenode_rpc.ReqPacket) namenode_rpc.ResponsePacket {
+//Query the cache. Returns nil if req is not found in the cache or the Enabled is set to 
+//false.
+//gfi_cache.Cache.Query should NOT be called since it suses the wrong kind of equality 
+//comparator
+func (gfi_cache *GetFileInfoCache) Query(
+	req namenode_rpc.ReqPacket) namenode_rpc.ResponsePacket {
+	
 	util.DebugLogger.Println("in GetFileInfoCache.Query()")
 	//if the cache is not enabled, we keep returning nil
 	if !gfi_cache.enabled {
 		return nil
 	}
 
-	equals := EqualityFunc(func(req1 namenode_rpc.ReqPacket, req2 namenode_rpc.ReqPacket) bool {
+	equals := EqualityFunc(func(req1 namenode_rpc.ReqPacket, req2 namenode_rpc.ReqPacket) 
+	bool {
 		//the conditions mean the directory being queried and the method called
 		//are the same
 		methodName1 := string(req1.GetMethodName())

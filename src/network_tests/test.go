@@ -21,7 +21,8 @@ func main() {
 
 	bytesRead, err := conn.Read(byteBuffer)
 	if bytesRead < 0 || err != nil {
-		fmt.Println("Error occurred in reading from the server: ", err.Error())
+		fmt.Println("Error occurred in reading from the server: ", 
+		err.Error())
 		return
 	}
 

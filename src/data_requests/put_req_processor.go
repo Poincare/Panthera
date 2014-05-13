@@ -21,7 +21,8 @@ as a relay between Hadoop and the DataNode.
 //onto the DataNode. This method is needed because 
 //once the request is read, it still has to be forwarded
 //to the DataNode
-func ForwardPutDataRequest(request *datanode_rpc.PutDataRequest, conn net.Conn, dataNode net.Conn) {
+func ForwardPutDataRequest(request *datanode_rpc.PutDataRequest, 
+conn net.Conn, dataNode net.Conn) {
 	dataBytes, err := request.Bytes()
 	if err != nil {
 		util.DebugLogger.Println("Could not ForwardPutDataRequest(): ", err)
@@ -51,7 +52,8 @@ func (p *PutRequestProcessor) HandleConnection(conn net.Conn, dataNode net.Conn)
 		bytesRead, err := conn.Read(buf)
 		if err != nil {
 			//we can't really do anything if there's an error: just gotta keep going
-			util.DebugLogger.Println("Error occurred while reading in PutRequestProcessor.HandleConnection: ", err)
+			util.DebugLogger.Println("Error occurred while reading in 
+			PutRequestProcessor.HandleConnection: ", err)
 			continue
 		}
 
@@ -59,7 +61,8 @@ func (p *PutRequestProcessor) HandleConnection(conn net.Conn, dataNode net.Conn)
 		buf = buf[0:bytesRead]
 		_, err = dataNode.Write(buf)
 		if err != nil {
-			util.DebugLogger.Println("Errror occurred while writing in PutRequestProcessor.HandleConnection: ", err)
+			util.DebugLogger.Println("Errror occurred while writing in 
+			PutRequestProcessor.HandleConnection: ", err)
 		}
 	}
 }
@@ -71,14 +74,16 @@ func (p *PutRequestProcessor) HandleHDFS(conn net.Conn, dataNode net.Conn) {
 		bytesRead, err := dataNode.Read(buf)
 
 		if err != nil {
-			util.DebugLogger.Println("Error occurred while reading in PutRequestProcessor.HandleHDFS: ", err)
+			util.DebugLogger.Println("Error occurred while reading in
+			 PutRequestProcessor.HandleHDFS: ", err)
 			continue
 		}
 
 		buf = buf[0:bytesRead]
 		_, err = conn.Write(buf)
 		if err != nil {
-			util.DebugLogger.Println("Error occurred while writing in PutRequestProcessor.HandleHDFS", err)
+			util.DebugLogger.Println("Error occurred while writing in 
+			PutRequestProcessor.HandleHDFS", err)
 			continue
 		}
 	}

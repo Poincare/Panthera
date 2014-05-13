@@ -148,4 +148,11 @@ Jianwu Wang, Daniel Crawl, and Ilkay Altintas.
 \newblock In {\em Proceedings of the 4th Workshop on Workflows in Support of
   Large-Scale Science}, page~12. ACM, 2009.
 
+\bibitem{spark}
+Matei Zaharia, Mosharaf Chowdhury, Michael~J Franklin, Scott Shenker, and Ion
+  Stoica.
+\newblock Spark: cluster computing with working sets.
+\newblock In {\em Proceedings of the 2nd USENIX conference on Hot topics in
+  cloud computing}, pages 10--10, 2010.
+
 \end{thebibliography}

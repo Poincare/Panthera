@@ -42,46 +42,63 @@ Scheduling in Distributed Computing Systems}
 }
 
 \section{Introduction}
-As computational problems and their associated datasets have grown in size, it has become necessary to take advantage of distributed computing systems to solve them \cite{taylor2010overview}. Such systems allow programs to scale from one computer (i.e. one \textit{node}) to thousands of computers with few or no changes in the codebase. In particular, the Hadoop distributed system \cite{hadoop} has seen tremendous growth. Hadoop is an open source version of the revolutionary MapReduce system developed at Google \cite{mapreduce}. With it, developers can easily take advantage of large, multi-node clusters to solve computational problems.
+As computational problems and their associated datasets have grown in size, it has become necessary to take advantage of distributed computing systems to solve them \cite{taylor2010overview}. Such systems allow programs to scale from one computer (i.e. one \textit{node}) to thousands of computers with few or no changes in the codebase. In particular, the Hadoop distributed system \cite{hadoop} has seen tremendous growth. Hadoop is an open source implementation of the revolutionary MapReduce system developed at Google \cite{mapreduce}. With it, developers can easily take advantage of large, multi-node clusters to solve computational problems.
 
-Current Hadoop deployments exist in the thousands of nodes at companies such as Cloudera, Facebook, Yahoo, etc. Especially in such large networks, \textit{access latency}, or the waiting time associated with accessing files through the Hadoop Distributed File System (\textit{HDFS}), is a significant concern. Latency in distributed systems can have significant effects and a reduction of the same comes with tremendous benefits. As the RAMCloud project has outlined \cite{ramcloud}, low latency can greatly extend the applications of distributed computing systems. For example, tree traversal algorithms are largely impractical in high latency systems such as Hadoop \cite{ramcloud}, however, with lowered latency, such algorithms may become useful and applicable. HDFS currently does not use local (i.e. on the client) random access memory (RAM) to improve latency.
+Hadoop consists of a computational layer termed \textit{MapReduce} and a custom distributed filesystem named \textit{Hadoop Distributed File System (HDFS)}. HDFS is used to allow all nodes in a cluster access to the same dataset. For instance, one may consider running an algorithm that counts the frequency of each word in a large text file. If this algorithm is run on a Hadoop cluster, each node must have access to the file in question in order to determine word frequency.
 
-In this paper, I present \textit{Panthera}, a \textit{cache layer} and \textit{cache-based scheduling system} for Hadoop. The \textit{Panthera} cache layer functions by retaining recently accessed files in random access memory, thus, when the files are needed once again, they do not have to be downloaded or read from the hard drive, thereby greatly reducing file access latency. Another portion of the project, the \textit{Panthera} scheduling system utilizes information about the data blocks cached in a cluster at a given time to schedule jobs. By doing so, it aims to maximize the benefit of caching to a series of jobs.
+Current Hadoop deployments exist in the thousands of nodes at companies such as Cloudera, Facebook, Yahoo, etc. Especially in such large networks, \textit{access latency}, or the waiting time associated with accessing files and related information through the Hadoop Distributed File System (\textit{HDFS}), is a significant concern \cite{hdfs}. Latency in distributed systems can have significant effects and a reduction of the same comes with tremendous benefits. As the RAMCloud project has outlined \cite{ramcloud}, low latency can greatly extend the applications of distributed computing systems. For example, algorithms that require files other than the input file are largely impractical in high latency systems such as Hadoop \cite{ramcloud, spark}. A similar case exists with jobs (or sets of jobs) that consist of multiple passes over the same dataset; many of these exist in the field of machine learning, analytics, etc. \cite{spark}. However, with lowered latency, such algorithms may become useful and applicable. HDFS currently does not use local (i.e. on the client) random access memory (RAM) to improve latency.
 
-In this paper, we discuss both the \textit{Panthera} caching layer and scheduling system. In Section 2, we discuss the specific challenges associated with such a project. Section 3 details the architecture differences between a standard Hadoop installation and one with \textit{Panthera}.  Sections 4 and 5 detail the differences between metadata and data caching within \textit{Panthera}. Results and conclusions are covered in Sections 6, 7, 8, 9, concluding with a roadmap for future development in Section 10.
+I present \textit{Panthera}, a \textit{cache layer} and \textit{cache-based scheduling system} for Hadoop. The \textit{Panthera} cache layer functions by retaining recently accessed files and related information in random access memory. Thus, when the files are needed once again, they do not have to be downloaded or read from the hard drive, thereby greatly reducing file access latency. Another portion of the project, the \textit{Panthera} scheduling system utilizes information about the data blocks cached in a cluster at a given time to schedule jobs. By doing so, it aims to maximize the benefit of caching to a series of jobs.
 
-\section{Design Constraints}
+In this paper, the \textit{Panthera} caching layer and scheduling system are presented. In Section \ref{sect:architecture}, motivation and construction of the \textit{Panthera} architecture are explained. Section~\ref{sect:caching_layer} describes the caching layer portion of this project. Section~\ref{sect:scheduler} presents the scheduling algorithm and implementation details. The results and data are noted in Section~\ref{sect:results}. Finally, Sections \ref{sect:conclusions}, \ref{sect:applications}, \ref{sect:future_work} conclude with an interpretation of the results, discussion of potential applications and future work.
 
-There are several systems built on Hadoop that are in widespread use \cite{hbase, cloudbatch, pig}. The Hadoop project is also supported by large corporations with a 
-consistent release cycle. Thus, for \textit{Panthera} to be practical, it must operate independently of the existing Hadoop codebase, i.e. as a layer, rather than modification. This implies that \textit{Panthera} must implemented without a single change in the existing Hadoop codebase, i.e. as a "drop-in" solution. Additionally, for non-cache related requests, \textit{Panthera} must add insignificant latency. Finally, data and metadata request latency should be significantly lowered with \textit{Panthera} in comparison to a standard Hadoop installation. 
+\section{Architecture} \label{sect:architecture}
+\subsection{Design Constraints}  \label{design_constraints}
+The primary goal of the \textit{Panthera} project is to reduce access latency in HDFS. Therefore, data and metadata request latency should be significantly lowered with \textit{Panthera} in comparison to the control group of a standard Hadoop installation. 
 
-In order to develop a cache-based scheduling system, the \textit{Panthera} caching layer must be able to report information (e.g. blocks currently cached) over the network. The cache-based scheduler then uses information about blocks cached and the files each job requires to run in order to optimize the running order of a set of jobs (see Section \ref{scheduler-section} for a complete description of the \textit{Panthera} scheduling algorithm).
+There are many systems built on Hadoop that are in widespread use \cite{hbase, cloudbatch, pig}. The Hadoop project is also supported by large corporations with a 
+consistent release cycle. Thus, for \textit{Panthera} to be practical, it must opedrate independently of the existing Hadoop codebase, i.e. as a layer, rather than modification. This implies that \textit{Panthera} must implemented without a single change in the existing Hadoop codebase, i.e. as a ``drop-in'' solution. This is due to the fact that a deviation from the mainline Hadoop codebase would have to updated at the same pace as the vanilla Hadoop, which would be contrary the benefits of Hadoop's large and active development community.  Also, since \textit{Panthera} does not require any code modifications to existing Hadoop applications, allowing it to be easily integrated into current software stacks. 
 
-\section{Metadata and Data}
+In order to develop a cache-based scheduling system, the \textit{Panthera} caching layer must be able to report information (e.g. blocks currently cached) over the network. The cache-based scheduler then uses information about blocks cached and the files each job requires to run in order to optimize the running order of a set of jobs (see Section \ref{sect:scheduling} for a complete description of the \textit{Panthera} scheduling algorithm).
 
-Within the Hadoop File System (HDFS), there is a clear distinction between \textit{metadata} and \textit{data} \cite{hdfs}. Metadata refers to information about a file or a directory, e.g. file size, file names, on which server the contents of a file are located, etc. For HDFS, the NameNode server handles all metadata. For every request, the NameNode recomputes metadata. \textit{Panthera} can reduce this computation by caching the results of a previous request, thereby conserving resources.
+\subsection{Metadata and Data} \label{metadata_and_data}
+
+Within the Hadoop File System (HDFS), there is a clear architectural distinction between \textit{metadata} and \textit{data} \cite{hdfs}. Metadata refers to information about a file or a directory, e.g. file size, file names, the location of a file in the cluster, etc. For HDFS, the NameNode server handles all metadata. For every request, the NameNode recomputes metadata. \textit{Panthera} can reduce this computation by caching the results of a previous request, thereby conserving resources.
 
 Data refers to the actual content of a file. Within HDFS, each file is split into 64 MB large \textit{blocks}, which are stored on DataNodes. Here, \textit{Panthera} serves to reduce access time by holding recently used blocks in RAM locally thereby eliminating the need to download files from a remote server if they are present in the cache.
 
 Metadata and data caching provide significantly different technical challenges as the former involves conversion of computational latency to memory latency, whereas the latter involves a conversion of network and hard drive latency to memory latency. Note: memory latency is of the smallest magnitude of all three in consideration. In many cases \cite{ramcloud} it is 1/1000th hard drive latency.
 
-\section{Architecture}
-\begin{figure}[!h]
-	\centering
-	\includegraphics[scale=0.4]{assets/hadoop_architecture.pdf}
-	\includegraphics[scale=0.4]{assets/panthera_architecture.pdf}
-  \caption{Standard Hadoop Architecture (left), \textit{Panthera}-Hadoop Architecture (right)}
-  \label{arch}
-  
+\subsection{Panthera Architecture} \label{architecture_sect}
+\begin{figure}
+\centering
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[scale=0.4]{assets/hadoop_architecture.pdf}
+  \caption{Vanilla Hadoop architecture}
+  \label{fig:vanilla_arch}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[scale=0.4]{assets/panthera_architecture.pdf}
+  \caption{Panthera-Hadoop architecture}
+  \label{fig:panthera_arch}
+\end{subfigure}
+\label{fig:arch}
 \end{figure}
 
-Figure~\ref{arch} outlines the architecture differences between a standard Hadoop File System architecture and an installation with \textit{Panthera}. In HDFS, the \textit{NameNode} serves as a metadata server, handling all requests from clients relating to metadata (e.g. directory listing, file sizes, block locations, etc.). \textit{DataNode(s)} hold data and serve it at request from the client. A more complete description of the Hadoop File System may be found in \cite{hadoop}.
 
-\textit{Panthera} operates by intercepting requests and responses at the NameNode and the client. Both nodes have a running instance of \textit{Panthera}. Every request issued from the client is first reviewed by \textit{Panthera}, and if possible, answered immediately from the cache. The \textit{Panthera} instance on the NameNode constantly monitors the filesystem for changes that need to be reflected in the cache (e.g. if a file is deleted, the cache on the client should not have a copy of it).
+Figure~\ref{architecture_sect} outlines the architecture differences between a standard Hadoop File System architecture and an installation with \textit{Panthera}. In HDFS, the \textit{NameNode} serves as a metadata server, handling all requests from clients relating to metadata (e.g. directory listing, file sizes, block locations, etc.). \textit{DataNode(s)} hold data and serve it at request from the client. In order to read or write a file, a client first obtains permission from the NameNode and subsequently communicates with a DataNode to complete the operation. Though the aforementioned background is sufficient for this paper, a more complete description of the Hadoop File System may be found in \cite{hadoop}.
 
-\textit{Panthera}, since it caches both data and metadata, can be considered two separate subsystems, which are now discussed.
+\textit{Panthera} operates by intercepting requests and responses at the NameNode and the client. Both nodes have a running instance of \textit{Panthera}. Every request issued from the client is first reviewed by \textit{Panthera}, and if possible, answered immediately from the cache. If the response is not found in the cache, certain requests are cached and subsequent responses are associated with the request in consideration.
 
-\section{Metadata caching}
+The \textit{Panthera} instance on the NameNode serves as a cache refresh mechanism. Though sparse in the Hadoop environment since input files are usually not written to in the MapReduce computational paradigm, files that are cached may become out-of-date, i.e. the cache becomes "stale". The \textit{Panthera} instance on the NameNode monitors the filesystem for changes and reports certain changes to Panthera caches, which then remove stale files from the cache. The refresh mechanism is particularly important for metadata caching where the cached information is far more likely to change during the execution of a job.
+
+The \textit{Panthera} cache layer, since it caches both data and metadata, can be considered two separate subsystems, which are now discussed.
+
+\section{Panthera Caching Layer} \label{sect:caching_layer}
+A significant portion of Panthera is a caching layer for Hadoop, the details of which are now covered. 
+\subsection{Metadata caching} \label{sect:metadata_caching}
 
 \begin{figure}[!h]
 	\caption{\textit{Panthera} Metadata System}
@@ -89,13 +106,13 @@ Figure~\ref{arch} outlines the architecture differences between a standard Hadoo
 		\includegraphics[scale=0.4]{assets/panthera_meta_architecture.pdf}
 \end{figure}
 
-The \textit{Panthera} metadata system runs on the NameNode and communicates with the \textit{Panthera} instance on the client. The challenge on the metadata portion consist of reducing computational latency to memory latency. For example, for some intensive methods (e.g. a recursive directory listing), it may be worthwhile to cache a response in order to prevent computing the same list again.
+The \textit{Panthera} metadata system runs on the NameNode and communicates with the \textit{Panthera} instance on the client. The challenge on the metadata portion consists of converting computational latency to memory latency. For example, for some intensive methods (e.g. a recursive directory listing), it may be worthwhile to cache a response in order to prevent computing the same list again.
 
-However, the problem lies in identifying such methods. Obviously, there are some methods for which caching is not worthwhile since their execution time is lower or comparable to memory latency. Within \textit{Panthera}, six different Hadoop query methods were identified as medium to high latency. \textit{Panthera} identifies packets that contain these methods and subsequently caches them.
+However, the problem lies in identifying such methods. Obviously, there are some methods for which caching is not worthwhile since their execution time is lower or comparable to memory latency. Within Hadoop, there are several methods that incur very significant computational latency, e.g. a recursive directory listing. Only these methods are cached within Panthera.
 
-Currently, a standard LRU cache \cite{cache} is used for each method. Testing of different caching methods and predictive prefetching algorithms is under way.
+Currently, a standard LRU cache \cite{cache} is used for each method. Testing of different caching methods and predictive prefetching algorithms \cite{griffioen} is under way.
 
-\section{Data caching}
+\subsection{Data caching} \label{sect:data_caching}
 
 \begin{figure}[!h]
 	\caption{\textit{Panthera} Data System}
@@ -105,11 +122,16 @@ Currently, a standard LRU cache \cite{cache} is used for each method. Testing of
 
 \textit{Panthera}'s data caching system runs on the client. The architecture is similar to that of the metadata caching system. Every request that the client makes to the DataNodes is first processed by \textit{Panthera} and responded to from the cache if possible. 
 
-The challenges with data caching differ significantly from those in metadata caching. Here, the goal is to convert network and hard drive read latency into memory latency. As \cite{ramcloud, hadoop} note, memory latency can be extremely low in modern systems, especially in comparison to network and hard drive latencies. Thus, in some respects, the goal of lowered latency is "easier" to attain in the data cache. However, for smaller files, it may be difficult to obtain latency improvement.
+The challenges with data caching differ significantly from those in metadata caching. Here, the goal is to convert network and hard drive read latency into memory latency. As \cite{ramcloud, hadoop} note, memory latency can be extremely low in modern systems, especially in comparison to network and hard drive latencies. Thus, in some respects, the goal of lowered latency is ``easier'' to attain in the data cache in comparison to the metadata cache. 
 
-Hadoop, in professional and academic environments, is often used with series rather than individual jobs. Deciding how to order these jobs depending on cached file availability is a problem of great interest; \textit{Panthera} presents the solution of a cache-based scheduler for Hadoop.
+\section{Scheduler} \label{sect:scheduler}
+\subsection{Hadoop Job Structure}
+Hadoop, in professional and academic environments, is often used with series rather than individual jobs. For example, in machine learning, various algorithms (termed \textit{iterative machine learning algorithms}) consist of multiple Hadoop jobs rather than a single job \cite{spark}. In Hadoop-based querying systems \cite{hive, pig}, a set of queries may consist of jobs that are entirely independent of one-another. Deciding how to order these jobs depending on cached file availability is a problem of great interest; \textit{Panthera} presents the solution of a cache-based scheduler for Hadoop.
 
-\section{Scheduling Algorithm} \label{scheduler-section}
+\subsection{Cluster Saturation}
+It may be asked why it is not possible to run independent jobs in parallel on the Hadoop cluster. Each node in a given cluster has a maximum number of \textit{map} or \textit{reduce} calls (i.e. the basic computational units in Hadoop) it may process at a given time. If a job saturates nodes in a cluster, running another job concurrently would provide no running time benefit. Thus, a scheduler is useful since it may organize independent jobs in a beneficial ordering. In \textit{Panthera}, this ordering is based on the files or blocks present in the cluster's caches.
+
+\subsection{Scheduling Algorithm} \label{sect:scheduling}
 
 The scheduling problem faced may be stated as: 
 
@@ -127,14 +149,15 @@ Each $J_i$ accesses a set of blocks $F_i$ and each $C_i$ holds a set of blocks $
 			with each $J_i$. 
 			
 		While $J_i$ is running, \textit{Panthera} may prefetch data for $J_{i+1}$ to further reduce latency. An implementation of predictive prefetching algorithms as described in \cite{griffioen1994reducing} is possible in \textit{Panthera} and may serve to further reduce latency in specific applications.
-		
-\section{Testing Methodology}
 
+\section{Results} \label{sect:results}
+
+\subsection{Testing Methodology}
 In order to test the metadata cache, a directory listing query was repeatedly run on a directory with 100 files in it, and the latency times for responding are measured, with \textit{Panthera} and without. The reasoning for picking such a test lies in the fact that a directory listing in Hadoop involves all six of the cached methods as well as a few non-cached methods. Thus, the test provides a good estimate of the efficacy of the cache. Latency times for the data cache were obtained by repeatedly querying for a 64 megabyte large file. The file size was chosen since it is the default block size for a Hadoop cluster and the \textit{Panthera} cache stores files as blocks. Both metadata and data cache testing was conducted on virtualized server instances running on hardware with solid state hard drives. 
 
 In order to test the effects of \textit{Panthera} on the Hadoop computing system (rather than focusing on only HDFS access time), running times of two existing algorithms were recorded. The first is \textit{WordCount}, the classic distributed algorithm that counts the number of occurrences of each word in a text file. The second has been, termed \textit{RefCount}, has thus far been impractical on Hadoop due to excessive running times. It is similar to WordCount in that it counts occurrences of words, but it consults a \textit{reference file} (e.g. a limited dictionary) to determine which words are to be counted.
 
-\section{Results}
+\subsection{Results}
 \begin{figure}
 \centering
 \begin{subfigure}{.5\textwidth}
@@ -193,13 +216,13 @@ The tests with existing Hadoop algorithms show similarly positive results. \text
 \label{fig:test}
 \end{figure}
 
-\section{Conclusion}
+\section{Conclusions}\label{sect:conclusions}
 
 \textit{Panthera} fulfils all of the constraints mentioned at the outset. It is a layer on Hadoop rather than a main repository code modification, allowing existing Hadoop applications to remain entirely unmodified. Considering the latency measurements, it is clear that it has also met the requirements in terms of benefit. \textit{Panthera} was able to reduce data access latency by a factor of 8.63 and reduce basic metadata access latency by 8.13. Also, \textit{Panthera} was able to minimize the spread of latency times in both data and metadata requests. Thus, \textit{Panthera} opens up great possibilities within Hadoop due to the fact that algorithms that were previously impractical (e.g. distributed tree traversal algorithms) may now be implemented. Additionally, a scheduler algorithm was devised and a cache-based scheduler was implemented for Hadoop which enables further reduction of latency via greater utilization of cached resources.
 
 Previous work \cite{hdfs, borthakur2011apache} has lamented the latency issues that have plagued HDFS and Hadoop as barriers to adoption. \textit{Panthera} significantly reduces the scope of these issues and allows the application of Hadoop in areas where its reach has been limited.
 
-\section{Applications}
+\section{Applications}\label{sect:applications}
 One of the major benefits of the systems developed is that they are independent of the existing Hadoop codebase and they do not require modifications to existing Hadoop applications. Thus, \textit{Panthera} may be deployed in a wide range of scenarios, such as the following:
 
 \begin{itemize}
@@ -212,7 +235,7 @@ One of the major benefits of the systems developed is that they are independent 
 	job ordering.
 \end{itemize}
 
-\section{Future work}
+\section{Future work}\label{sect:future_work}
 One of the most immediate avenues for further research is in \textit{domain-specific prefetching}. Different problem domains (e.g. natural language processing, predictive analytics, etc.) have different dataset requirements. It may be possible to predict what files a given job will need depending
 on what problem domain the job is in. A generalized version of the same problem would be \textit{predictive prefetching} \cite{griffioen1994reducing} which involves the prediction and prefetching of files that will be required in the future. In both these problems, the Hadoop environment provides unique
 challenges.

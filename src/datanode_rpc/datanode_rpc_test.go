@@ -123,8 +123,10 @@ func TestDataResponseLoad(t *testing.T) {
 	dResp.Load(DataResponseTestCase)
 
 	if !reflect.DeepEqual(*dResp, DataResponseTestExpected) {
-		fmt.Println("Not equal, expected: ", DataResponseTestExpected, " got: ", *dResp)
-		fmt.Println("Expected data: ", string(DataResponseTestExpected.Data), "got bytes: ", string(dResp.Data))
+		fmt.Println("Not equal, expected: ", DataResponseTestExpected, 
+		" got: ", *dResp)
+		fmt.Println("Expected data: ", string(DataResponseTestExpected.Data), 
+		"got bytes: ", string(dResp.Data))
 		t.Fail()
 	}
 }
@@ -135,8 +137,10 @@ func TestDataResponseLoadTwo(t *testing.T) {
 	dResp.Load(DataResponseTestCase2)
 
 	if !reflect.DeepEqual(*dResp, DataResponseTestExpected2) {
-		fmt.Println("Not equal, expected: ", DataResponseTestExpected2, " got: ", *dResp)
-		fmt.Println("Expected data: ", string(DataResponseTestExpected2.Data), "got bytes: ", string(dResp.Data))
+		fmt.Println("Not equal, expected: ", DataResponseTestExpected2, 
+		" got: ", *dResp)
+		fmt.Println("Expected data: ", string(DataResponseTestExpected2.Data), 
+		"got bytes: ", string(dResp.Data))
 		t.Fail()		
 	}
 }

@@ -39,8 +39,10 @@ var TempLogger *log.Logger
 //cleared at every run
 var TempLoggerLogFile = "../../logs/temp.log"
 
-//NOTE this is a relative path; in deployment, the executable needs to be in the same directory
-//this file otherwise there will be problems in loading the logging configuration (it will
+//NOTE this is a relative path; in deployment, the executable needs to
+// be in the same directory
+//this file otherwise there will be problems in loading the logging 
+//configuration (it will
 //just default to the development values).
 var LoggingConfFile = "logging.json"
 
@@ -55,7 +57,6 @@ func InitLoggingConfiguration() error {
 }
 
 func InitTempLogger() error {
-	//tempLogFile, err := os.OpenFile(TempLoggerLogFile, os.O_WRONLY | os.O_CREATE, 0666)
 	tempLogFile, err := os.Create(TempLoggerLogFile)
 	
 	if err != nil {
@@ -67,7 +68,8 @@ func InitTempLogger() error {
 }
 
 func InitDataReqLogger() error {
-	dataLogFile, err := os.OpenFile(DataReqLogFile, os.O_RDWR | os.O_CREATE | os.O_APPEND, 0666)
+	dataLogFile, err := os.OpenFile(DataReqLogFile, os.O_RDWR 
+	| os.O_CREATE | os.O_APPEND, 0666)
 	if err != nil {
 		return err
 	}
@@ -86,7 +88,8 @@ func InitDebugLogger() error {
 }
 
 func InitNoCacheLatencyLogger() error {
-	noCacheLogFile, err := os.OpenFile(NoCacheLatencyLogFile, os.O_RDWR | os.O_CREATE | os.O_APPEND, 0666)
+	noCacheLogFile, err := os.OpenFile(NoCacheLatencyLogFile, os.O_RDWR 
+	| os.O_CREATE | os.O_APPEND, 0666)
 	if err != nil {
 		return err
 	}
@@ -98,7 +101,8 @@ func InitNoCacheLatencyLogger() error {
 }
 
 func InitCachedLatencyLogger() error {
-	cachedLogFile, err := os.OpenFile(CachedLatencyLogFile, os.O_RDWR | os.O_CREATE | os.O_APPEND, 0666)
+	cachedLogFile, err := os.OpenFile(CachedLatencyLogFile, os.O_RDWR 
+	| os.O_CREATE | os.O_APPEND, 0666)
 	if err != nil {
 		return err
 	}
@@ -109,7 +113,8 @@ func InitCachedLatencyLogger() error {
 }
 
 func InitNonMetaCachedLatencyLogger() error {
-	file, err := os.OpenFile(NonMetaCachedLatencyLogFile, os.O_RDWR | os.O_CREATE | os.O_APPEND, 0666)
+	file, err := os.OpenFile(NonMetaCachedLatencyLogFile, os.O_RDWR 
+	| os.O_CREATE | os.O_APPEND, 0666)
 	if err != nil {
 		return err
 	}
@@ -120,7 +125,8 @@ func InitNonMetaCachedLatencyLogger() error {
 }
 
 func InitMetaCachedLatencyLogger() error {
-	metaCacheLogFile, err := os.OpenFile(MetaCachedLatencyLogFile, os.O_RDWR | os.O_CREATE | os.O_APPEND, 0666)
+	metaCacheLogFile, err := os.OpenFile(MetaCachedLatencyLogFile, os.O_RDWR 
+	| os.O_CREATE | os.O_APPEND, 0666)
 	if err != nil {
 		return err
 	}

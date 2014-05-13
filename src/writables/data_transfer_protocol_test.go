@@ -90,7 +90,8 @@ func TestReadRequestHeaderEquals(t *testing.T) {
 
 	if !r1.Equals(r2) {
 		fmt.Println("R1 wasn't equal to R2 when it was supposed to.")
-		fmt.Println("Client names equal? : ", r1.ClientName.Equals(r2.ClientName))
+		fmt.Println("Client names equal? : ", r1.ClientName.Equals(
+		r2.ClientName))
 		t.Fail()
 	}
 

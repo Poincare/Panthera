@@ -33,7 +33,6 @@ func (glc *GetListingCache) Disable() {
 }
 
 
-//TODO POTENTIAL BUG this method has not been unit tested
 func (glc *GetListingCache) Query(req namenode_rpc.ReqPacket) namenode_rpc.ResponsePacket {
 	//if the cache is not enabled, we keep returning nil
 	if !glc.IsEnabled() {

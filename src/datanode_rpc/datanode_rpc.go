@@ -18,11 +18,7 @@ type ReqPacket interface {
 	Equals(ReqPacket) bool
 }
 
-//TODO POTENTIAL BUG:
-//this packet structure has been
-//obtained from the Wireshark
-//specification; have to double
-//check the validity of the structure
+
 type DataRequest struct {
 	ProtocolVersion uint16
 	Command uint8
@@ -228,7 +224,6 @@ func NewDataRequest() *DataRequest {
 	return &dr
 }
 
-//TODO this code is incredibly bashy
 //Compares two dataRequests. Note that the 
 //ClientId and ClientIdLength are not compared
 //since those are largely irrelevant.
@@ -295,8 +290,7 @@ func (dr *DataRequest) Equals(p ReqPacket) bool {
 	return false
 }
 
-//TODO error checking in this function is just nonsensical; find some
-//other way to do it.
+
 func (dr *DataRequest) Bytes() ([]byte, error) {
 	byte_buffer := new(bytes.Buffer)
 
@@ -349,7 +343,8 @@ func (dr *DataRequest) Bytes() ([]byte, error) {
 		return []byte{}, err
 	}
 
-	err = binary.Write(byte_buffer, binary.BigEndian, dr.AccessPasswordLength)
+	err = binary.Write(byte_buffer, binary.BigEndian, 
+	dr.AccessPasswordLength)
 	if err != nil {
 		return []byte{}, err
 	}
@@ -411,7 +406,8 @@ func LiveReadInitial(byte_buffer io.Reader) (*InitialRead, error) {
 //called to decide what kind of packet to load
 //Note: prevPDR is a boolean value which tells us whether or not the 
 //the previous request was a PutDataRequest.
-func LoadRequestPacket(byteBuffer io.Reader, prevPDR bool) (ReqPacket, error) {
+func LoadRequestPacket(byteBuffer io.Reader, prevPDR bool) (ReqPacket, 
+error) {
 	if prevPDR {
 		putFileDataRequest := NewPutFileDataRequest()
 		putFileDataRequest.LiveLoad(byteBuffer)
@@ -421,7 +417,8 @@ func LoadRequestPacket(byteBuffer io.Reader, prevPDR bool) (ReqPacket, error) {
 	util.DebugLogger.Println("Starting LiveReadInitial()...")
 	initialRead, err := LiveReadInitial(byteBuffer)
 	util.DebugLogger.Println("InitialRead structure: ", initialRead)
-	util.DebugLogger.Println("LiveReadInitial() completed. Error value: ", err)
+	util.DebugLogger.Println("LiveReadInitial() completed. Error value: ", 
+	err)
 
 	/*
 	if initialRead.Command == 0 && initialRead.ProtocolVersion == 0 {
@@ -455,7 +452,8 @@ func LoadRequestPacket(byteBuffer io.Reader, prevPDR bool) (ReqPacket, error) {
 //liveload the data from the connection (or any kind of io.Reader, e.g. bytes.Buffer)
 //There is no length quantity at the end of the packet, so we have to load all of the 
 //field one by one
-func (p *PutDataRequest) LiveLoad(byte_buffer io.Reader, initialRead *InitialRead) error {
+func (p *PutDataRequest) LiveLoad(byte_buffer io.Reader, 
+	initialRead *InitialRead) error {
 	util.DataReqLogger.Println("Live loading PutDataRequest...")
 	
 	p.ProtocolVersion = initialRead.ProtocolVersion
@@ -492,8 +490,6 @@ func (p *PutDataRequest) LiveLoad(byte_buffer io.Reader, initialRead *InitialRea
 	binary.Read(byte_buffer, binary.BigEndian, &(p.ChecksumType))
 	binary.Read(byte_buffer, binary.BigEndian, &(p.ChunkSize))
 	
-	//TODO do real error checking here, especially since this will probably
-	//be reading off the network.
 	return nil
 }
 
@@ -538,7 +534,8 @@ func (dr *DataRequest) FullLiveLoad(byte_buffer io.Reader) error {
 //buffer).
 //there is no length quantity at the head of the packet, so we have 
 //to load all the fields manually.
-func (dr *DataRequest) LiveLoad(byte_buffer io.Reader, initialRead *InitialRead) error {
+func (dr *DataRequest) LiveLoad(byte_buffer io.Reader, 
+	initialRead *InitialRead) error {
 	util.DataReqLogger.Println("Live loading DataRequest...")
 	
 	dr.ProtocolVersion = initialRead.ProtocolVersion
@@ -589,8 +586,6 @@ func (dr *DataRequest) Load(buf []byte) error {
 	}
 	dr.LiveLoad(byte_buffer, ir)
 
-	//TODO add proper error correction into this whole method
-	//maybe using the reflect module
 	return nil
 }
 
@@ -613,9 +608,7 @@ type DataResponse struct {
 	InBlockOffset uint64
 	SequenceNumber uint64
 	LastPacketNumber uint8
-	
-	//TODO not exactly sure *why* there are two values
-	//for the length of the data
+
 	DataLength2 uint32
 	Data []byte
 
@@ -696,12 +689,11 @@ func (dr *DataResponse) LiveLoad(byte_buffer io.Reader) error {
 
 	binary.Write(outputBuffer, binary.BigEndian, dr.DataLength2)
 
-	//TODO POTENTIAL BUG not exactly sure why/how this works...
 	trash := make([]byte, 4)
 	byte_buffer.Read(trash)
 	outputBuffer.Write(trash)
 
-	//TODO POTENTIAL BUG Use the first data length or the second one? 
+	
 	if dr.DataLength2-1 > 66000 {
 		return errors.New("allocation size too large.")
 	}
@@ -728,7 +720,7 @@ func (dr *DataResponse) Load(buf []byte) error {
 
 	dr.LiveLoad(byte_buffer)
 
-	//TODO add proper error detection to this method
+	
 	return nil
 }
 
@@ -795,14 +787,3 @@ func NewRequestResponse(req ReqPacket, resp *DataResponse) *RequestResponse {
 		Response: resp}
 	return &rr
 }
-
-
-
-
-
-
-
-
-
-
-
