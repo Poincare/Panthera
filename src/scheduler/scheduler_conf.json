@@ -1,7 +1,0 @@
-{
-	"CacheLocations" : [{
-			"Hostname":"127.0.0.1",
-			"Port":"1337"
-		}],
-	"JobInfoDir" : "job_info_conf"
-} 

@@ -1,1 +1,0 @@
-The cache layer designed (called \textbf{Panthera}) will have lower file access latency when compared to a standard Hadoop installation. Additionally, it will be possible to design \textbf{Panthera} such that the Hadoop source code remains unaffected.

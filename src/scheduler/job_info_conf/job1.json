@@ -1,8 +1,0 @@
-{
-	"Name" : "wordcount",
-	"BlocksAccessed" : [2, 3, 4],
-
-	"ExecutionDir": "/usr/local/hadoop",
-	"CommandPath" : "bin/hadoop",
-	"CommandArgs" : ["dfs", "-ls" ,"/"]
-}

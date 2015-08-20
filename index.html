@@ -1,0 +1,49 @@
+<html>
+  <head>
+  <link href="foundation/css/foundation.min.css" rel="stylesheet"></link>
+  <link href="index.css" rel="stylesheet"></link>
+  <link href='http://fonts.googleapis.com/css?family=Roboto:400,700,900,100,300' rel='stylesheet' type='text/css'>
+  <link href='http://fonts.googleapis.com/css?family=Merriweather' rel='stylesheet' type='text/css'>
+  <link href='http://fonts.googleapis.com/css?family=Source+Serif+Pro:400,600,700' rel='stylesheet' type='text/css'>
+  <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+  </head>
+  <body>
+  <div class="row columns small-centered small-12 text-center" id="wrapper">
+    <div id="logo">
+      <h1>Panthera</h1>
+    </div>
+    
+    <div class="row columns small-12 text-left">
+      <div class="nav large-3 columns">
+      <ul>
+        <li><a href="https://github.com/Poincare/Panthera">Github</a></li>
+        <li><a href="https://github.com/Poincare/Panthera/raw/master/paper/paper.pdf">Technical Paper</a></li>
+        <li><a href="https://github.com/Poincare/Panthera/raw/master/poster/assets/box-plot-data.pdf">Data</a></li>
+      </ul>
+      </div>
+
+      <div class="blocks large-9 columns">
+        <div class="block">
+          <h3>What is it?</h3>
+          <p>A caching layer and cache-based scheduler written in <a href="http://golang.org/">Go</a>, originally built for Hadoop 1.x built as a research project
+          to reduce latency within the Hadoop Distributed File System (HDFS). Since Hadoop's serialization format was changed and the YARN architecture requires Panthera to adopt a slightly different system design, Panthera needs some work before it is ready for deployment.</p>
+
+        </div>
+        
+        <div class="block">
+        <h3>Why?</h3>
+        <p>HDFS did not, <a href="http://hadoop.apache.org/docs/r2.4.1/hadoop-project-dist/hadoop-hdfs/CentralizedCacheManagement.html">until recently</a> have a mechanism for caching files, making repeated reads of files extremely slow. In certain applications (e.g. machine learning) which require multiple passes over data, Hadoop systems were impractical due to extremely read latency of files on HDFS. Even with cache pool management, Hadoop does not support in-memory localization of data. Caching is also not automatic, i.e. the Hadoop application developer must manually specify which files to cache. Finally, processes are not scheduled based on cache availability.</p>
+
+        <p>
+        Panthera solves each of these problems. It provides a caching layer as a drop-in solution for existing Hadoop deployments which localizes data to compute nodes. It also schedules jobs based on available cached data thereby improving the cache hit/miss ratio.</p>
+        </div>
+
+        <div class="block">
+        <h3>What are the numbers?</h3>
+        <p>Although every deployment and use-case of Hadoop will likely produce different numbers, I tested Panthera with a logistic regression algorithm that makes multiple passes over all a file to get a 27x reduction in total running time of the algorithm. Since most Hadoop applications do not repeatedly access a single cached resource, the improvement of 27x is likely an approximate upper bound.
+        </div>
+      </div>
+    </div>
+  </div>
+  </body>
+</html>

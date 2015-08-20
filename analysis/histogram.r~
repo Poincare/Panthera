@@ -1,1 +1,0 @@
-df <- data.frame(cached = cached_data, noncached = noncached_data)

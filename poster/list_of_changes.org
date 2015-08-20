@@ -1,5 +1,0 @@
-1. Need to make diagrams bigger
-2. need to add color to one of the graphs
-3. Add titles to graph
-4. Standard deviation in the statistics table
-5. Fix typos

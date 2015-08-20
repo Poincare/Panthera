@@ -1,6 +1,0 @@
-Distributed computing has seen tremendous growth in the past few years.
-In particular, Hadoop, an open source project that allows developers to
-write distributed applications, has found use in academia and industry.
-But, Hadoop does not effectively utilize RAM memory and local storage to
-better performance. \textbf{This project develops and tests caching mechanisms
-to reduce waiting time in Hadoop.}
