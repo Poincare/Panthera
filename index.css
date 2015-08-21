@@ -64,10 +64,12 @@ h1 {
   text-transform: uppercase;
   padding: 10px;
   border: 3px solid green;
+  display: inline-block;
+  width: 175px;
 }
 
 .nav li {
-  margin-bottom: 25px;
+  margin-bottom: 10px;
 }
 
 .nav a:hover {
